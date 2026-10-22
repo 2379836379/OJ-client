@@ -7,6 +7,7 @@ config.toml
 installer-out
 build-mingw
 log
+third_party
 
 
 
