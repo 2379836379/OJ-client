@@ -92,7 +92,7 @@ ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
     ProblemPageInfo info;
     info.problemUrl = baseUrl.toString();
 
-    const QString text = ParserCommon::toUtf8String(html);
+    const QString text = QString::fromUtf8(html);
 
     const QRegularExpression titleRegex(
         "<div\\s+id=\"pageTitle\"[^>]*>\\s*<h2>([^<]+)</h2>",

@@ -1,7 +1,5 @@
 #include "groupparser.h"
 
-#include "parsercommon.h"
-
 #include <QRegularExpression>
 
 namespace
@@ -22,7 +20,7 @@ GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
     GroupPageInfo info;
     info.groupPageUrl = baseUrl.toString();
 
-    const QString text = ParserCommon::toUtf8String(html);
+    const QString text = QString::fromUtf8(html);
     const QRegularExpression listRegex(
         "<ul\\s+class=\"current-contest\\s+label\"[^>]*>([\\s\\S]*?)</ul>");
     const QRegularExpressionMatch listMatch = listRegex.match(text);

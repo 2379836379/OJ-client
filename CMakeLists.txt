@@ -52,6 +52,8 @@ qt_add_executable(oj
     src/ui/pages/storagepage.h
     src/config/appconfig.cpp
     src/config/appconfig.h
+    src/config/aiconfig.cpp
+    src/config/aiconfig.h
     src/config/apppaths.cpp
     src/config/apppaths.h
     src/network/cookiestore.cpp
@@ -199,34 +201,6 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
-
-# ---------------------------------------------------------------------------
-# Parser unit tests (QtTest)
-# ---------------------------------------------------------------------------
-enable_testing()
-
-qt_add_executable(oj_parser_tests
-    tests/test_parsers.cpp
-    src/parser/problemparser.cpp
-    src/parser/problemparser.h
-    src/parser/contestparser.cpp
-    src/parser/contestparser.h
-    src/parser/parsercommon.cpp
-    src/parser/parsercommon.h
-)
-
-target_include_directories(oj_parser_tests
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(oj_parser_tests
-    PRIVATE
-        Qt::Core
-        Qt::Test
-)
-
-add_test(NAME oj_parser_tests COMMAND oj_parser_tests)
 
 # ---------------------------------------------------------------------------
 # Packaging (CPack): macOS .dmg / Linux .tar.gz

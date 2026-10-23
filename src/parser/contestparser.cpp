@@ -1,7 +1,5 @@
 #include "contestparser.h"
 
-#include "parsercommon.h"
-
 #include <QRegularExpression>
 // 题目列表
 namespace ContestParser
@@ -11,7 +9,7 @@ ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl)
     ContestPageInfo info;
     info.contestPageUrl = baseUrl.toString();
 
-    const QString text = ParserCommon::toUtf8String(html);
+    const QString text = QString::fromUtf8(html);
     const QRegularExpression rowRegex(
         "<tr(?:\\s+class=\"alt\")?>([\\s\\S]*?)</tr>",
         QRegularExpression::CaseInsensitiveOption);

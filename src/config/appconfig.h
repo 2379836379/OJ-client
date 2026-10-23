@@ -1,16 +1,8 @@
 #pragma once
 
-#include <QString>
-#include <QUrl>
+#include "config/aiconfig.h"
 
-struct OpenAiConfig
-{
-    QUrl baseUrl = QUrl("https://api.openai.com/v1");
-    QString model = "gpt-5-mini";
-    QString systemPrompt;
-    QString apiKey;
-    QString sourcePath;
-};
+#include <QString>
 
 class AppConfig
 {

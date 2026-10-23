@@ -37,7 +37,7 @@ SubmitPageInfo parseSubmitPage(const QByteArray &html, const QUrl &baseUrl)
     SubmitPageInfo info;
     info.pageUrl = baseUrl.toString();
 
-    const QString text = ParserCommon::toUtf8String(html);
+    const QString text = QString::fromUtf8(html);
 
     const QRegularExpression formRegex(
         "<form\\s+id=\"solution_submit\"\\s+action=\"([^\"]+)\"[^>]*>",

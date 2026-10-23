@@ -32,7 +32,7 @@ ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
     ResultPageInfo info;
     info.pageUrl = baseUrl.toString();
 
-    const QString text = ParserCommon::toUtf8String(html);
+    const QString text = QString::fromUtf8(html);
 
     const QRegularExpression titleRegex(
         "<div\\s+id=\"pageTitle\"[^>]*>\\s*<h2>\\s*#?(\\d+)\\s*提交状态\\s*</h2>\\s*</div>",

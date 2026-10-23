@@ -14,6 +14,5 @@ struct JoinedClassInfo
 namespace LoginParser
 {
 QString extractPersonalHomeUrl(const QByteArray &html, const QUrl &baseUrl);
-QList<JoinedClassInfo> extractJoinedClasses(const QByteArray &html,
-                                            const QUrl &baseUrl);
+QList<JoinedClassInfo> extractJoinedClasses(const QByteArray &html);
 }

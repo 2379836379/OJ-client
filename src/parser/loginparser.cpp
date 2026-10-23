@@ -1,52 +1,48 @@
 #include "loginparser.h"
 
-#include "parsercommon.h"
-
 #include <QRegularExpression>
 #include <QSet>
 
 
 namespace LoginParser
 {
-namespace
-{
+// 去掉<>和空格
 QString stripHtmlTags(const QString &html)
 {
     QString text = html;
     text.remove(QRegularExpression("<[^>]+>"));
     return text.simplified();
 }
-}
 
-QString extractPersonalHomeUrl(const QByteArray &html, const QUrl &baseUrl)
+// 个人首页格式：<a href="http://openjudge.cn/user/1111111/">个人首页</a>
+QString extractPersonalHomeUrl(const QByteArray &html)
 {
-    const QString text = ParserCommon::toUtf8String(html);
-    const QRegularExpression personalHomeLinkRegex(
-        "<a\\s+href=\"([^\"]*/user/\\d+/?)\"[^>]*>");
+    const QString text = QString::fromUtf8(html);
+    static const QRegularExpression personalHomeLinkRegex(
+        "<a href=\"(http://openjudge\\.cn/user/\\d+/)\">个人首页</a>");
     const QRegularExpressionMatch match = personalHomeLinkRegex.match(text);
 
     if (!match.hasMatch()) {
         return QString();
     }
-    return baseUrl.resolved(QUrl(match.captured(1))).toString();
+    return match.captured(1);
 }
 
-QList<JoinedClassInfo> extractJoinedClasses(const QByteArray &html,
-                                            const QUrl &baseUrl)
+// 已加入的小组
+//<a class="group-name" href="http://openjudge.cn/user/1481664/in/group-93/">
+//<img src="http://static.openjudge.cn/images/default_logo_small.png" width="25" height="25" />NOI</a>
+QList<JoinedClassInfo> extractJoinedClasses(const QByteArray &html)
 {
-    const QString text = ParserCommon::toUtf8String(html);
-    const QRegularExpression groupLinkRegex(
-        "<a\\s+[^>]*class=\"[^\"]*\\bgroup-name\\b[^\"]*\"[^>]*href=\"([^\"]+)\""
-        "[^>]*>([\\s\\S]*?)</a>");
-
+    const QString text = QString::fromUtf8(html);
+    static const QRegularExpression groupLinkRegex(
+    "<a class=\"group-name\" href=\"([^\"]+)\">([\\s\\S]*?)</a>");
     QList<JoinedClassInfo> classes;
     QRegularExpressionMatchIterator it = groupLinkRegex.globalMatch(text);
     while (it.hasNext()) {
         const QRegularExpressionMatch match = it.next();
         const QString href = match.captured(1);
         const QString innerHtml = match.captured(2);
-        const QString url = baseUrl.resolved(QUrl(href)).toString();
-        classes << JoinedClassInfo{stripHtmlTags(innerHtml), url};
+        classes << JoinedClassInfo{stripHtmlTags(innerHtml), href};
     }
     return classes;
 }

@@ -1,28 +1,20 @@
 #include "classparser.h"
 
-#include "parsercommon.h"
-
 #include <QRegularExpression>
 
 
 
 namespace ClassParser
 {
-ClassPageInfo parseClassPage(const QByteArray &html, const QUrl &baseUrl)
+// 小组首页 格式：<a href="http://noi.openjudge.cn/">前往小组</a>
+QString parseClassPage(const QByteArray &html)
 {
-    ClassPageInfo info;
-    info.classPageUrl = baseUrl.toString();
-
-    const QString text = ParserCommon::toUtf8String(html);
-    const QRegularExpression groupEntryRegex(
-        "<a\\s+href=\"([^\"]+)\"[^>]*>\\s*<img(?=[^>]*class=\"group-logo\")(?=[^>]*alt=\"([^\"]*)\")[^>]*>\\s*</a>\\s*"
-        "<a\\s+href=\"[^\"]+\"[^>]*>\\s*前往小组\\s*</a>");
+    const QString text = QString::fromUtf8(html);
+    static const QRegularExpression groupEntryRegex("<a href=\"([^\"]+)\">前往小组</a>");
     const QRegularExpressionMatch groupEntryMatch = groupEntryRegex.match(text);
-    if (groupEntryMatch.hasMatch()) {
-        info.groupEntryUrl =
-            baseUrl.resolved(QUrl(groupEntryMatch.captured(1))).toString();
-        info.courseName = groupEntryMatch.captured(2).trimmed();
+    if (!groupEntryMatch.hasMatch()) {
+        return QString();
     }
-    return info;
+    return groupEntryMatch.captured(1);
 }
 }
