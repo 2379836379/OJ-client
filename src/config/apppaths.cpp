@@ -34,12 +34,12 @@ QString cacheDir()
     return path;
 }
 
-QString AIconfigFilePath()
+QString AIconfigPath()
 {
     return QDir(baseDir()).filePath("AIconfig.toml");
 }
 
-QString appStateFilePath()
+QString appconfigPath()
 {
     return QDir(baseDir()).filePath("appconfig.toml");
 }

@@ -25,17 +25,17 @@ QString unquoteTomlValue(const QString &value)
 
 QStringList candidateConfigPaths()
 {
-    return {AppPaths::configFilePath()};
+    return {AppPaths::AIconfigPath()};
 }
 
 QString configOutputPath()
 {
-    return AppPaths::configFilePath();
+    return AppPaths::AIconfigPath();
 }
 
 QString appStateOutputPath()
 {
-    return AppPaths::appStateFilePath();
+    return AppPaths::appconfigPath();
 }
 
 QString readAppStateRootString(const QString &targetKey)
