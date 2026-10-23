@@ -12,27 +12,6 @@
 
 namespace
 {
-QIcon loadAppIcon()
-{
-    QIcon icon(":/images/icon-page-1.ico");
-    if (!icon.isNull()) {
-        return icon;
-    }
-
-    QDir dir = QDir::current();
-    const QStringList candidates = {
-        dir.filePath("oj-client/images/icon-page-1.ico"),
-        dir.filePath("images/icon-page-1.ico")
-    };
-    for (const QString &path : candidates) {
-        QIcon fileIcon(path);
-        if (!fileIcon.isNull()) {
-            return fileIcon;
-        }
-    }
-    return QIcon();
-}
-
 void writeStartupLog(const QString &message)
 {
     QFile file(QDir(AppPaths::dataDir()).filePath("startup.log"));
@@ -44,6 +23,15 @@ void writeStartupLog(const QString &message)
     stream << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz")
            << " | " << message << '\n';
 }
+
+QIcon loadAppIcon()
+{
+    QIcon icon(":/images/icon-page-1.ico");
+    if (!icon.isNull()) {
+        return icon;
+    }
+    return QIcon();
+}
 }
 
 int main(int argc, char *argv[])
@@ -51,8 +39,6 @@ int main(int argc, char *argv[])
     writeStartupLog("main: entering");
     QApplication a(argc, argv);
     writeStartupLog("main: QApplication created");
-    AppPaths::migrateLegacyDataIfNeeded();
-    writeStartupLog("main: legacy data migration checked");
     QCoreApplication::setApplicationName(" ");
     QApplication::setApplicationDisplayName(" ");
     writeStartupLog("main: application name cleared");
