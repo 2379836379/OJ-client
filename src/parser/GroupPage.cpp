@@ -80,13 +80,14 @@ GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
             contestSet.problemnumber = problemCount.simplified();
 
             for (lxb_dom_node_t *child : HtmlParserCommon::descendants(item)) {
+                if (!HtmlParserCommon::hasClass(child,
+                                                QStringLiteral("over-time"))) {
+                    continue;
+                }
                 const QString value = HtmlParserCommon::text(child).simplified();
-                if (HtmlParserCommon::hasClass(child, QStringLiteral("over-time"))
-                    || HtmlParserCommon::hasClass(child,
-                                                   QStringLiteral("recently-update"))) {
-                    if (!value.isEmpty()) {
-                        contestSet.endtime = value;
-                    }
+                const qsizetype separator = value.indexOf(QChar(0xff1a));
+                if (separator >= 0) {
+                    contestSet.endtime = value.mid(separator + 1).trimmed();
                 }
             }
             info.contestSets.append(contestSet);

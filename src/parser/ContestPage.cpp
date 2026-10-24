@@ -42,10 +42,23 @@ namespace ContestPageParser
 ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl)
 {
     ContestPageInfo info;
-    info.contestPageUrl = baseUrl.toString();
 
     HtmlParserCommon::Document document(html);
-    for (lxb_dom_node_t *row : HtmlParserCommon::descendants(document.root())) {
+    const QList<lxb_dom_node_t *> nodes =
+        HtmlParserCommon::descendants(document.root());
+    for (lxb_dom_node_t *node : nodes) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_A)
+            && HtmlParserCommon::hasClass(node, QStringLiteral("first"))) {
+            info.contestPageUrl = baseUrl.resolved(
+                QUrl(HtmlParserCommon::attribute(node, "href"))).toString();
+            break;
+        }
+    }
+    if (info.contestPageUrl.isEmpty()) {
+        info.contestPageUrl = baseUrl.toString();
+    }
+
+    for (lxb_dom_node_t *row : nodes) {
         if (!HtmlParserCommon::isTag(row, LXB_TAG_TR)) {
             continue;
         }

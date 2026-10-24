@@ -92,11 +92,21 @@ ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
     }
 
     lxb_dom_node_t *params = nullptr;
+    lxb_dom_node_t *statistics = nullptr;
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
         if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
             && HtmlParserCommon::hasClass(node, QStringLiteral("problem-params"))) {
             params = node;
-            break;
+        }
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DIV)
+            && HtmlParserCommon::hasClass(
+                node, QStringLiteral("problem-statistics"))) {
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
+                if (HtmlParserCommon::isTag(child, LXB_TAG_DL)) {
+                    statistics = child;
+                    break;
+                }
+            }
         }
     }
 
@@ -108,6 +118,8 @@ ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
     info.sampleInput = valueText(problemContent, {QStringLiteral("样例输入")});
     info.sampleOutput = valueText(problemContent, {QStringLiteral("样例输出")});
     info.hint = valueText(problemContent, {QStringLiteral("提示")});
+    info.tried_people = valueText(statistics, {QStringLiteral("尝试人数")}).toInt();
+    info.passed_people = valueText(statistics, {QStringLiteral("通过人数")}).toInt();
 
     lxb_dom_node_t *description = definitionValue(
         problemContent, {QStringLiteral("描述")});

@@ -1,6 +1,5 @@
 ========== GroupPage ==========
-endtime应匹配<span class="over-time">结束时间：2026-10-27 13:00:00</span>，解析出：2026-10-27 13:00:00，否则为空。
-ContestSetInfo去掉extraText这一项。
+endtime应匹配<span class="over-time">结束时间：2026-10-27 13:00:00</span>，解析出：2026-10-27 13:00:00，必须匹配到“结束时间”后面的时间，否则为空。
 
 ========== ContestPage ==========
 contestPageUrl = 应该是http://dxfjgc.openjudge.cn/2026autumn05/ 而不是 http://dxfjgc.openjudge.cn/，从<a href="/2026autumn05/" class="first">题目</a>解析出相对url后拼接到groupPageUrl。
