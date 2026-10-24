@@ -75,7 +75,14 @@ GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
                     problemCount += HtmlParserCommon::text(sibling);
                 }
             }
-            contestSet.problemnumber = problemCount.simplified();
+            QString problemCountDigits;
+            for (const QChar character : problemCount) {
+                if (character >= QLatin1Char('0')
+                    && character <= QLatin1Char('9')) {
+                    problemCountDigits.append(character);
+                }
+            }
+            contestSet.problemnumber = problemCountDigits.toInt();
 
             for (lxb_dom_node_t *child : HtmlParserCommon::descendants(item)) {
                 if (!HtmlParserCommon::hasClass(child,

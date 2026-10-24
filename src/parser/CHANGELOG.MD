@@ -9,3 +9,4 @@ contestPageUrl = 应该是http://dxfjgc.openjudge.cn/2026autumn05/ 而不是 htt
 tried_people = 0，passed_people = 0错误，解析：<dt>尝试人数</dt><dd>68</dd><dt>通过人数</dt><dd>68</dd>，应得到68，68.
 
 # 2
+problemnumber现在是解析出来的字符，例如：(5题)，problemnumber应该是整数类型，等于字符中的数字，例如：5

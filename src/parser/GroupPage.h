@@ -9,7 +9,7 @@ struct ContestSetInfo
 {
     QString url;
     QString title;
-    QString problemnumber;
+    int problemnumber = 0;
     QString endtime;
 };
 
