@@ -1,8 +1,42 @@
-
 #include "ContestPage.h"
 
-#include <QRegularExpression>
-// 题目列表
+#include "HtmlParserCommon.h"
+
+#include <lexbor/tag/tag.h>
+
+namespace
+{
+lxb_dom_node_t *firstDescendantWithClass(lxb_dom_node_t *root,
+                                         lxb_tag_id_t tag,
+                                         const QString &className)
+{
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(root)) {
+        if (HtmlParserCommon::isTag(node, tag)
+            && HtmlParserCommon::hasClass(node, className)) {
+            return node;
+        }
+    }
+    return nullptr;
+}
+
+QString cellText(lxb_dom_node_t *row, const QString &className)
+{
+    lxb_dom_node_t *cell = firstDescendantWithClass(row, LXB_TAG_TD, className);
+    return HtmlParserCommon::text(cell).simplified();
+}
+
+QString cellLinkHref(lxb_dom_node_t *row, const QString &className)
+{
+    lxb_dom_node_t *cell = firstDescendantWithClass(row, LXB_TAG_TD, className);
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(cell)) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_A)) {
+            return HtmlParserCommon::attribute(node, "href");
+        }
+    }
+    return QString();
+}
+}
+
 namespace ContestPageParser
 {
 ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl)
@@ -10,53 +44,38 @@ ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl)
     ContestPageInfo info;
     info.contestPageUrl = baseUrl.toString();
 
-    const QString text = QString::fromUtf8(html);
-    const QRegularExpression rowRegex(
-        "<tr(?:\\s+class=\"alt\")?>([\\s\\S]*?)</tr>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpression solvedRegex(
-        "<td\\s+class=\"solved\"[^>]*>[\\s\\S]*?accepted\\.gif",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpression idRegex(
-        "<td\\s+class=\"problem-id\"[^>]*>\\s*<a\\s+href=\"([^\"]+)\">([^<]+)</a>\\s*</td>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpression titleRegex(
-        "<td\\s+class=\"title\"[^>]*>\\s*<a\\s+href=\"([^\"]+)\">([^<]+)</a>\\s*</td>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpression acceptedRegex(
-        "<td\\s+class=\"accepted\"[^>]*>[\\s\\S]*?>(\\d+)</a>\\s*</td>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpression submissionsRegex(
-        "<td\\s+class=\"submissions\"[^>]*>[\\s\\S]*?>(\\d+)</a>\\s*</td>",
-        QRegularExpression::CaseInsensitiveOption);
-
-    QRegularExpressionMatchIterator rowIt = rowRegex.globalMatch(text);
-    while (rowIt.hasNext()) {
-        const QRegularExpressionMatch rowMatch = rowIt.next();
-        const QString rowHtml = rowMatch.captured(1);
-
-        const QRegularExpressionMatch idMatch = idRegex.match(rowHtml);
-        const QRegularExpressionMatch titleMatch = titleRegex.match(rowHtml);
-        if (!idMatch.hasMatch() || !titleMatch.hasMatch()) {
+    HtmlParserCommon::Document document(html);
+    for (lxb_dom_node_t *row : HtmlParserCommon::descendants(document.root())) {
+        if (!HtmlParserCommon::isTag(row, LXB_TAG_TR)) {
             continue;
         }
+        const QString problemId = cellText(row, QStringLiteral("problem-id"));
+        const QString title = cellText(row, QStringLiteral("title"));
+        const QString problemIdHref = cellLinkHref(row, QStringLiteral("problem-id"));
+        const QString titleHref = cellLinkHref(row, QStringLiteral("title"));
+        if (problemId.isEmpty() || title.isEmpty() || problemIdHref.isEmpty()
+            || titleHref.isEmpty()) {
+            continue;
+        }
+
         ContestProblemInfo problem;
-        problem.solved = solvedRegex.match(rowHtml).hasMatch();
-        problem.problemId = idMatch.captured(2).trimmed();
-        problem.problemUrl = baseUrl.resolved(QUrl(titleMatch.captured(1))).toString();
-        problem.title = titleMatch.captured(2).trimmed();
+        problem.problemId = problemId;
+        problem.title = title;
+        problem.problemUrl = baseUrl.resolved(QUrl(titleHref)).toString();
 
-        const QRegularExpressionMatch acceptedMatch =
-            acceptedRegex.match(rowHtml);
-        if (acceptedMatch.hasMatch()) {
-            problem.accept_prople = acceptedMatch.captured(1).toInt();
+        lxb_dom_node_t *solvedCell = firstDescendantWithClass(
+            row, LXB_TAG_TD, QStringLiteral("solved"));
+        for (lxb_dom_node_t *node : HtmlParserCommon::descendants(solvedCell)) {
+            if (HtmlParserCommon::isTag(node, LXB_TAG_IMG)
+                && HtmlParserCommon::attribute(node, "src").contains(
+                    QStringLiteral("accepted.gif"), Qt::CaseInsensitive)) {
+                problem.solved = true;
+                break;
+            }
         }
 
-        const QRegularExpressionMatch submissionsMatch =
-            submissionsRegex.match(rowHtml);
-        if (submissionsMatch.hasMatch()) {
-            problem.submission_people = submissionsMatch.captured(1).toInt();
-        }
+        problem.accept_prople = cellText(row, QStringLiteral("accepted")).toInt();
+        problem.submission_people = cellText(row, QStringLiteral("submissions")).toInt();
         info.problems.append(problem);
         ++info.totalProblems;
         if (problem.solved) {

@@ -1,25 +1,18 @@
 #include "ResultPage.h"
 
-#include <QRegularExpression>
+#include "HtmlParserCommon.h"
+
+#include <lexbor/tag/tag.h>
 
 namespace
 {
-QString stripHtml(const QString &html)
+lxb_dom_node_t *nextElementSibling(lxb_dom_node_t *node)
 {
-    QString text = html;
-    text.remove(QRegularExpression("<[^>]+>"));
-    return text.simplified();
-}
-
-QString decodePreformattedText(const QString &html)
-{
-    QString text = html;
-    text.replace("&lt;", "<");
-    text.replace("&gt;", ">");
-    text.replace("&amp;", "&");
-    text.replace("&quot;", "\"");
-    text.replace("&#39;", "'");
-    return text.trimmed();
+    for (node = node == nullptr ? nullptr : node->next;
+         node != nullptr && node->type != LXB_DOM_NODE_TYPE_ELEMENT;
+         node = node->next) {
+    }
+    return node;
 }
 }
 
@@ -30,39 +23,55 @@ ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
     ResultPageInfo info;
     info.pageUrl = baseUrl.toString();
 
-    const QString text = QString::fromUtf8(html);
+    HtmlParserCommon::Document document(html);
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DIV)
+            && HtmlParserCommon::attribute(node, "id")
+                   == QStringLiteral("pageTitle")) {
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
+                if (!HtmlParserCommon::isTag(child, LXB_TAG_H2)) {
+                    continue;
+                }
+                QString title = HtmlParserCommon::text(child).simplified();
+                if (title.startsWith(QLatin1Char('#'))) {
+                    title.remove(0, 1);
+                }
+                const qsizetype suffix = title.indexOf(QStringLiteral("提交状态"));
+                if (suffix >= 0) {
+                    info.submissionId = title.left(suffix).trimmed();
+                }
+                break;
+            }
+        }
 
-    const QRegularExpression titleRegex(
-        "<div\\s+id=\"pageTitle\"[^>]*>\\s*<h2>\\s*#?(\\d+)\\s*提交状态\\s*</h2>\\s*</div>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch titleMatch = titleRegex.match(text);
-    if (titleMatch.hasMatch()) {
-        info.submissionId = titleMatch.captured(1).trimmed();
+        if (HtmlParserCommon::isTag(node, LXB_TAG_P)
+            && HtmlParserCommon::hasClass(node, QStringLiteral("compile-status"))) {
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
+                if (!HtmlParserCommon::isTag(child, LXB_TAG_A)) {
+                    continue;
+                }
+                info.solutionUrl = baseUrl.resolved(
+                    QUrl(HtmlParserCommon::attribute(child, "href"))).toString();
+                info.statusClass = HtmlParserCommon::attribute(child, "class");
+                info.statusText = HtmlParserCommon::text(child).simplified();
+                info.hasResult = !info.statusText.isEmpty();
+                break;
+            }
+        }
+
+        if (HtmlParserCommon::isTag(node, LXB_TAG_H3)
+            && HtmlParserCommon::hasClass(
+                node, QStringLiteral("h3-compile-status"))) {
+            info.detailTitle = HtmlParserCommon::text(node).simplified();
+            lxb_dom_node_t *following = nextElementSibling(node);
+            for (lxb_dom_node_t *candidate : HtmlParserCommon::descendants(following)) {
+                if (HtmlParserCommon::isTag(candidate, LXB_TAG_PRE)) {
+                    info.detailText = HtmlParserCommon::text(candidate).trimmed();
+                    break;
+                }
+            }
+        }
     }
-
-    const QRegularExpression statusRegex(
-        "<p\\s+class=\"compile-status\"[^>]*>[\\s\\S]*?状态:\\s*"
-        "<a\\s+href=\"([^\"]+)\"\\s+class=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</a>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch statusMatch = statusRegex.match(text);
-    if (statusMatch.hasMatch()) {
-        info.solutionUrl =
-            baseUrl.resolved(QUrl(statusMatch.captured(1))).toString();
-        info.statusClass = statusMatch.captured(2).trimmed();
-        info.statusText = stripHtml(statusMatch.captured(3));
-        info.hasResult = !info.statusText.isEmpty();
-    }
-
-    const QRegularExpression detailRegex(
-        "<h3[^>]*class=\"([^\"]*h3-compile-status[^\"]*)\"[^>]*>([\\s\\S]*?)</h3>"
-        "[\\s\\S]*?<pre>([\\s\\S]*?)</pre>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch detailMatch = detailRegex.match(text);
-    if (detailMatch.hasMatch()) {
-        info.detailTitle = stripHtml(detailMatch.captured(2));
-        info.detailText = decodePreformattedText(detailMatch.captured(3));
-    }
-
     return info;
 }
 }

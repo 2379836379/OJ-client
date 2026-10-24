@@ -1,85 +1,55 @@
 #include "ProblemPage.h"
 
-#include <QRegularExpression>
+#include "HtmlParserCommon.h"
+
+#include <lexbor/tag/tag.h>
 
 namespace
 {
-QString stripHtml(const QString &html)
+lxb_dom_node_t *nextElementSibling(lxb_dom_node_t *node)
 {
-    QString text = html;
-    text.remove(QRegularExpression("<[^>]+>"));
-    return text.simplified();
-}
-
-QString extractDlValue(const QString &html, const QString &key)
-{
-    const QString pattern = QString(
-        "<dt>\\s*%1\\s*</dt>\\s*<dd>([\\s\\S]*?)</dd>")
-                                .arg(QRegularExpression::escape(key));
-    const QRegularExpression regex(
-        pattern,
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch match = regex.match(html);
-    if (!match.hasMatch()) {
-        return QString();
+    for (node = node == nullptr ? nullptr : node->next;
+         node != nullptr && node->type != LXB_DOM_NODE_TYPE_ELEMENT;
+         node = node->next) {
     }
-
-    return stripHtml(match.captured(1));
+    return node;
 }
 
-QString extractDlValueAny(const QString &html, const QStringList &keys)
+QString normalizeLabel(const QString &label)
 {
-    for (const QString &key : keys) {
-        const QString value = extractDlValue(html, key);
-        if (!value.isEmpty()) {
-            return value;
+    QString normalized = label.simplified();
+    if (normalized.endsWith(QLatin1Char(':'))
+        || normalized.endsWith(QChar(0xff1a))) {
+        normalized.chop(1);
+    }
+    return normalized;
+}
+
+lxb_dom_node_t *definitionValue(lxb_dom_node_t *list,
+                                const QStringList &labels)
+{
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(list)) {
+        if (!HtmlParserCommon::isTag(node, LXB_TAG_DT)
+            || !labels.contains(normalizeLabel(HtmlParserCommon::text(node)))) {
+            continue;
         }
+        lxb_dom_node_t *value = nextElementSibling(node);
+        return HtmlParserCommon::isTag(value, LXB_TAG_DD) ? value : nullptr;
     }
-    return QString();
+    return nullptr;
 }
 
-QString extractSectionHtml(const QString &html, const QString &key)
+QString valueText(lxb_dom_node_t *list, const QStringList &labels)
 {
-    const QString pattern = QString(
-        "<dt>\\s*%1\\s*</dt>([\\s\\S]*?)(?=<dt>|</dl>)")
-                                .arg(QRegularExpression::escape(key));
-    const QRegularExpression regex(
-        pattern,
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch match = regex.match(html);
-    return match.hasMatch() ? match.captured(1) : QString();
+    return HtmlParserCommon::text(definitionValue(list, labels)).simplified();
 }
 
-QString extractPreBlocksText(const QString &html)
+QString preformattedText(lxb_dom_node_t *node)
 {
-    QStringList blocks;
-    const QRegularExpression preRegex(
-        "<pre[^>]*>([\\s\\S]*?)</pre>",
-        QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatchIterator it = preRegex.globalMatch(html);
-    while (it.hasNext()) {
-        QString block = it.next().captured(1);
-        block.replace("\r\n", "\n");
-        block.replace('\r', '\n');
-        block.replace("&lt;", "<");
-        block.replace("&gt;", ">");
-        block.replace("&amp;", "&");
-        if (!block.trimmed().isEmpty()) {
-            blocks << block.trimmed();
-        }
-    }
-    return blocks.join("\n\n");
-}
-
-QString extractSectionHtmlAny(const QString &html, const QStringList &keys)
-{
-    for (const QString &key : keys) {
-        const QString section = extractSectionHtml(html, key);
-        if (!section.isEmpty()) {
-            return section;
-        }
-    }
-    return QString();
+    QString value = HtmlParserCommon::text(node);
+    value.replace(QStringLiteral("\r\n"), QStringLiteral("\n"));
+    value.replace(QLatin1Char('\r'), QLatin1Char('\n'));
+    return value.trimmed();
 }
 }
 
@@ -89,37 +59,68 @@ ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
 {
     ProblemPageInfo info;
     info.problemUrl = baseUrl.toString();
+    info.tried_people = 0;
+    info.passed_people = 0;
 
-    const QString text = QString::fromUtf8(html);
-
-    const QRegularExpression titleRegex(
-        "<div\\s+id=\"pageTitle\"[^>]*>\\s*<h2>([^<]+)</h2>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch titleMatch = titleRegex.match(text);
-    if (titleMatch.hasMatch()) {
-        info.title = titleMatch.captured(1).trimmed();
+    HtmlParserCommon::Document document(html);
+    lxb_dom_node_t *problemContent = nullptr;
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DIV)
+            && HtmlParserCommon::attribute(node, "id")
+                   == QStringLiteral("pageTitle")) {
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
+                if (HtmlParserCommon::isTag(child, LXB_TAG_H2)) {
+                    info.title = HtmlParserCommon::text(child).simplified();
+                    break;
+                }
+            }
+        } else if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
+                   && HtmlParserCommon::hasClass(
+                       node, QStringLiteral("problem-content"))) {
+            problemContent = node;
+        }
     }
 
-    const QRegularExpression submitRegex(
-        "<a\\s+href=\"([^\"]+/submit/)\"[^>]*>\\s*(?:提交|鎻愪氦)\\s*</a>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch submitMatch = submitRegex.match(text);
-    if (submitMatch.hasMatch()) {
-        info.submitUrl =
-            baseUrl.resolved(QUrl(submitMatch.captured(1))).toString();
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_A)
+            && HtmlParserCommon::attribute(node, "href").contains(
+                QStringLiteral("/submit/"))) {
+            info.submitUrl = baseUrl.resolved(
+                QUrl(HtmlParserCommon::attribute(node, "href"))).toString();
+            break;
+        }
     }
 
-    info.timeLimit = extractDlValueAny(text, {"总时间限制:", "总时间限制", "鎬绘椂闂撮檺鍒?", "鎬绘椂闂撮檺鍒?"});
-    info.memoryLimit = extractDlValueAny(text, {"内存限制:", "内存限制", "鍐呭瓨闄愬埗:", "鍐呭瓨闄愬埗"});
-    info.description = extractDlValueAny(text, {"描述", "鎻忚堪"});
-    info.starterCode = extractPreBlocksText(extractSectionHtmlAny(text, {"描述", "鎻忚堪"}));
-    info.inputSpec = extractDlValueAny(text, {"输入", "杈撳叆"});
-    info.outputSpec = extractDlValueAny(text, {"输出", "杈撳嚭"});
-    info.sampleInput = extractDlValueAny(text, {"样例输入", "鏍蜂緥杈撳叆"});
-    info.sampleOutput = extractDlValueAny(text, {"样例输出", "鏍蜂緥杈撳嚭"});
-    info.hint = extractDlValueAny(text, {"提示", "鎻愮ず"});
-    info.tried_people = extractDlValueAny(text, {"尝试人数", "灏濊瘯浜烘暟"}).toInt();
-    info.passed_people = extractDlValueAny(text, {"通过人数", "閫氳繃浜烘暟"}).toInt();
+    lxb_dom_node_t *params = nullptr;
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
+            && HtmlParserCommon::hasClass(node, QStringLiteral("problem-params"))) {
+            params = node;
+            break;
+        }
+    }
+
+    info.timeLimit = valueText(params, {QStringLiteral("总时间限制")});
+    info.memoryLimit = valueText(params, {QStringLiteral("内存限制")});
+    info.description = valueText(problemContent, {QStringLiteral("描述")});
+    info.inputSpec = valueText(problemContent, {QStringLiteral("输入")});
+    info.outputSpec = valueText(problemContent, {QStringLiteral("输出")});
+    info.sampleInput = valueText(problemContent, {QStringLiteral("样例输入")});
+    info.sampleOutput = valueText(problemContent, {QStringLiteral("样例输出")});
+    info.hint = valueText(problemContent, {QStringLiteral("提示")});
+
+    lxb_dom_node_t *description = definitionValue(
+        problemContent, {QStringLiteral("描述")});
+    QStringList blocks;
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(description)) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_PRE)) {
+            const QString block = preformattedText(node);
+            if (!block.isEmpty()) {
+                blocks.append(block);
+            }
+        }
+    }
+    info.starterCode = blocks.join(QStringLiteral("\n\n"));
     return info;
 }
 }

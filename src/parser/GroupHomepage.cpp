@@ -1,18 +1,21 @@
 #include "GroupHomepage.h"
 
-#include <QRegularExpression>
+#include "HtmlParserCommon.h"
+
+#include <lexbor/tag/tag.h>
 
 namespace GroupHomepageParser
 {
-// 小组首页 格式：<a href="http://noi.openjudge.cn/">前往小组</a>
 QString parseGroupHomepage(const QByteArray &html)
 {
-    const QString text = QString::fromUtf8(html);
-    static const QRegularExpression groupEntryRegex("<a href=\"([^\"]+)\">前往小组</a>");
-    const QRegularExpressionMatch groupEntryMatch = groupEntryRegex.match(text);
-    if (!groupEntryMatch.hasMatch()) {
-        return QString();
+    HtmlParserCommon::Document document(html);
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_A)
+            && HtmlParserCommon::text(node).simplified()
+                   == QStringLiteral("前往小组")) {
+            return HtmlParserCommon::attribute(node, "href");
+        }
     }
-    return groupEntryMatch.captured(1);
+    return QString();
 }
 }

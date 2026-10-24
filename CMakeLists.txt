@@ -71,6 +71,7 @@ qt_add_executable(oj
     src/network/openjudgeclient.h
     src/parser/Homepage.cpp
     src/parser/Homepage.h
+    src/parser/HtmlParserCommon.h
     src/parser/GroupHomepage.cpp
     src/parser/GroupHomepage.h
     src/parser/UserHomepage.cpp
@@ -209,6 +210,29 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+enable_testing()
+file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/html_examples" OJ_HTML_EXAMPLES_DIR)
+qt_add_executable(parser_tests
+    tests/parser/ParserTests.cpp
+    src/parser/Homepage.cpp
+    src/parser/GroupHomepage.cpp
+    src/parser/UserHomepage.cpp
+    src/parser/GroupPage.cpp
+    src/parser/ContestPage.cpp
+    src/parser/ProblemPage.cpp
+    src/parser/ResultPage.cpp
+    src/parser/SubmitPage.cpp
+)
+target_include_directories(parser_tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/lexbor/source
+)
+target_compile_definitions(parser_tests PRIVATE
+    OJ_HTML_EXAMPLES_DIR="${OJ_HTML_EXAMPLES_DIR}"
+)
+target_link_libraries(parser_tests PRIVATE Qt::Core lexbor_static)
+add_test(NAME parser_tests COMMAND parser_tests)
 
 # ---------------------------------------------------------------------------
 # Packaging (CPack): macOS .dmg / Linux .tar.gz

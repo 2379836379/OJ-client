@@ -1,18 +1,21 @@
 #include "GroupPage.h"
 
-#include <QRegularExpression>
+#include "HtmlParserCommon.h"
+
+#include <lexbor/tag/tag.h>
 
 namespace
 {
-QString stripHtml(const QString &html)
+lxb_dom_node_t *nextElement(lxb_dom_node_t *node)
 {
-    QString text = html;
-    text.remove(QRegularExpression("<[^>]+>"));
-    return text.simplified();
+    for (node = node == nullptr ? nullptr : node->next;
+         node != nullptr && node->type != LXB_DOM_NODE_TYPE_ELEMENT;
+         node = node->next) {
+    }
+    return node;
 }
 }
 
-//
 namespace GroupPageParser
 {
 GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
@@ -20,56 +23,76 @@ GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
     GroupPageInfo info;
     info.groupPageUrl = baseUrl.toString();
 
-    const QString text = QString::fromUtf8(html);
-    const QRegularExpression listRegex(
-        "<ul\\s+class=\"current-contest\\s+label\"[^>]*>([\\s\\S]*?)</ul>");
-    const QRegularExpressionMatch listMatch = listRegex.match(text);
-    if (!listMatch.hasMatch()) {
-        return info;
-    }
-
-    const QString listHtml = listMatch.captured(1);
-    const QRegularExpression itemRegex(
-        "<li\\s+class=\"([^\"]*(?:contest-info|practice-info)[^\"]*)\"[^>]*>([\\s\\S]*?)</li>");
-    QRegularExpressionMatchIterator itemIt = itemRegex.globalMatch(listHtml);
-    while (itemIt.hasNext()) {
-        const QRegularExpressionMatch itemMatch = itemIt.next();
-        const QString itemClass = itemMatch.captured(1).trimmed();
-        const QString itemHtml = itemMatch.captured(2);
-
-        const QRegularExpression linkRegex(
-            "<h3>[\\s\\S]*?<a\\s+href=\"([^\"]+)\">([^<]+)</a>([\\s\\S]*?)</h3>");
-        const QRegularExpressionMatch linkMatch = linkRegex.match(itemHtml);
-        if (!linkMatch.hasMatch()) {
+    HtmlParserCommon::Document document(html);
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (!HtmlParserCommon::isTag(node, LXB_TAG_UL)
+            || !HtmlParserCommon::hasClass(node, QStringLiteral("current-contest"))) {
             continue;
         }
 
-        ContestSetInfo contestSet;
-        contestSet.url =
-            baseUrl.resolved(QUrl(linkMatch.captured(1))).toString();
-        contestSet.title = linkMatch.captured(2).trimmed();
-        contestSet.itemClass = itemClass;
-
-        const QString total_problem = stripHtml(linkMatch.captured(3));
-        if (!total_problem.isEmpty()) {
-            contestSet.problemnumber = total_problem;
-        }
-
-        const QRegularExpression spanRegex(
-            "<span\\s+class=\"([^\"]+)\"[^>]*>([\\s\\S]*?)</span>");
-        QRegularExpressionMatchIterator spanIt = spanRegex.globalMatch(itemHtml);
-        while (spanIt.hasNext()) {
-            const QRegularExpressionMatch spanMatch = spanIt.next();
-            const QString spanClass = spanMatch.captured(1).trimmed();
-            const QString spanText = stripHtml(spanMatch.captured(2));
-            if ((spanClass == "over-time" || spanClass == "recently-update")
-                && !spanText.isEmpty()) {
-                contestSet.endtime = spanText;
+        for (lxb_dom_node_t *item = node->first_child; item != nullptr;
+             item = item->next) {
+            if (!HtmlParserCommon::isTag(item, LXB_TAG_LI)) {
+                continue;
             }
-        }
-        info.contestSets.append(contestSet);
-    }
+            const bool isContest = HtmlParserCommon::hasClass(
+                item, QStringLiteral("contest-info"));
+            const bool isPractice = HtmlParserCommon::hasClass(
+                item, QStringLiteral("practice-info"));
+            if (!isContest && !isPractice) {
+                continue;
+            }
 
+            lxb_dom_node_t *heading = nullptr;
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(item)) {
+                if (HtmlParserCommon::isTag(child, LXB_TAG_H3)) {
+                    heading = child;
+                    break;
+                }
+            }
+            if (heading == nullptr) {
+                continue;
+            }
+
+            lxb_dom_node_t *link = nullptr;
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(heading)) {
+                if (HtmlParserCommon::isTag(child, LXB_TAG_A)) {
+                    link = child;
+                    break;
+                }
+            }
+            if (link == nullptr) {
+                continue;
+            }
+
+            ContestSetInfo contestSet;
+            contestSet.url = baseUrl.resolved(
+                QUrl(HtmlParserCommon::attribute(link, "href"))).toString();
+            contestSet.title = HtmlParserCommon::text(link).simplified();
+            contestSet.itemClass = HtmlParserCommon::attribute(item, "class");
+            QString problemCount;
+            for (lxb_dom_node_t *sibling = link->next; sibling != nullptr;
+                 sibling = sibling->next) {
+                if (sibling->type == LXB_DOM_NODE_TYPE_TEXT) {
+                    problemCount += HtmlParserCommon::text(sibling);
+                }
+            }
+            contestSet.problemnumber = problemCount.simplified();
+
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(item)) {
+                const QString value = HtmlParserCommon::text(child).simplified();
+                if (HtmlParserCommon::hasClass(child, QStringLiteral("over-time"))
+                    || HtmlParserCommon::hasClass(child,
+                                                   QStringLiteral("recently-update"))) {
+                    if (!value.isEmpty()) {
+                        contestSet.endtime = value;
+                    }
+                }
+            }
+            info.contestSets.append(contestSet);
+        }
+        break;
+    }
     return info;
 }
 }

@@ -1,32 +1,8 @@
 #include "SubmitPage.h"
 
-#include <QRegularExpression>
+#include "HtmlParserCommon.h"
 
-namespace
-{
-QString stripHtml(const QString &html)
-{
-    QString text = html;
-    text.remove(QRegularExpression("<[^>]+>"));
-    return text.simplified();
-}
-
-QString extractHiddenValue(const QString &html, const QString &name)
-{
-    const QString pattern = QString(
-        "<input\\s+type=\"hidden\"\\s+name=\"%1\"\\s+value=\"([^\"]*)\"")
-                                .arg(QRegularExpression::escape(name));
-    const QRegularExpression regex(
-        pattern,
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch match = regex.match(html);
-    if (!match.hasMatch()) {
-        return QString();
-    }
-
-    return match.captured(1).trimmed();
-}
-}
+#include <lexbor/tag/tag.h>
 
 namespace SubmitPageParser
 {
@@ -35,33 +11,54 @@ SubmitPageInfo parseSubmitPage(const QByteArray &html, const QUrl &baseUrl)
     SubmitPageInfo info;
     info.pageUrl = baseUrl.toString();
 
-    const QString text = QString::fromUtf8(html);
+    HtmlParserCommon::Document document(html);
+    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (!HtmlParserCommon::isTag(node, LXB_TAG_FORM)
+            || HtmlParserCommon::attribute(node, "id")
+                   != QStringLiteral("solution_submit")) {
+            continue;
+        }
+        info.submitActionUrl = baseUrl.resolved(
+            QUrl(HtmlParserCommon::attribute(node, "action"))).toString();
 
-    const QRegularExpression formRegex(
-        "<form\\s+id=\"solution_submit\"\\s+action=\"([^\"]+)\"[^>]*>",
-        QRegularExpression::CaseInsensitiveOption);
-    const QRegularExpressionMatch formMatch = formRegex.match(text);
-    if (formMatch.hasMatch()) {
-        info.submitActionUrl =
-            baseUrl.resolved(QUrl(formMatch.captured(1))).toString();
-    }
-
-    info.contestId = extractHiddenValue(text, "contestId");
-    info.problemNumber = extractHiddenValue(text, "problemNumber");
-    info.sourceEncode = extractHiddenValue(text, "sourceEncode");
-
-    const QRegularExpression languageRegex(
-        "<input\\s+type=\"radio\"\\s+name=\"language\"\\s+value=\"([^\"]+)\"([^>]*)/>\\s*([^<]+)",
-        QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatchIterator it = languageRegex.globalMatch(text);
-    while (it.hasNext()) {
-        const QRegularExpressionMatch match = it.next();
-        SubmitLanguageOption option;
-        option.value = match.captured(1).trimmed();
-        option.checked = match.captured(2).contains(
-            "checked", Qt::CaseInsensitive);
-        option.label = stripHtml(match.captured(3));
-        info.languages.append(option);
+        for (lxb_dom_node_t *field : HtmlParserCommon::descendants(node)) {
+            if (!HtmlParserCommon::isTag(field, LXB_TAG_INPUT)) {
+                continue;
+            }
+            const QString name = HtmlParserCommon::attribute(field, "name");
+            const QString type = HtmlParserCommon::attribute(field, "type");
+            if (type.compare(QStringLiteral("hidden"), Qt::CaseInsensitive) == 0) {
+                const QString value = HtmlParserCommon::attribute(field, "value").trimmed();
+                if (name == QStringLiteral("contestId")) {
+                    info.contestId = value;
+                } else if (name == QStringLiteral("problemNumber")) {
+                    info.problemNumber = value;
+                } else if (name == QStringLiteral("sourceEncode")) {
+                    info.sourceEncode = value;
+                }
+            } else if (type.compare(QStringLiteral("radio"), Qt::CaseInsensitive) == 0
+                       && name == QStringLiteral("language")) {
+                SubmitLanguageOption option;
+                option.value = HtmlParserCommon::attribute(field, "value").trimmed();
+                option.checked = HtmlParserCommon::hasAttribute(field, "checked");
+                for (lxb_dom_node_t *sibling = field->next; sibling != nullptr;
+                     sibling = sibling->next) {
+                    if (sibling->type == LXB_DOM_NODE_TYPE_TEXT) {
+                        option.label += HtmlParserCommon::text(sibling);
+                    } else if (sibling->type == LXB_DOM_NODE_TYPE_ELEMENT
+                               && HtmlParserCommon::isTag(sibling, LXB_TAG_BR)) {
+                        break;
+                    } else if (sibling->type == LXB_DOM_NODE_TYPE_ELEMENT) {
+                        break;
+                    }
+                }
+                option.label = option.label.simplified();
+                if (!option.value.isEmpty()) {
+                    info.languages.append(option);
+                }
+            }
+        }
+        break;
     }
     return info;
 }
@@ -74,10 +71,7 @@ QString defaultLanguage(const SubmitPageInfo &pageInfo)
         }
     }
 
-    if (!pageInfo.languages.isEmpty()) {
-        return pageInfo.languages.first().value;
-    }
-    return QString();
+    return pageInfo.languages.isEmpty() ? QString() : pageInfo.languages.first().value;
 }
 
 bool hasLanguage(const SubmitPageInfo &pageInfo, const QString &language)
@@ -87,7 +81,6 @@ bool hasLanguage(const SubmitPageInfo &pageInfo, const QString &language)
             return true;
         }
     }
-
     return false;
 }
 
@@ -98,11 +91,9 @@ QByteArray buildSubmitPayload(const SubmitPageInfo &pageInfo,
     const QString selectedLanguage =
         hasLanguage(pageInfo, language) ? language : defaultLanguage(pageInfo);
     const QByteArray encodedSource = sourceText.toUtf8().toBase64();
-
     const auto encode = [](const QString &value) {
         return QString::fromLatin1(QUrl::toPercentEncoding(value));
     };
-
     const QString payload = QString(
         "contestId=%1&problemNumber=%2&sourceEncode=%3&language=%4&source=%5")
                                 .arg(encode(pageInfo.contestId),
@@ -110,7 +101,6 @@ QByteArray buildSubmitPayload(const SubmitPageInfo &pageInfo,
                                      encode(pageInfo.sourceEncode),
                                      encode(selectedLanguage),
                                      encode(QString::fromUtf8(encodedSource)));
-
     return payload.toUtf8();
 }
 }
