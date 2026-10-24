@@ -33,8 +33,7 @@ class OpenJudgeClient : public QObject
 public:
     explicit OpenJudgeClient(QObject *parent = nullptr);
 
-    void setBaseUrl(const QString &baseUrl);
-    void setJudgerBaseUrl(const QString &judgerBaseUrl);
+    void setServerUrl(const QString &judgerBaseUrl);
     void setCookieStore(CookieStore *cookieStore);
     void logout();
 
@@ -56,6 +55,7 @@ public:
                      const QByteArray &stdinText,
                      int timeLimitMs = 2000,
                      int memoryLimitMb = 256);
+
     void fetchProblemList(int page = 1);
     void fetchProblemDetail(const QString &problemId);
     void fetchSubmissionList(int page = 1);
@@ -72,9 +72,6 @@ signals:
     void submitPageFinished(const NetworkResult &result);
     void solutionSubmitted(const NetworkResult &result);
     void judgeFinished(const NetworkResult &result);
-    void problemListFinished(const NetworkResult &result);
-    void problemDetailFinished(const NetworkResult &result);
-    void submissionListFinished(const NetworkResult &result);
 
 private:
     QNetworkRequest createRequest(const QUrl &url,
@@ -86,6 +83,6 @@ private:
 private:
     QNetworkAccessManager m_manager;
     QString m_baseUrl = "http://openjudge.cn";
-    QString m_judgerBaseUrl = "http://10.129.240.62:18080";
+    QString m_serverUrl = "http://10.129.240.62:18080";
     CookieStore *m_cookieStore = nullptr;
 };

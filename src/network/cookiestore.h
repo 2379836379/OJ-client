@@ -15,7 +15,4 @@ public:
     void setAllCookies(const QList<QNetworkCookie> &cookies);
     void clearCookies();
     QString dumpCookies() const;
-
-protected:
-    QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const override;
 };

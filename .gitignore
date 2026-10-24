@@ -2,7 +2,6 @@
 build
 data
 .qtcreator
-cache  
 config.toml
 installer-out
 build-mingw

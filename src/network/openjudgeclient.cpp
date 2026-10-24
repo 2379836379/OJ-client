@@ -14,9 +14,11 @@
 
 namespace
 {
+constexpr int RequestTimeoutMs = 15000;
+
 void writeStartupLog(const QString &message)
 {
-    QFile file(QDir(AppPaths::dataDir()).filePath("startup.log"));
+    QFile file(AppPaths::logDir());
     if (!file.open(QIODevice::Append | QIODevice::Text)) {
         return;
     }
@@ -25,50 +27,29 @@ void writeStartupLog(const QString &message)
     stream << QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz")
            << " | " << message << '\n';
 }
-
-QString normalizeBaseUrl(const QString &baseUrl)
-{
-    QString result = baseUrl.trimmed();
-    while (result.endsWith('/')) {
-        result.chop(1);
-    }
-    return result;
-}
 }
 
 OpenJudgeClient::OpenJudgeClient(QObject *parent)
     : QObject(parent)
 {
 }
-void OpenJudgeClient::setBaseUrl(const QString &baseUrl)
-{
-    m_baseUrl = normalizeBaseUrl(baseUrl);
-}
 
-void OpenJudgeClient::setJudgerBaseUrl(const QString &judgerBaseUrl)
+void OpenJudgeClient::setServerUrl(const QString &ServerUrl)
 {
-    const QString normalized = normalizeBaseUrl(judgerBaseUrl);
-    if (!normalized.isEmpty()) {
-        m_judgerBaseUrl = normalized;
-    }
+    m_serverUrl = ServerUrl;
 }
 
 void OpenJudgeClient::setCookieStore(CookieStore *cookieStore)
 {
-    m_cookieStore = cookieStore;
     if (m_cookieStore) {
+        m_cookieStore = cookieStore;
         m_manager.setCookieJar(m_cookieStore);
-        if (!m_cookieStore->parent()) {
-            m_cookieStore->setParent(this);
-        }
     }
 }
 
 void OpenJudgeClient::logout()
 {
-    if (m_cookieStore != nullptr) {
-        m_cookieStore->clearCookies();
-    }
+    m_cookieStore->clearCookies();
 }
 
 void OpenJudgeClient::login(const QString &username, const QString &password)
@@ -178,9 +159,9 @@ void OpenJudgeClient::judgeSource(const QString &language,
                                   int timeLimitMs,
                                   int memoryLimitMb)
 {
-    QUrl url(m_judgerBaseUrl + "/judge");
+    QUrl url(m_serverUrl + "/judge");
     QNetworkRequest request(url);
-    request.setTransferTimeout(15000);
+    request.setTransferTimeout(RequestTimeoutMs);
     request.setHeader(
         QNetworkRequest::UserAgentHeader,
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -218,45 +199,11 @@ void OpenJudgeClient::judgeSource(const QString &language,
     });
 }
 
-void OpenJudgeClient::fetchProblemList(int page)
-{
-    QUrl url(m_baseUrl + "/problem");
-    QUrlQuery query;
-    query.addQueryItem("page", QString::number(page));
-    url.setQuery(query);
-
-    QNetworkReply *reply = m_manager.get(createRequest(url));
-    connectReply(reply, [this](const NetworkResult &result) {
-        emit problemListFinished(result);
-    });
-}
-
-void OpenJudgeClient::fetchProblemDetail(const QString &problemId)
-{
-    const QUrl url(m_baseUrl + "/problem/" + problemId);
-    QNetworkReply *reply = m_manager.get(createRequest(url));
-    connectReply(reply, [this](const NetworkResult &result) {
-        emit problemDetailFinished(result);
-    });
-}
-
-void OpenJudgeClient::fetchSubmissionList(int page)
-{
-    QUrl url(m_baseUrl + "/status");
-    QUrlQuery query;
-    query.addQueryItem("page", QString::number(page));
-    url.setQuery(query);
-
-    QNetworkReply *reply = m_manager.get(createRequest(url));
-    connectReply(reply, [this](const NetworkResult &result) {
-        emit submissionListFinished(result);
-    });
-}
-
 QNetworkRequest OpenJudgeClient::createRequest(const QUrl &url,
                                                const QUrl &refererUrl) const
 {
     QNetworkRequest request(url);
+    request.setTransferTimeout(RequestTimeoutMs);
 
     request.setHeader(
         QNetworkRequest::UserAgentHeader,
