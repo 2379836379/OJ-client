@@ -34,22 +34,34 @@ OpenJudgeClient::OpenJudgeClient(QObject *parent)
 {
 }
 
-void OpenJudgeClient::setServerUrl(const QString &ServerUrl)
+void OpenJudgeClient::setServerUrl(const QString &serverUrl)
 {
-    m_serverUrl = ServerUrl;
+    QString normalized = serverUrl.trimmed();
+    while (normalized.endsWith(QLatin1Char('/'))) {
+        normalized.chop(1);
+    }
+    if (!normalized.isEmpty()) {
+        m_serverUrl = normalized;
+    }
 }
 
 void OpenJudgeClient::setCookieStore(CookieStore *cookieStore)
 {
-    if (m_cookieStore) {
-        m_cookieStore = cookieStore;
+    if (m_cookieStore == cookieStore) {
+        return;
+    }
+
+    m_cookieStore = cookieStore;
+    if (m_cookieStore != nullptr) {
         m_manager.setCookieJar(m_cookieStore);
     }
 }
 
 void OpenJudgeClient::logout()
 {
-    m_cookieStore->clearCookies();
+    if (m_cookieStore != nullptr) {
+        m_cookieStore->clearCookies();
+    }
 }
 
 void OpenJudgeClient::login(const QString &username, const QString &password)
@@ -88,11 +100,11 @@ void OpenJudgeClient::fetchUserHomePage(const QUrl &url)
     });
 }
 
-void OpenJudgeClient::fetchClassPage(const QUrl &url)
+void OpenJudgeClient::fetchGroupHomePage(const QUrl &url)
 {
     QNetworkReply *reply = m_manager.get(createRequest(url));
     connectReply(reply, [this](const NetworkResult &result) {
-        emit classPageFinished(result);
+        emit GroupHomePageFinished(result);
     });
 }
 

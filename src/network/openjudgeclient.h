@@ -35,17 +35,19 @@ public:
 
     void setServerUrl(const QString &judgerBaseUrl);
     void setCookieStore(CookieStore *cookieStore);
-    void logout();
 
+    void logout();
     void login(const QString &username, const QString &password);
+
     void fetchHomePage();
     void fetchUserHomePage(const QUrl &url);
-    void fetchClassPage(const QUrl &url);
+    void fetchGroupHomePage(const QUrl &url);
     void fetchGroupPage(const QUrl &url);
     void fetchContestPage(const QUrl &url);
     void fetchProblemPage(const QUrl &url);
     void fetchResultPage(const QUrl &url);
     void fetchSubmitPage(const QUrl &url);
+
     void submitSolution(const QUrl &submitActionUrl,
                         const QByteArray &payload,
                         const QUrl &refererUrl = QUrl());
@@ -56,20 +58,18 @@ public:
                      int timeLimitMs = 2000,
                      int memoryLimitMb = 256);
 
-    void fetchProblemList(int page = 1);
-    void fetchProblemDetail(const QString &problemId);
-    void fetchSubmissionList(int page = 1);
-
 signals:
     void loginFinished(const NetworkResult &result);
+
     void homePageFinished(const NetworkResult &result);
     void userHomePageFinished(const NetworkResult &result);
-    void classPageFinished(const NetworkResult &result);
+    void GroupHomePageFinished(const NetworkResult &result);
     void groupPageFinished(const NetworkResult &result);
     void contestPageFinished(const NetworkResult &result);
     void problemPageFinished(const NetworkResult &result);
     void resultPageFinished(const NetworkResult &result);
     void submitPageFinished(const NetworkResult &result);
+    
     void solutionSubmitted(const NetworkResult &result);
     void judgeFinished(const NetworkResult &result);
 
