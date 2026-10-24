@@ -6,11 +6,7 @@
 
 struct ResultPageInfo
 {
-    QString pageUrl;
-    QString solutionUrl;
-    QString submissionId;
     QString statusText;
-    QString statusClass;
     QString detailTitle;
     QString detailText;
     bool hasResult = false;
@@ -18,5 +14,5 @@ struct ResultPageInfo
 
 namespace ResultPageParser
 {
-ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl);
+ResultPageInfo parseResultPage(const QByteArray &html);
 }

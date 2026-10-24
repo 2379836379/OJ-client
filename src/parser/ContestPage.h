@@ -17,7 +17,6 @@ struct ContestProblemInfo
 
 struct ContestPageInfo
 {
-    QString contestPageUrl;
     QList<ContestProblemInfo> problems;
     int totalProblems = 0;
     int solvedProblems = 0;

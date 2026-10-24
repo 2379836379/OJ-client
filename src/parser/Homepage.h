@@ -6,5 +6,5 @@
 
 namespace HomepageParser
 {
-QString parseHomepage(const QByteArray &html, const QUrl &baseUrl);
+QString parseHomepage(const QByteArray &html);
 }

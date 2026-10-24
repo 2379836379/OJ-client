@@ -9,8 +9,7 @@ namespace SubmitPageParser
 SubmitPageInfo parseSubmitPage(const QByteArray &html, const QUrl &baseUrl)
 {
     SubmitPageInfo info;
-    info.pageUrl = baseUrl.toString();
-
+    
     HtmlParserCommon::Document document(html);
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
         if (!HtmlParserCommon::isTag(node, LXB_TAG_FORM)

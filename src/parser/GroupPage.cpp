@@ -21,8 +21,7 @@ namespace GroupPageParser
 GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
 {
     GroupPageInfo info;
-    info.groupPageUrl = baseUrl.toString();
-
+    
     HtmlParserCommon::Document document(html);
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
         if (!HtmlParserCommon::isTag(node, LXB_TAG_UL)
@@ -69,7 +68,6 @@ GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
             contestSet.url = baseUrl.resolved(
                 QUrl(HtmlParserCommon::attribute(link, "href"))).toString();
             contestSet.title = HtmlParserCommon::text(link).simplified();
-            contestSet.itemClass = HtmlParserCommon::attribute(item, "class");
             QString problemCount;
             for (lxb_dom_node_t *sibling = link->next; sibling != nullptr;
                  sibling = sibling->next) {

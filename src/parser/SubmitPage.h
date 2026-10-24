@@ -14,7 +14,6 @@ struct SubmitLanguageOption
 
 struct SubmitPageInfo
 {
-    QString pageUrl;
     QString submitActionUrl;
     QString contestId;
     QString problemNumber;

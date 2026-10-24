@@ -19,7 +19,7 @@ QString nodeText(lxb_dom_node_t *node)
                                              static_cast<qsizetype>(length));
 }
 
-QString hrefForPersonalHome(lxb_dom_node_t *node, const QUrl &baseUrl)
+QString hrefForPersonalHome(lxb_dom_node_t *node)
 {
     lxb_dom_element_t *element = lxb_dom_interface_element(node);
     size_t length = 0;
@@ -31,7 +31,7 @@ QString hrefForPersonalHome(lxb_dom_node_t *node, const QUrl &baseUrl)
 
     const QUrl hrefUrl(QString::fromUtf8(reinterpret_cast<const char *>(href),
                                          static_cast<qsizetype>(length)));
-    const QUrl url = baseUrl.isEmpty() ? hrefUrl : baseUrl.resolved(hrefUrl);
+    const QUrl url = hrefUrl;
     if (!url.isValid() || (url.scheme() != QStringLiteral("http")
                            && url.scheme() != QStringLiteral("https"))
         || url.host().compare(QStringLiteral("openjudge.cn"), Qt::CaseInsensitive) != 0) {
@@ -55,7 +55,7 @@ QString hrefForPersonalHome(lxb_dom_node_t *node, const QUrl &baseUrl)
 
 namespace HomepageParser
 {
-QString parseHomepage(const QByteArray &html, const QUrl &baseUrl)
+QString parseHomepage(const QByteArray &html)
 {
     lxb_html_document_t *document = lxb_html_document_create();
     if (document == nullptr) {
@@ -78,7 +78,7 @@ QString parseHomepage(const QByteArray &html, const QUrl &baseUrl)
         if (node->type == LXB_DOM_NODE_TYPE_ELEMENT
             && lxb_dom_node_tag_id(node) == LXB_TAG_A
             && nodeText(node).simplified() == QStringLiteral("个人首页")) {
-            result = hrefForPersonalHome(node, baseUrl);
+            result = hrefForPersonalHome(node);
             if (!result.isEmpty()) {
                 break;
             }

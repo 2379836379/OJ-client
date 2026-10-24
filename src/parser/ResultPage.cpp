@@ -18,10 +18,9 @@ lxb_dom_node_t *nextElementSibling(lxb_dom_node_t *node)
 
 namespace ResultPageParser
 {
-ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
+ResultPageInfo parseResultPage(const QByteArray &html)
 {
     ResultPageInfo info;
-    info.pageUrl = baseUrl.toString();
 
     HtmlParserCommon::Document document(html);
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
@@ -36,10 +35,6 @@ ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
                 if (title.startsWith(QLatin1Char('#'))) {
                     title.remove(0, 1);
                 }
-                const qsizetype suffix = title.indexOf(QStringLiteral("提交状态"));
-                if (suffix >= 0) {
-                    info.submissionId = title.left(suffix).trimmed();
-                }
                 break;
             }
         }
@@ -50,9 +45,6 @@ ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
                 if (!HtmlParserCommon::isTag(child, LXB_TAG_A)) {
                     continue;
                 }
-                info.solutionUrl = baseUrl.resolved(
-                    QUrl(HtmlParserCommon::attribute(child, "href"))).toString();
-                info.statusClass = HtmlParserCommon::attribute(child, "class");
                 info.statusText = HtmlParserCommon::text(child).simplified();
                 info.hasResult = !info.statusText.isEmpty();
                 break;

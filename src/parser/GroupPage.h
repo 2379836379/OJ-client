@@ -9,15 +9,12 @@ struct ContestSetInfo
 {
     QString url;
     QString title;
-    QString itemClass;
     QString problemnumber;
     QString endtime;
-    QString extraText;
 };
 
 struct GroupPageInfo
 {
-    QString groupPageUrl;
     QList<ContestSetInfo> contestSets;
 };
 

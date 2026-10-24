@@ -6,8 +6,6 @@
 
 struct ProblemPageInfo
 {
-    QString problemUrl;
-    QString title;
     QString submitUrl;
     QString timeLimit;
     QString memoryLimit;
@@ -18,8 +16,6 @@ struct ProblemPageInfo
     QString sampleInput;
     QString sampleOutput;
     QString hint;
-    int tried_people;
-    int passed_people;
 };
 
 namespace ProblemPageParser

@@ -58,38 +58,18 @@ namespace ProblemPageParser
 ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
 {
     ProblemPageInfo info;
-    info.problemUrl = baseUrl.toString();
-    info.tried_people = 0;
-    info.passed_people = 0;
 
     HtmlParserCommon::Document document(html);
     lxb_dom_node_t *problemContent = nullptr;
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
-        if (HtmlParserCommon::isTag(node, LXB_TAG_DIV)
-            && HtmlParserCommon::attribute(node, "id")
-                   == QStringLiteral("pageTitle")) {
-            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
-                if (HtmlParserCommon::isTag(child, LXB_TAG_H2)) {
-                    info.title = HtmlParserCommon::text(child).simplified();
-                    break;
-                }
-            }
-        } else if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
                    && HtmlParserCommon::hasClass(
                        node, QStringLiteral("problem-content"))) {
             problemContent = node;
         }
     }
-
-    for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
-        if (HtmlParserCommon::isTag(node, LXB_TAG_A)
-            && HtmlParserCommon::attribute(node, "href").contains(
-                QStringLiteral("/submit/"))) {
-            info.submitUrl = baseUrl.resolved(
-                QUrl(HtmlParserCommon::attribute(node, "href"))).toString();
-            break;
-        }
-    }
+    
+    info.submitUrl = baseUrl.resolved(QUrl("submit/")).toString();
 
     lxb_dom_node_t *params = nullptr;
     lxb_dom_node_t *statistics = nullptr;
@@ -118,8 +98,6 @@ ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
     info.sampleInput = valueText(problemContent, {QStringLiteral("样例输入")});
     info.sampleOutput = valueText(problemContent, {QStringLiteral("样例输出")});
     info.hint = valueText(problemContent, {QStringLiteral("提示")});
-    info.tried_people = valueText(statistics, {QStringLiteral("尝试人数")}).toInt();
-    info.passed_people = valueText(statistics, {QStringLiteral("通过人数")}).toInt();
 
     lxb_dom_node_t *description = definitionValue(
         problemContent, {QStringLiteral("描述")});

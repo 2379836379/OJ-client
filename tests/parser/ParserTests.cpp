@@ -60,9 +60,7 @@ void printHomepage(QTextStream &out)
 {
     section(out, QStringLiteral("Homepage"));
     const QByteArray html = loadFixture(QStringLiteral("Homepage.html"));
-    field(out, QStringLiteral("personalHomeUrl"),
-          HomepageParser::parseHomepage(
-              html, QUrl(QStringLiteral("http://openjudge.cn/"))));
+    field(out, QStringLiteral("personalHomeUrl"),HomepageParser::parseHomepage(html));
 }
 
 void printGroupHomepage(QTextStream &out)
@@ -79,7 +77,6 @@ void printUserHomepage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("UserHomepage.html"));
     const QList<JoinedClassInfo> groups =
         UserHomepageParser::parseUserHomepage(html);
-    field(out, QStringLiteral("groups.count"), groups.size());
     for (qsizetype i = 0; i < groups.size(); ++i) {
         const QString prefix = QStringLiteral("groups[%1].").arg(i);
         field(out, prefix + QStringLiteral("name"), groups.at(i).name);
@@ -93,17 +90,13 @@ void printGroupPage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("GroupPage.html"));
     const GroupPageInfo page = GroupPageParser::parseGroupPage(
         html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/")));
-    field(out, QStringLiteral("groupPageUrl"), page.groupPageUrl);
-    field(out, QStringLiteral("contestSets.count"), page.contestSets.size());
     for (qsizetype i = 0; i < page.contestSets.size(); ++i) {
         const ContestSetInfo &item = page.contestSets.at(i);
         const QString prefix = QStringLiteral("contestSets[%1].").arg(i);
         field(out, prefix + QStringLiteral("title"), item.title);
         field(out, prefix + QStringLiteral("url"), item.url);
-        field(out, prefix + QStringLiteral("itemClass"), item.itemClass);
         field(out, prefix + QStringLiteral("problemnumber"), item.problemnumber);
         field(out, prefix + QStringLiteral("endtime"), item.endtime);
-        field(out, prefix + QStringLiteral("extraText"), item.extraText);
     }
 }
 
@@ -113,7 +106,6 @@ void printContestPage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("ContestPage.html"));
     const ContestPageInfo page = ContestPageParser::parseContestPage(
         html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/")));
-    field(out, QStringLiteral("contestPageUrl"), page.contestPageUrl);
     field(out, QStringLiteral("totalProblems"), page.totalProblems);
     field(out, QStringLiteral("solvedProblems"), page.solvedProblems);
     for (qsizetype i = 0; i < page.problems.size(); ++i) {
@@ -136,8 +128,6 @@ void printProblemPage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("ProblemPage.html"));
     const ProblemPageInfo page = ProblemPageParser::parseProblemPage(
         html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/2026autumn05/1/")));
-    field(out, QStringLiteral("problemUrl"), page.problemUrl);
-    field(out, QStringLiteral("title"), page.title);
     field(out, QStringLiteral("submitUrl"), page.submitUrl);
     field(out, QStringLiteral("timeLimit"), page.timeLimit);
     field(out, QStringLiteral("memoryLimit"), page.memoryLimit);
@@ -148,21 +138,14 @@ void printProblemPage(QTextStream &out)
     field(out, QStringLiteral("sampleInput"), page.sampleInput);
     field(out, QStringLiteral("sampleOutput"), page.sampleOutput);
     field(out, QStringLiteral("hint"), page.hint);
-    field(out, QStringLiteral("tried_people"), page.tried_people);
-    field(out, QStringLiteral("passed_people"), page.passed_people);
 }
 
 void printResultPage(QTextStream &out)
 {
     section(out, QStringLiteral("ResultPage"));
     const QByteArray html = loadFixture(QStringLiteral("ResultPage.html"));
-    const ResultPageInfo page = ResultPageParser::parseResultPage(
-        html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/")));
-    field(out, QStringLiteral("pageUrl"), page.pageUrl);
-    field(out, QStringLiteral("solutionUrl"), page.solutionUrl);
-    field(out, QStringLiteral("submissionId"), page.submissionId);
+    const ResultPageInfo page = ResultPageParser::parseResultPage(html);
     field(out, QStringLiteral("statusText"), page.statusText);
-    field(out, QStringLiteral("statusClass"), page.statusClass);
     field(out, QStringLiteral("detailTitle"), page.detailTitle);
     field(out, QStringLiteral("detailText"), page.detailText);
     field(out, QStringLiteral("hasResult"), page.hasResult);
@@ -174,7 +157,6 @@ void printSubmitPage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("SubmitPage.html"));
     const SubmitPageInfo page = SubmitPageParser::parseSubmitPage(
         html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/2026autumn05/1/submit/")));
-    field(out, QStringLiteral("pageUrl"), page.pageUrl);
     field(out, QStringLiteral("submitActionUrl"), page.submitActionUrl);
     field(out, QStringLiteral("contestId"), page.contestId);
     field(out, QStringLiteral("problemNumber"), page.problemNumber);
