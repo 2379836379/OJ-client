@@ -1,4 +1,4 @@
-#include "problemparser.h"
+#include "ProblemPage.h"
 
 #include <QRegularExpression>
 
@@ -83,7 +83,7 @@ QString extractSectionHtmlAny(const QString &html, const QStringList &keys)
 }
 }
 
-namespace ProblemParser
+namespace ProblemPageParser
 {
 ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
 {

@@ -1,4 +1,4 @@
-#include "groupparser.h"
+#include "GroupPage.h"
 
 #include <QRegularExpression>
 
@@ -13,7 +13,7 @@ QString stripHtml(const QString &html)
 }
 
 //
-namespace GroupParser
+namespace GroupPageParser
 {
 GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl)
 {

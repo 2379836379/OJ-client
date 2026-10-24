@@ -1,4 +1,4 @@
-#include "submitparser.h"
+#include "SubmitPage.h"
 
 #include <QRegularExpression>
 
@@ -28,7 +28,7 @@ QString extractHiddenValue(const QString &html, const QString &name)
 }
 }
 
-namespace SubmitParser
+namespace SubmitPageParser
 {
 SubmitPageInfo parseSubmitPage(const QByteArray &html, const QUrl &baseUrl)
 {

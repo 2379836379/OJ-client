@@ -69,20 +69,22 @@ qt_add_executable(oj
     src/network/openaiclient.h
     src/network/openjudgeclient.cpp
     src/network/openjudgeclient.h
-    src/parser/HomepageParser.cpp
-    src/parser/HomepageParser.h
-    src/parser/UserHomePageParser.cpp
-    src/parser/UserHomePageParser.h
-    src/parser/groupparser.cpp
-    src/parser/groupparser.h
-    src/parser/contestparser.cpp
-    src/parser/contestparser.h
-    src/parser/problemparser.cpp
-    src/parser/problemparser.h
-    src/parser/resultparser.cpp
-    src/parser/resultparser.h
-    src/parser/submitparser.cpp
-    src/parser/submitparser.h
+    src/parser/Homepage.cpp
+    src/parser/Homepage.h
+    src/parser/GroupHomepage.cpp
+    src/parser/GroupHomepage.h
+    src/parser/UserHomepage.cpp
+    src/parser/UserHomepage.h
+    src/parser/GroupPage.cpp
+    src/parser/GroupPage.h
+    src/parser/ContestPage.cpp
+    src/parser/ContestPage.h
+    src/parser/ProblemPage.cpp
+    src/parser/ProblemPage.h
+    src/parser/ResultPage.cpp
+    src/parser/ResultPage.h
+    src/parser/SubmitPage.cpp
+    src/parser/SubmitPage.h
     src/repository/submit/homerepository.cpp
     src/repository/submit/homerepository.h
     src/repository/cache/homecacherepository.cpp

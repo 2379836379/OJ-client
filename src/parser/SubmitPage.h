@@ -22,7 +22,7 @@ struct SubmitPageInfo
     QList<SubmitLanguageOption> languages;
 };
 
-namespace SubmitParser
+namespace SubmitPageParser
 {
 SubmitPageInfo parseSubmitPage(const QByteArray &html, const QUrl &baseUrl);
 QString defaultLanguage(const SubmitPageInfo &pageInfo);

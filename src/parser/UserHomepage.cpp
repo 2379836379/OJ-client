@@ -1,10 +1,10 @@
-#include "UserHomePageParser.h"
+#include "UserHomepage.h"
 
 #include <QRegularExpression>
 
 
 
-namespace ClassParser
+namespace UserHomepageParser
 {
 QString stripHtmlTags(const QString &html)
 {

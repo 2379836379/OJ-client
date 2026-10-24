@@ -16,7 +16,7 @@ struct ResultPageInfo
     bool hasResult = false;
 };
 
-namespace ResultParser
+namespace ResultPageParser
 {
 ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl);
 }

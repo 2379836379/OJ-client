@@ -22,7 +22,7 @@ struct ProblemPageInfo
     int passed_people;
 };
 
-namespace ProblemParser
+namespace ProblemPageParser
 {
 ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl);
 }

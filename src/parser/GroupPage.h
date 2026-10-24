@@ -21,7 +21,7 @@ struct GroupPageInfo
     QList<ContestSetInfo> contestSets;
 };
 
-namespace GroupParser
+namespace GroupPageParser
 {
 GroupPageInfo parseGroupPage(const QByteArray &html, const QUrl &baseUrl);
 }

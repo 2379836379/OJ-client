@@ -1,7 +1,10 @@
 #pragma once
 
 #include <QByteArray>
-#include <QList>
 #include <QString>
 #include <QUrl>
 
+namespace HomepageParser
+{
+QString parseHomepage(const QByteArray &html, const QUrl &baseUrl);
+}

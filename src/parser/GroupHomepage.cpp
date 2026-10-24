@@ -1,3 +1,9 @@
+#include "GroupHomepage.h"
+
+#include <QRegularExpression>
+
+namespace GroupHomepageParser
+{
 // 小组首页 格式：<a href="http://noi.openjudge.cn/">前往小组</a>
 QString parseGroupHomepage(const QByteArray &html)
 {
@@ -8,4 +14,5 @@ QString parseGroupHomepage(const QByteArray &html)
         return QString();
     }
     return groupEntryMatch.captured(1);
+}
 }

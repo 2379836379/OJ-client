@@ -1,4 +1,4 @@
-#include "HomepageParser.h"
+#include "Homepage.h"
 
 #include <lexbor/dom/interfaces/element.h>
 #include <lexbor/dom/interfaces/node.h>
@@ -50,7 +50,7 @@ QString hrefForPersonalHome(lxb_dom_node_t *node, const QUrl &baseUrl)
     return url.toString();
 }
 
-QString parseHomepage(const QByteArray &html, const QUrl &baseUrl)
+QString parseHomepageImpl(const QByteArray &html, const QUrl &baseUrl)
 {
     lxb_html_document_t *document = lxb_html_document_create();
     if (document == nullptr) {
@@ -87,6 +87,14 @@ QString parseHomepage(const QByteArray &html, const QUrl &baseUrl)
 
     lxb_html_document_destroy(document);
     return result;
+}
+}
+
+namespace HomepageParser
+{
+QString parseHomepage(const QByteArray &html, const QUrl &baseUrl)
+{
+    return parseHomepageImpl(html, baseUrl);
 }
 }
 

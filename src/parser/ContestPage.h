@@ -23,7 +23,7 @@ struct ContestPageInfo
     int solvedProblems = 0;
 };
 
-namespace ContestParser
+namespace ContestPageParser
 {
 ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl);
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QByteArray>
+#include <QList>
 #include <QString>
-#include <QUrl>
 
 
 struct JoinedClassInfo
@@ -11,7 +11,7 @@ struct JoinedClassInfo
     QString url;
 };
 
-namespace ClassParser
+namespace UserHomepageParser
 {
 QList<JoinedClassInfo> parseUserHomepage(const QByteArray &html);
 }

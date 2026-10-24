@@ -1,4 +1,4 @@
-#include "resultparser.h"
+#include "ResultPage.h"
 
 #include <QRegularExpression>
 
@@ -23,7 +23,7 @@ QString decodePreformattedText(const QString &html)
 }
 }
 
-namespace ResultParser
+namespace ResultPageParser
 {
 ResultPageInfo parseResultPage(const QByteArray &html, const QUrl &baseUrl)
 {

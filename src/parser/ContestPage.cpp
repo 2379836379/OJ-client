@@ -1,7 +1,9 @@
 
+#include "ContestPage.h"
+
 #include <QRegularExpression>
 // 题目列表
-namespace ContestParser
+namespace ContestPageParser
 {
 ContestPageInfo parseContestPage(const QByteArray &html, const QUrl &baseUrl)
 {
