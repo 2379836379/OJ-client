@@ -20,7 +20,9 @@ namespace
 {
 QByteArray loadFixture(const QString &name)
 {
-    QFile file(QStringLiteral(OJ_HTML_EXAMPLES_DIR) + QLatin1Char('/') + name);
+    const QString fixturePath =
+        QString::fromUtf8(OJ_HTML_EXAMPLES_DIR) + QLatin1Char('/') + name;
+    QFile file(fixturePath);
     if (!file.open(QIODevice::ReadOnly)) {
         QTextStream(stderr) << "Failed to load fixture: " << file.fileName()
                             << Qt::endl;
@@ -169,8 +171,6 @@ void printSubmitPage(QTextStream &out)
         field(out, prefix + QStringLiteral("label"), language.label);
         field(out, prefix + QStringLiteral("checked"), language.checked);
     }
-    field(out, QStringLiteral("defaultLanguage"),
-          SubmitPageParser::defaultLanguage(page));
 }
 }
 
