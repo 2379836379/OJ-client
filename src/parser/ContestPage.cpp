@@ -1,4 +1,3 @@
-#include "contestparser.h"
 
 #include <QRegularExpression>
 // 题目列表

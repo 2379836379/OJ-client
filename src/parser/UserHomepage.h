@@ -13,6 +13,5 @@ struct JoinedClassInfo
 
 namespace ClassParser
 {
-QList<JoinedClassInfo> extractJoinedClasses(const QByteArray &html);
-QString parseClassPage(const QByteArray &html);
+QList<JoinedClassInfo> parseUserHomepage(const QByteArray &html);
 }

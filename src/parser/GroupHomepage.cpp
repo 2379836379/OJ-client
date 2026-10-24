@@ -1,5 +1,5 @@
 // 小组首页 格式：<a href="http://noi.openjudge.cn/">前往小组</a>
-QString parseClassPage(const QByteArray &html)
+QString parseGroupHomepage(const QByteArray &html)
 {
     const QString text = QString::fromUtf8(html);
     static const QRegularExpression groupEntryRegex("<a href=\"([^\"]+)\">前往小组</a>");
