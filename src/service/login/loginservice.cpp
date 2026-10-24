@@ -1,7 +1,7 @@
 #include "service/login/loginservice.h"
 
 #include "network/openjudgeclient.h"
-#include "parser/loginparser.h"
+#include "parser/HomepageParser.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>

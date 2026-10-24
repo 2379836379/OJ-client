@@ -1,7 +1,5 @@
 #include "submitparser.h"
 
-#include "parsercommon.h"
-
 #include <QRegularExpression>
 
 namespace

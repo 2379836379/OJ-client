@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>OpenJudge - 提交状态</title>
+
+<link href="http://static.openjudge.cn/styles/global.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/styles.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/group.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/contest.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/favicon.ico?1792658133.ico" rel="shortcut icon" type="image/x-icon" />
+<link href="http://static.openjudge.cn/styles/sh_style.css?1792658134.css" media="screen" rel="stylesheet" type="text/css" />
+<!--[if IE]>
+   <script type="text/javascript" src="http://static.openjudge.cn/scripts/html5.js?1792658135.js"></script>
+<![endif]-->
+<!--[if lt IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie6-deprecated.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie7.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 8]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie8.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery-1.4.3.min.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery.form.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/base-nc.js?1792658135.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/api.js?1792658134.js"></script>
+<script type="text/javascript">
+    //<![CDATA[
+var web_root = '/',
+	static_root = 'http://static.openjudge.cn/',
+	script_root = 'http://static.openjudge.cn/scripts',
+	style_root = 'http://static.openjudge.cn/styles';
+    //]]>
+</script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/sh_main.min.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/lang/sh_python.min.js?1792658135.js"></script>
+<script type="text/javascript">
+    //<![CDATA[
+$(document).ready(sh_highlightDocument);
+    //]]>
+</script>    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?cba6845c6d8176f123f81538e1796b8a";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+	<div id="headerTop">
+  <div class="wrapper">
+    <h1 class="logo"><a href="http://openjudge.cn/" title="首页" rel="home">OpenJudge</a></h1>
+    <ul id="userToolbar">
+            <li><a class="link" href="http://openjudge.cn/user/1481664/">2400013518</a></li>
+      <li><a class="link" href="http://openjudge.cn/messages/">信箱</a></li>
+      <li class="account-link">
+      	<a class="link w_arr_down" href="http://openjudge.cn/settings/">账号</a>
+   		<div class="account-list">
+   			<dl>
+   				<dt><a href="http://openjudge.cn/user/1481664/" title="2400013518"><img src="http://static.openjudge.cn/images/default_avatar_small.png" alt="2400013518" width="50" height="50"/></a></dt>
+   				<dd><a href="http://openjudge.cn/user/1481664/">2400013518</a></dd>
+   			</dl>
+   			<ul>
+   			    <li class="line"></li>
+   				<li><a href="http://openjudge.cn/settings/">个人信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/account/">账户设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/avatar/">头像设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/contact/">联系信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/preference/">偏好设置</a></li>
+   				<li class="line"></li>
+   				<li><a href="/auth/logout/" onclick="api.logout(local.redirect);return false;" title="登出">登出</a></li>
+   			</ul>
+   		</div>  	
+      </li>
+          </ul>
+    <div class="practice-search">
+		 <form class="search-form" action="/search/" method="get">
+	        <input name="q" type="text" value="题目ID, 标题, 描述" onclick="this.select()">
+	        <button type="submit"></button>
+	     </form>	
+	</div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="header">
+  <div class="wrapper">
+  	<div id="groupSmallLog">
+  		<a href="http://dxfjgc.openjudge.cn/"><img class="group-logo" src="http://static.openjudge.cn/images/default_logo_small.png" alt="计算C@邓习峰" width="50" height="50" /></a>    </div>
+	<div class="contest-title-tab">
+		 <h2><a href="http://dxfjgc.openjudge.cn/" title="首页" rel="home">计算C@邓习峰</a></h2>
+		 <span>/</span>
+		 <h2>计概C-2026秋季学期-第5次作业</h2>
+		<span style="font-size:14px;">正在进行中</span>	</div>
+    <ul id="mainNav">
+        <li ><a href="/2026autumn05/" class="first">题目</a></li>
+            <li ><a href="/2026autumn05/ranking/">排名</a></li>
+                    <li ><a href="/2026autumn05/status/">状态</a></li>
+	     
+        <li ><a href="/2026autumn05/statistics/">统计</a></li>
+				        <li class="last"><a href="/2026autumn05/clarify/" class="last">提问</a></li>
+        </ul>	 
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="pagebody">
+		<div class="wrapper">
+			<div id="topMenu">
+	<ul>
+		<li ><a href="/2026autumn05/1/">查看</a></li>
+		<li ><a href="/2026autumn05/1/submit/">提交</a></li>
+				<li ><a href="/2026autumn05/1/statistics/">统计</a></li>
+			
+		<li ><a href="/2026autumn05/clarify/1/">提问</a></li>
+			
+	</ul>
+</div><div id="pageTitle"><h2>#53589551提交状态</h2></div>
+<div id=main" class="submitStatus col-8">
+    <p class="compile-status">
+    	状态: <a href="http://dxfjgc.openjudge.cn/2026autumn05/solution/53589551/#compile-error" class="result-ce">Compile Error</a>	</p>
+		
+		<a name="compile-error"></a>
+	<h3 class="h3-compile-status">编译错误信息</h3>
+	<pre>************* Module Main
+/home/runner/temp/53589551.48629/Main.py:1:0: E0602: Undefined variable &#039;a&#039; (undefined-variable)
+</pre>
+		
+		
+		<h3>源代码</h3>
+	<pre class="sh_python">a</pre>
+		</div>
+<div id="side" class="col-4">
+	<div class="compile-info">
+<h3>基本信息</h3>
+<dl>
+	<dt>#:</dt>
+	<dd><a href="/2026autumn05/solution/53589551/">53589551</a></dd>
+	<dt>题目:</dt>
+	<dd><a href="/2026autumn05/1/">1</a></dd>
+	<dt>提交人:</dt>
+	<dd><a class="user-anchor" href="http://openjudge.cn/user/1481664/in/group-502/">2400013518</a></dd>
+			<dt>语言:</dt>
+	<dd><a href="/2026autumn05/solution/53589551/">Python3</a></dd>
+	<dt>提交时间:</dt>
+	<dd>2026-10-24 17:30:30</dd>
+</dl>
+</div>	
+</div>
+
+
+		</div>
+	</div>
+	<div id="footer">
+	<div class="wrapper">
+		<ul class="oj-info">
+			<li>&copy;2002-2022 POJ <a href="http://www.beian.miit.gov.cn">京ICP备20010980号-1</a></li>
+		</ul>
+		<ul class="debug-info">
+									<li>
+				<a style="color:red" href="javascript:void(0);" onclick="api.switchLanguage('en_US');">English</a></li>
+						<li><a href="http://openjudge.cn/help.html" rel="nofollow">帮助</a></li>
+			<li><a href="http://openjudge.cn/about.html" rel="nofollow">关于</a></li>
+		</ul>
+		<div style="clear:both;"></div>
+	</div>
+</div>
+	
+	</body>
+</html>

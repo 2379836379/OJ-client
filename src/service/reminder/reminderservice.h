@@ -1,8 +1,8 @@
 #pragma once
 
-#include "parser/classparser.h"
+#include "parser/UserHomePageParser.h"
 #include "parser/groupparser.h"
-#include "parser/loginparser.h"
+#include "parser/HomepageParser.h"
 
 #include <QDateTime>
 #include <QHash>

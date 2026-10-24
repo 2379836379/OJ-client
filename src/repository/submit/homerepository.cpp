@@ -1,7 +1,7 @@
 #include "homerepository.h"
 
 #include "network/openjudgeclient.h"
-#include "parser/loginparser.h"
+#include "parser/UserHomePageParser.h"
 
 HomeRepository::HomeRepository(OpenJudgeClient *client, QObject *parent)
     : QObject(parent)
@@ -24,7 +24,7 @@ HomeRepository::HomeRepository(OpenJudgeClient *client, QObject *parent)
             }
 
             emit joinedClassesFetched(
-                LoginParser::extractJoinedClasses(result.body, result.finalUrl));
+                ClassParser::extractJoinedClasses(result.body));
         });
 }
 

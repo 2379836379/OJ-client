@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser/loginparser.h"
+#include "parser/UserHomePageParser.h"
 
 #include <QObject>
 #include <QUrl>

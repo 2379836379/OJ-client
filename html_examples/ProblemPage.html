@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>OpenJudge - 1:最后一个单词长度</title>
+
+<link href="http://static.openjudge.cn/styles/global.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/styles.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/group.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/contest.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/favicon.ico?1792658133.ico" rel="shortcut icon" type="image/x-icon" />
+<!--[if IE]>
+   <script type="text/javascript" src="http://static.openjudge.cn/scripts/html5.js?1792658135.js"></script>
+<![endif]-->
+<!--[if lt IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie6-deprecated.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie7.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 8]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie8.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery-1.4.3.min.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery.form.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/base-nc.js?1792658135.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/api.js?1792658134.js"></script>
+<script type="text/javascript">
+    //<![CDATA[
+var web_root = '/',
+	static_root = 'http://static.openjudge.cn/',
+	script_root = 'http://static.openjudge.cn/scripts',
+	style_root = 'http://static.openjudge.cn/styles';
+    //]]>
+</script>    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?cba6845c6d8176f123f81538e1796b8a";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+	<div id="headerTop">
+  <div class="wrapper">
+    <h1 class="logo"><a href="http://openjudge.cn/" title="首页" rel="home">OpenJudge</a></h1>
+    <ul id="userToolbar">
+            <li><a class="link" href="http://openjudge.cn/user/1481664/">2400013518</a></li>
+      <li><a class="link" href="http://openjudge.cn/messages/">信箱</a></li>
+      <li class="account-link">
+      	<a class="link w_arr_down" href="http://openjudge.cn/settings/">账号</a>
+   		<div class="account-list">
+   			<dl>
+   				<dt><a href="http://openjudge.cn/user/1481664/" title="2400013518"><img src="http://static.openjudge.cn/images/default_avatar_small.png" alt="2400013518" width="50" height="50"/></a></dt>
+   				<dd><a href="http://openjudge.cn/user/1481664/">2400013518</a></dd>
+   			</dl>
+   			<ul>
+   			    <li class="line"></li>
+   				<li><a href="http://openjudge.cn/settings/">个人信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/account/">账户设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/avatar/">头像设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/contact/">联系信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/preference/">偏好设置</a></li>
+   				<li class="line"></li>
+   				<li><a href="/auth/logout/" onclick="api.logout(local.redirect);return false;" title="登出">登出</a></li>
+   			</ul>
+   		</div>  	
+      </li>
+          </ul>
+    <div class="practice-search">
+		 <form class="search-form" action="/search/" method="get">
+	        <input name="q" type="text" value="题目ID, 标题, 描述" onclick="this.select()">
+	        <button type="submit"></button>
+	     </form>	
+	</div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="header">
+  <div class="wrapper">
+  	<div id="groupSmallLog">
+  		<a href="http://dxfjgc.openjudge.cn/"><img class="group-logo" src="http://static.openjudge.cn/images/default_logo_small.png" alt="计算C@邓习峰" width="50" height="50" /></a>    </div>
+	<div class="contest-title-tab">
+		 <h2><a href="http://dxfjgc.openjudge.cn/" title="首页" rel="home">计算C@邓习峰</a></h2>
+		 <span>/</span>
+		 <h2>计概C-2026秋季学期-第5次作业</h2>
+		<span style="font-size:14px;">正在进行中</span>	</div>
+    <ul id="mainNav">
+        <li  class="current"><a href="/2026autumn05/" class="first">题目</a></li>
+            <li ><a href="/2026autumn05/ranking/">排名</a></li>
+                    <li ><a href="/2026autumn05/status/">状态</a></li>
+	     
+        <li ><a href="/2026autumn05/statistics/">统计</a></li>
+				        <li class="last"><a href="/2026autumn05/clarify/" class="last">提问</a></li>
+        </ul>	 
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="pagebody">
+		<div class="wrapper">
+			<script type="text/javascript">
+$(function(e){
+  var b={1:"很水",2:"简单",3:"普通",4:"较难",5:"变态"},
+      g=$("#rate"),
+      c=$("#stars img"),
+      d=function(f){
+        var h=0||g.val();
+        c.each(function(k){
+          var i=this.src.replace(/\w*\.gif$/,((k<f)?"sth":((k<h)?"st":"nst"))+".gif");
+          this.src=i;
+        });
+        if(f)
+          $("#rate_description").text(b[f]);
+        else
+          $("#rate_description").text(h!=0?b[h]:"");
+      };
+      c.hover(function(){d(this.id.charAt(4));},function(){d();});
+      if(g.attr("value")){
+        c.click(function(){
+          var f=this.id.charAt(4);
+          g.val(f);
+          d(f);
+          //$('#form_diffculity_rating').submit();
+          $( "#dialog-form" ).dialog( "open" );
+			g();
+        });
+      }
+      d();
+  });
+$(document).ready(
+		function(){
+			$('#problem-tags').hide();
+			$('#tag-display').toggle(function() {
+											$('#problem-tags').show();
+											this.value = '隐藏标签';
+										}, function(){
+											$('#problem-tags').hide();
+											this.value = '显示标签';
+										}
+									);
+			});
+</script>
+
+<div id="pageTitle"><h2>1:最后一个单词长度</h2></div>
+<div id="topMenu">
+	<ul>
+		<li class="current-show"><a href="/2026autumn05/1/">查看</a></li>
+		<li ><a href="/2026autumn05/1/submit/">提交</a></li>
+				<li ><a href="/2026autumn05/1/statistics/">统计</a></li>
+			
+		<li ><a href="/2026autumn05/clarify/1/">提问</a></li>
+			
+	</ul>
+</div><div class="problem-page col-9">
+	<dl class="problem-params">
+		<dt>总时间限制: </dt>
+		<dd>20000ms</dd>
+			<dt>内存限制: </dt>
+		<dd>20000kB</dd>
+	</dl>
+	<dl class="problem-content">
+		<dt>描述</dt>
+		<dd><p>给你一个字符串 <code>s</code>，由若干单词组成，单词前后用<strong>一些</strong>空格字符隔开。返回字符串中 <strong>最后一个</strong> 单词的长度。</p>
+<p><strong>单词</strong> 是指仅由字母组成、不包含任何空格字符的最大子字符串。</p>
+<pre><strong>输入：</strong>Hello World
+<strong>输出：</strong>5
+<strong>解释：</strong>最后一个单词是World，长度为5。</pre>
+<p> </p></dd>
+				
+				
+				<dt>输入</dt>
+		<dd>fly me   to   the moon</dd>
+		<dt>输出</dt>
+		<dd>4</dd>
+		<dt>样例输入</dt>
+		<dd><pre>Hello World</pre></dd>
+		<dt>样例输出</dt>
+		<dd><pre>5</pre></dd>
+				<dt>提示</dt>
+		<dd>1 <= s.length <= 104<br />字符串仅有英文字母和空格' '组成<br />字符串中至少存在一个单词<br /><br />一些空格：或许不止一个；或许前后都有</dd>
+						</dl>
+	<ul class="bottomMenu">
+		<li class="current-show"><a href="/2026autumn05/1/">查看</a></li>
+		<li ><a href="/2026autumn05/1/submit/">提交</a></li>
+				<li ><a href="/2026autumn05/1/statistics/">统计</a></li>
+			
+		<li ><a href="/2026autumn05/clarify/1/">提问</a></li>
+			</ul>
+</div>
+
+<div class="problem-statistics col-3">
+       		<dl>
+		<dt>全局题号</dt>
+		<dd>26141</dd>
+				<dt>提交次数</dt>
+		<dd>115</dd>
+		<dt>尝试人数</dt>
+	    <dd>68</dd>
+	    <dt>通过人数</dt>
+	    <dd>68</dd>
+	</dl>
+		
+		
+					
+						<h4>你尚未尝试此题</h4>
+			</div>
+		</div>
+	</div>
+	<div id="footer">
+	<div class="wrapper">
+		<ul class="oj-info">
+			<li>&copy;2002-2022 POJ <a href="http://www.beian.miit.gov.cn">京ICP备20010980号-1</a></li>
+		</ul>
+		<ul class="debug-info">
+									<li>
+				<a style="color:red" href="javascript:void(0);" onclick="api.switchLanguage('en_US');">English</a></li>
+						<li><a href="http://openjudge.cn/help.html" rel="nofollow">帮助</a></li>
+			<li><a href="http://openjudge.cn/about.html" rel="nofollow">关于</a></li>
+		</ul>
+		<div style="clear:both;"></div>
+	</div>
+</div>
+	
+	</body>
+</html>

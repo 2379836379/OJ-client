@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>OpenJudge - OpenJudge</title>
+
+<link href="http://static.openjudge.cn/styles/global.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/styles.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/group.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/contest.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/favicon.ico?1792658133.ico" rel="shortcut icon" type="image/x-icon" />
+<link href="http://static.openjudge.cn/styles/favicon.ico?1792658133.ico" rel="shortcut icon" type="image/x-icon" />
+<!--[if IE]>
+   <script type="text/javascript" src="http://static.openjudge.cn/scripts/html5.js?1792658135.js"></script>
+<![endif]-->
+<!--[if lt IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie6-deprecated.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie7.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 8]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie8.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery-1.4.3.min.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery.form.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/base-nc.js?1792658135.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/api.js?1792658134.js"></script>
+<script type="text/javascript">
+    //<![CDATA[
+var web_root = '/',
+	static_root = 'http://static.openjudge.cn/',
+	script_root = 'http://static.openjudge.cn/scripts',
+	style_root = 'http://static.openjudge.cn/styles';
+    //]]>
+</script>
+<script type="text/javascript">
+    //<![CDATA[
+var web_root = '/',
+	static_root = 'http://static.openjudge.cn/',
+	script_root = 'http://static.openjudge.cn/scripts',
+	style_root = 'http://static.openjudge.cn/styles';
+    //]]>
+</script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/timer.js?1792658135.js"></script>    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?cba6845c6d8176f123f81538e1796b8a";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+	<div id="headerTop">
+  <div class="wrapper">
+    <h1 class="logo"><a href="http://openjudge.cn/" title="首页" rel="home">OpenJudge</a></h1>
+    <ul id="userToolbar">
+            <li><a class="link" href="http://openjudge.cn/user/1481664/">2400013518</a></li>
+      <li><a class="link" href="http://openjudge.cn/messages/">信箱</a></li>
+      <li class="account-link">
+      	<a class="link w_arr_down" href="http://openjudge.cn/settings/">账号</a>
+   		<div class="account-list">
+   			<dl>
+   				<dt><a href="http://openjudge.cn/user/1481664/" title="2400013518"><img src="http://static.openjudge.cn/images/default_avatar_small.png" alt="2400013518" width="50" height="50"/></a></dt>
+   				<dd><a href="http://openjudge.cn/user/1481664/">2400013518</a></dd>
+   			</dl>
+   			<ul>
+   			    <li class="line"></li>
+   				<li><a href="http://openjudge.cn/settings/">个人信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/account/">账户设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/avatar/">头像设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/contact/">联系信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/preference/">偏好设置</a></li>
+   				<li class="line"></li>
+   				<li><a href="/auth/logout/" onclick="api.logout(local.redirect);return false;" title="登出">登出</a></li>
+   			</ul>
+   		</div>  	
+      </li>
+          </ul>
+    <div class="practice-search">
+		 <form class="search-form" action="/search/" method="get">
+	        <input name="q" type="text" value="题目ID, 标题, 描述" onclick="this.select()">
+	        <button type="submit"></button>
+	     </form>	
+	</div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="header">
+  <div class="wrapper">
+  	<div id="groupSmallLog">
+  		<a href="http://dxfjgc.openjudge.cn/"><img class="group-logo" src="http://static.openjudge.cn/images/default_logo_small.png" alt="计算C@邓习峰" width="50" height="50" /></a>    </div>
+	<div class="contest-title-tab">
+		 <h2><a href="http://dxfjgc.openjudge.cn/" title="首页" rel="home">计算C@邓习峰</a></h2>
+		 <span>/</span>
+		 <h2>计概C-2026秋季学期-第5次作业</h2>
+		<span style="font-size:14px;">正在进行中</span>	</div>
+    <ul id="mainNav">
+        <li  class="current"><a href="/2026autumn05/" class="first">题目</a></li>
+            <li ><a href="/2026autumn05/ranking/">排名</a></li>
+                    <li ><a href="/2026autumn05/status/">状态</a></li>
+	     
+        <li ><a href="/2026autumn05/statistics/">统计</a></li>
+				        <li class="last"><a href="/2026autumn05/clarify/" class="last">提问</a></li>
+        </ul>	 
+    <div style="clear:both;"></div>
+  </div>
+</div>
+	
+	<div id="pagebody">
+		<div class="wrapper">
+			<div id="main" class="col-10 contest-problem">
+<div class="timeBar">
+	<dl class="current-contest-info">
+		<dt class="start-time">开始时间</dt>
+		<dd class="start-time-dd">2026-10-22 19:30:00</dd>
+		<dt class="end-time">结束时间</dt>
+		<dd class="end-time-dd">2026-10-27 13:00:00</dd>
+		<dt class="current-time">比赛正在进行中</dt>
+				<dd class="current-time-dd" id="timeclock"></dd>
+			</dl>
+</div>
+		<p class="contest-description">字符串处理，字典</p>
+		
+    		<table>
+	<thead>
+		<tr>
+						<td class="solved"></td>
+						<td class="problem-id">题目ID</td>
+			<td class="title">标题</td>
+			            						<td class="ratio">通过率</td>
+			<td class="accepted">通过人数</td>
+			<td class="submissions">尝试人数</td>
+						
+		</tr>
+	</thead>
+	<tbody>
+			<tr>
+						<td class="solved"></td>
+						<td class="problem-id"><a href="/2026autumn05/1/">1</a></td>
+			<td class="title"><a href="/2026autumn05/1/">最后一个单词长度</a></td>
+			            						<td class="ratio">100%</td>
+			<td class="accepted"><a href="/2026autumn05/1/statistics/">68</a></td>
+			<td class="submissions"><a href="/2026autumn05/1/statistics/">68</a></td>
+						
+		</tr>
+			<tr class="alt">
+						<td class="solved"></td>
+						<td class="problem-id"><a href="/2026autumn05/2/">2</a></td>
+			<td class="title"><a href="/2026autumn05/2/">密码合规检测</a></td>
+			            						<td class="ratio">95%</td>
+			<td class="accepted"><a href="/2026autumn05/2/statistics/">63</a></td>
+			<td class="submissions"><a href="/2026autumn05/2/statistics/">66</a></td>
+						
+		</tr>
+			<tr>
+						<td class="solved"></td>
+						<td class="problem-id"><a href="/2026autumn05/3/">3</a></td>
+			<td class="title"><a href="/2026autumn05/3/">电影排序</a></td>
+			            						<td class="ratio">96%</td>
+			<td class="accepted"><a href="/2026autumn05/3/statistics/">55</a></td>
+			<td class="submissions"><a href="/2026autumn05/3/statistics/">57</a></td>
+						
+		</tr>
+			<tr class="alt">
+						<td class="solved"></td>
+						<td class="problem-id"><a href="/2026autumn05/4/">4</a></td>
+			<td class="title"><a href="/2026autumn05/4/">单位换算 by dengxifeng</a></td>
+			            						<td class="ratio">96%</td>
+			<td class="accepted"><a href="/2026autumn05/4/statistics/">53</a></td>
+			<td class="submissions"><a href="/2026autumn05/4/statistics/">55</a></td>
+						
+		</tr>
+			<tr>
+						<td class="solved"></td>
+						<td class="problem-id"><a href="/2026autumn05/5/">5</a></td>
+			<td class="title"><a href="/2026autumn05/5/">成绩修改</a></td>
+			            						<td class="ratio">77%</td>
+			<td class="accepted"><a href="/2026autumn05/5/statistics/">33</a></td>
+			<td class="submissions"><a href="/2026autumn05/5/statistics/">43</a></td>
+						
+		</tr>
+		</tbody>
+</table><p class="page-bar"></p>
+	</div>
+<div id="side" class="col-2">
+	</div>
+	<script type="text/javascript" language="javascript">
+		document.onload = startTime(1792833846);
+	</script>
+	
+		</div>
+	</div>
+	<div id="footer">
+	<div class="wrapper">
+		<ul class="oj-info">
+			<li>&copy;2002-2022 POJ <a href="http://www.beian.miit.gov.cn">京ICP备20010980号-1</a></li>
+		</ul>
+		<ul class="debug-info">
+									<li>
+				<a style="color:red" href="javascript:void(0);" onclick="api.switchLanguage('en_US');">English</a></li>
+						<li><a href="http://openjudge.cn/help.html" rel="nofollow">帮助</a></li>
+			<li><a href="http://openjudge.cn/about.html" rel="nofollow">关于</a></li>
+		</ul>
+		<div style="clear:both;"></div>
+	</div>
+</div>
+	
+	</body>
+</html>

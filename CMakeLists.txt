@@ -11,6 +11,13 @@ endif()
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Network Sql Multimedia Test)
 
+set(LEXBOR_BUILD_SHARED OFF)
+set(LEXBOR_BUILD_STATIC ON)
+set(LEXBOR_BUILD_TESTS OFF)
+set(LEXBOR_BUILD_EXAMPLES OFF)
+set(LEXBOR_BUILD_UTILS OFF)
+add_subdirectory(lexbor EXCLUDE_FROM_ALL)
+
 qt_standard_project_setup()
 
 qt_add_executable(oj
@@ -62,10 +69,10 @@ qt_add_executable(oj
     src/network/openaiclient.h
     src/network/openjudgeclient.cpp
     src/network/openjudgeclient.h
-    src/parser/loginparser.cpp
-    src/parser/loginparser.h
-    src/parser/classparser.cpp
-    src/parser/classparser.h
+    src/parser/HomepageParser.cpp
+    src/parser/HomepageParser.h
+    src/parser/UserHomePageParser.cpp
+    src/parser/UserHomePageParser.h
     src/parser/groupparser.cpp
     src/parser/groupparser.h
     src/parser/contestparser.cpp
@@ -76,8 +83,6 @@ qt_add_executable(oj
     src/parser/resultparser.h
     src/parser/submitparser.cpp
     src/parser/submitparser.h
-    src/parser/parsercommon.cpp
-    src/parser/parsercommon.h
     src/repository/submit/homerepository.cpp
     src/repository/submit/homerepository.h
     src/repository/cache/homecacherepository.cpp
@@ -159,6 +164,7 @@ target_link_libraries(oj
         Qt::Network
         Qt::Sql
         Qt::Multimedia
+        lexbor_static
 )
 
 if (WIN32)

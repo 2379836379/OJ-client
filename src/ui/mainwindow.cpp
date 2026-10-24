@@ -6,7 +6,7 @@
 #include "network/cookiestore.h"
 #include "network/openaiclient.h"
 #include "network/openjudgeclient.h"
-#include "parser/loginparser.h"
+#include "parser/HomepageParser.h"
 #include "repository/cache/classcacherepository.h"
 #include "repository/cache/contestcacherepository.h"
 #include "repository/cache/homecacherepository.h"
