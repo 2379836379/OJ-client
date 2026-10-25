@@ -1,0 +1,7 @@
+[network]
+
+ServerUrl = "http://10.129.240.62:18080"
+
+[alarm]
+enabled = false
+ring_path = 'E:\OJ-client\vedio\hachimi.mp3'

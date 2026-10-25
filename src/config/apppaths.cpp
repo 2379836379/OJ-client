@@ -22,7 +22,7 @@ QString dataDir()
 
 QString logDir()
 {
-    const QString path = QDir(baseDir()).filePath("log");
+    const QString path = QDir(baseDir()).filePath("log.log");
     QDir().mkpath(path);
     return path;
 }

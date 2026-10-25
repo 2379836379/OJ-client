@@ -2,403 +2,186 @@
 
 #include "config/apppaths.h"
 
-#include <QCoreApplication>
+#include "../../toml++/toml.hpp"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QRegularExpression>
-#include <QStringList>
+#include <QSaveFile>
+
+#include <optional>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 namespace
 {
-QString unquoteTomlValue(const QString &value)
+bool loadDocument(toml::table &document, QString *errorMessage = nullptr)
 {
-    QString trimmed = value.trimmed();
-    if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.size() >= 2) {
-        trimmed = trimmed.mid(1, trimmed.size() - 2);
+    const QString path = AppPaths::appconfigPath();
+    QFile file(path);
+    if (!file.exists()) {
+        return true;
     }
-    trimmed.replace("\\n", "\n");
-    trimmed.replace("\\\"", "\"");
-    return trimmed;
-}
-
-QString appStateOutputPath()
-{
-    return AppPaths::appconfigPath();
-}
-
-QString readAppStateRootString(const QString &targetKey)
-{
-    const QString loadedPath = appStateOutputPath();
-    if (!QFile::exists(loadedPath)) {
-        return QString();
-    }
-
-    QFile file(loadedPath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return QString();
-    }
-
-    const QString content = QString::fromUtf8(file.readAll());
-    QString currentSection;
-    const QRegularExpression sectionRegex("^\\s*\\[([^\\]]+)\\]\\s*$");
-    const QRegularExpression keyValueRegex("^\\s*([A-Za-z0-9_\\-]+)\\s*=\\s*(.*?)\\s*$");
-
-    const QStringList lines = content.split('\n');
-    for (QString line : lines) {
-        const int commentIndex = line.indexOf('#');
-        if (commentIndex >= 0) {
-            line = line.left(commentIndex);
-        }
-        if (line.trimmed().isEmpty()) {
-            continue;
-        }
-
-        const QRegularExpressionMatch sectionMatch = sectionRegex.match(line);
-        if (sectionMatch.hasMatch()) {
-            currentSection = sectionMatch.captured(1).trimmed().toLower();
-            continue;
-        }
-
-        if (!currentSection.isEmpty()) {
-            continue;
-        }
-
-        const QRegularExpressionMatch keyValueMatch = keyValueRegex.match(line);
-        if (!keyValueMatch.hasMatch()) {
-            continue;
-        }
-
-        if (keyValueMatch.captured(1).trimmed().toLower() == targetKey.toLower()) {
-            return unquoteTomlValue(keyValueMatch.captured(2));
-        }
-    }
-
-    return QString();
-}
-
-QString quoteTomlValue(QString text)
-{
-    text.replace("\\", "\\\\");
-    text.replace("\"", "\\\"");
-    text.replace("\n", "\\n");
-    return QString("\"%1\"").arg(text);
-}
-
-QString quoteTomlBool(bool value)
-{
-    return value ? "true" : "false";
-}
-
-QString updateOrAppendRootKey(const QString &content,
-                              const QString &key,
-                              const QString &value)
-{
-    const QStringList lines = content.split('\n');
-    QStringList output;
-    bool replaced = false;
-    bool inserted = false;
-    bool inRootSection = true;
-
-    for (const QString &line : lines) {
-        const QString trimmed = line.trimmed();
-        const bool isSection = trimmed.startsWith('[') && trimmed.endsWith(']');
-        if (isSection && inRootSection && !inserted && !replaced) {
-            output << QString("%1 = %2").arg(key, value);
-            inserted = true;
-        }
-        if (isSection) {
-            inRootSection = false;
-        }
-
-        const QRegularExpression regex(
-            QString("^\\s*%1\\s*=.*$").arg(QRegularExpression::escape(key)));
-        if (inRootSection && regex.match(line).hasMatch()) {
-            output << QString("%1 = %2").arg(key, value);
-            replaced = true;
-            continue;
-        }
-
-        output << line;
-    }
-
-    if (!replaced && !inserted) {
-        if (!output.isEmpty() && !output.last().isEmpty()) {
-            output << QString();
-        }
-        output << QString("%1 = %2").arg(key, value);
-    }
-
-    return output.join('\n');
-}
-
-bool writeAppStateRootKey(const QString &key, const QString &value, QString *errorMessage)
-{
-    const QString savedPath = appStateOutputPath();
-    QDir().mkpath(QFileInfo(savedPath).absolutePath());
-
-    QString content;
-    QFile inputFile(savedPath);
-    if (inputFile.exists()) {
-        if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            if (errorMessage != nullptr) {
-                *errorMessage = QString("Failed to read appstate.toml: %1")
-                                    .arg(inputFile.errorString());
-            }
-            return false;
-        }
-        content = QString::fromUtf8(inputFile.readAll());
-        inputFile.close();
-    }
-
-    const QString updatedContent = updateOrAppendRootKey(content, key, quoteTomlValue(value));
-
-    QFile outputFile(savedPath);
-    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         if (errorMessage != nullptr) {
-            *errorMessage = QString("Failed to write appstate.toml: %1")
-                                .arg(outputFile.errorString());
+            *errorMessage = QString("Failed to read appconfig.toml: %1")
+                                .arg(file.errorString());
         }
         return false;
     }
-    outputFile.write(updatedContent.toUtf8());
-    outputFile.close();
+
+    const QByteArray contents = file.readAll();
+    try {
+        document = toml::parse(
+            std::string_view(contents.constData(), static_cast<size_t>(contents.size())),
+            path.toUtf8().toStdString());
+    } catch (const toml::parse_error &error) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QString("Invalid appconfig.toml: %1")
+                                .arg(QString::fromUtf8(error.what()));
+        }
+        return false;
+    }
+
     return true;
 }
-}
 
-OpenAiConfig AppConfig::loadOpenAiConfig()
+QString readString(const toml::table &document,
+                   std::string_view sectionName,
+                   std::string_view key,
+                   const QString &defaultValue = QString())
 {
-    return AIConfig::loadOpenAiConfig();
-}
-
-QString AppConfig::loadRingPath()
-{
-    const QString loadedPath = appStateOutputPath();
-    if (!QFile::exists(loadedPath)) {
-        return QString();
+    const toml::table *section = document.get_as<toml::table>(sectionName);
+    if (section == nullptr) {
+        return defaultValue;
     }
 
-    QFile file(loadedPath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return QString();
+    const std::optional<std::string> value = (*section)[key].value<std::string>();
+    if (!value.has_value()) {
+        return defaultValue;
+    }
+    return QString::fromUtf8(value->data(), static_cast<qsizetype>(value->size()));
+}
+
+bool saveDocument(const toml::table &document, QString *errorMessage)
+{
+    const QString path = AppPaths::appconfigPath();
+    if (!QDir().mkpath(QFileInfo(path).absolutePath())) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QString("Failed to create appconfig directory: %1")
+                                .arg(QFileInfo(path).absolutePath());
+        }
+        return false;
     }
 
-    const QString content = QString::fromUtf8(file.readAll());
-    QString currentSection;
-    const QRegularExpression sectionRegex("^\\s*\\[([^\\]]+)\\]\\s*$");
-    const QRegularExpression keyValueRegex("^\\s*([A-Za-z0-9_\\-]+)\\s*=\\s*(.*?)\\s*$");
+    std::ostringstream stream;
+    stream << document;
+    const QByteArray contents = QByteArray::fromStdString(stream.str());
 
-    const QStringList lines = content.split('\n');
-    for (QString line : lines) {
-        const int commentIndex = line.indexOf('#');
-        if (commentIndex >= 0) {
-            line = line.left(commentIndex);
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QString("Failed to write appconfig.toml: %1")
+                                .arg(file.errorString());
         }
-        if (line.trimmed().isEmpty()) {
-            continue;
+        return false;
+    }
+    if (file.write(contents) != contents.size()) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QString("Failed to write appconfig.toml: %1")
+                                .arg(file.errorString());
         }
+        file.cancelWriting();
+        return false;
+    }
+    if (!file.commit()) {
+        if (errorMessage != nullptr) {
+            *errorMessage = QString("Failed to save appconfig.toml: %1")
+                                .arg(file.errorString());
+        }
+        return false;
+    }
+    return true;
+}
 
-        const QRegularExpressionMatch sectionMatch = sectionRegex.match(line);
-        if (sectionMatch.hasMatch()) {
-            currentSection = sectionMatch.captured(1).trimmed().toLower();
-            continue;
-        }
+toml::table &ensureSection(toml::table &document, std::string_view sectionName)
+{
+    toml::table *section = document.get_as<toml::table>(sectionName);
+    if (section == nullptr) {
+        document.insert_or_assign(sectionName, toml::table{});
+        section = document.get_as<toml::table>(sectionName);
+    }
+    return *section;
+}
 
-        if (!currentSection.isEmpty()) {
-            continue;
-        }
-
-        const QRegularExpressionMatch keyValueMatch = keyValueRegex.match(line);
-        if (!keyValueMatch.hasMatch()) {
-            continue;
-        }
-
-        const QString key = keyValueMatch.captured(1).trimmed().toLower();
-        if (key == "ring_path") {
-            return unquoteTomlValue(keyValueMatch.captured(2));
-        }
+bool saveString(std::string_view sectionName,
+                std::string_view key,
+                const QString &value,
+                QString *errorMessage)
+{
+    toml::table document;
+    if (!loadDocument(document, errorMessage)) {
+        return false;
     }
 
-    return QString();
+    const QByteArray utf8 = value.toUtf8();
+    ensureSection(document, sectionName)
+        .insert_or_assign(key, std::string(utf8.constData(),
+                                           static_cast<size_t>(utf8.size())));
+    return saveDocument(document, errorMessage);
 }
-
-QString AppConfig::loadJudgerBaseUrl(const QString &defaultValue)
-{
-    const QString value = readAppStateRootString("judger_base_url").trimmed();
-    return value.isEmpty() ? defaultValue : value;
-}
-
-QString AppConfig::loadEmailVerifyUrl(const QString &defaultValue)
-{
-    const QString value = readAppStateRootString("email_verify_url").trimmed();
-    return value.isEmpty() ? defaultValue : value;
-}
-
-QString AppConfig::loadOpenJudgeBaseUrl(const QString &defaultValue)
-{
-    const QString value = readAppStateRootString("openjudge_base_url").trimmed();
-    return value.isEmpty() ? defaultValue : value;
 }
 
 bool AppConfig::loadAlarmEnabled(bool defaultValue)
 {
-    const QString loadedPath = appStateOutputPath();
-    if (!QFile::exists(loadedPath)) {
+    toml::table document;
+    if (!loadDocument(document)) {
         return defaultValue;
     }
 
-    QFile file(loadedPath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    const toml::table *alarm = document.get_as<toml::table>("alarm");
+    if (alarm == nullptr) {
         return defaultValue;
     }
-
-    const QString content = QString::fromUtf8(file.readAll());
-    QString currentSection;
-    const QRegularExpression sectionRegex("^\\s*\\[([^\\]]+)\\]\\s*$");
-    const QRegularExpression keyValueRegex("^\\s*([A-Za-z0-9_\\-]+)\\s*=\\s*(.*?)\\s*$");
-
-    const QStringList lines = content.split('\n');
-    for (QString line : lines) {
-        const int commentIndex = line.indexOf('#');
-        if (commentIndex >= 0) {
-            line = line.left(commentIndex);
-        }
-        if (line.trimmed().isEmpty()) {
-            continue;
-        }
-
-        const QRegularExpressionMatch sectionMatch = sectionRegex.match(line);
-        if (sectionMatch.hasMatch()) {
-            currentSection = sectionMatch.captured(1).trimmed().toLower();
-            continue;
-        }
-
-        if (!currentSection.isEmpty()) {
-            continue;
-        }
-
-        const QRegularExpressionMatch keyValueMatch = keyValueRegex.match(line);
-        if (!keyValueMatch.hasMatch()) {
-            continue;
-        }
-
-        const QString key = keyValueMatch.captured(1).trimmed().toLower();
-        if (key != "alarm_enabled") {
-            continue;
-        }
-
-        const QString value = keyValueMatch.captured(2).trimmed().toLower();
-        if (value == "true") {
-            return true;
-        }
-        if (value == "false") {
-            return false;
-        }
-        return defaultValue;
-    }
-
-    return defaultValue;
+    return (*alarm)["enabled"].value<bool>().value_or(defaultValue);
 }
 
-QString AppConfig::loadConfigText(QString *sourcePath)
+QString AppConfig::loadRingPath()
 {
-    return AIConfig::loadConfigText(sourcePath);
+    toml::table document;
+    if (!loadDocument(document)) {
+        return QString();
+    }
+    return readString(document, "alarm", "ring_path");
 }
 
-bool AppConfig::saveOpenAiConfig(const OpenAiConfig &config, QString *errorMessage)
+QString AppConfig::loadServerUrl()
 {
-    return AIConfig::saveOpenAiConfig(config, errorMessage);
-}
-
-bool AppConfig::saveRingPath(const QString &path, QString *errorMessage)
-{
-    const QString savedPath = appStateOutputPath();
-    QDir().mkpath(QFileInfo(savedPath).absolutePath());
-
-    QString content;
-    QFile inputFile(savedPath);
-    if (inputFile.exists()) {
-        if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            if (errorMessage != nullptr) {
-                *errorMessage = QString("Failed to read appstate.toml: %1")
-                                    .arg(inputFile.errorString());
-            }
-            return false;
-        }
-        content = QString::fromUtf8(inputFile.readAll());
-        inputFile.close();
+    toml::table document;
+    if (!loadDocument(document)) {
+        return QString();
     }
-
-    const QString updatedContent = updateOrAppendRootKey(
-        content, "ring_path", quoteTomlValue(path));
-
-    QFile outputFile(savedPath);
-    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        if (errorMessage != nullptr) {
-            *errorMessage = QString("Failed to write appstate.toml: %1")
-                                .arg(outputFile.errorString());
-        }
-        return false;
-    }
-    outputFile.write(updatedContent.toUtf8());
-    outputFile.close();
-    return true;
+    return readString(document, "network", "ServerUrl");
 }
 
 bool AppConfig::saveAlarmEnabled(bool enabled, QString *errorMessage)
 {
-    const QString savedPath = appStateOutputPath();
-    QDir().mkpath(QFileInfo(savedPath).absolutePath());
-
-    QString content;
-    QFile inputFile(savedPath);
-    if (inputFile.exists()) {
-        if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            if (errorMessage != nullptr) {
-                *errorMessage = QString("Failed to read appstate.toml: %1")
-                                    .arg(inputFile.errorString());
-            }
-            return false;
-        }
-        content = QString::fromUtf8(inputFile.readAll());
-        inputFile.close();
-    }
-
-    const QString updatedContent = updateOrAppendRootKey(
-        content, "alarm_enabled", quoteTomlBool(enabled));
-
-    QFile outputFile(savedPath);
-    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        if (errorMessage != nullptr) {
-            *errorMessage = QString("Failed to write appstate.toml: %1")
-                                .arg(outputFile.errorString());
-        }
+    toml::table document;
+    if (!loadDocument(document, errorMessage)) {
         return false;
     }
-    outputFile.write(updatedContent.toUtf8());
-    outputFile.close();
-    return true;
+
+    ensureSection(document, "alarm").insert_or_assign("enabled", enabled);
+    return saveDocument(document, errorMessage);
 }
 
-bool AppConfig::saveOpenJudgeBaseUrl(const QString &value, QString *errorMessage)
+bool AppConfig::saveServerUrl(const QString &value, QString *errorMessage)
 {
-    return writeAppStateRootKey("openjudge_base_url", value.trimmed(), errorMessage);
+    return saveString("network", "ServerUrl", value, errorMessage);
 }
 
-bool AppConfig::saveJudgerBaseUrl(const QString &value, QString *errorMessage)
+bool AppConfig::saveRingPath(const QString &path, QString *errorMessage)
 {
-    return writeAppStateRootKey("judger_base_url", value.trimmed(), errorMessage);
-}
-
-bool AppConfig::saveEmailVerifyUrl(const QString &value, QString *errorMessage)
-{
-    return writeAppStateRootKey("email_verify_url", value.trimmed(), errorMessage);
-}
-
-bool AppConfig::saveConfigText(const QString &content,
-                               QString *savedPath,
-                               QString *errorMessage)
-{
-    return AIConfig::saveConfigText(content, savedPath, errorMessage);
+    return saveString("alarm", "ring_path", path, errorMessage);
 }
