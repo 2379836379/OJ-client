@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser/groupparser.h"
+#include "parser/GroupPage.h"
 
 #include <QWidget>
 

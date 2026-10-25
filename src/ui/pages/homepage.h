@@ -1,10 +1,11 @@
 #pragma once
 
-#include "parser/UserHomePageParser.h"
+#include "parser/UserHomepage.h"
 #include "service/reminder/reminderservice.h"
 
 #include <QWidget>
 
+class ContestPageCache;
 class QLabel;
 class QListWidget;
 class QListWidgetItem;
@@ -17,7 +18,8 @@ class HomePage : public QWidget
     Q_OBJECT
 
 public:
-    explicit HomePage(QWidget *parent = nullptr);
+    explicit HomePage(ContestPageCache *contestCache,
+                      QWidget *parent = nullptr);
     void setDarkMode(bool dark);
 
     void showLoggingIn();
@@ -70,6 +72,7 @@ private:
     QPushButton *m_collapsedAiConfigButton = nullptr;
     QPushButton *m_collapsedLogoutButton = nullptr;
     QListWidget *m_reminderListWidget = nullptr;
+    ContestPageCache *m_contestCache = nullptr;
     bool m_toolsExpanded = true;
     bool m_darkMode = false;
 };

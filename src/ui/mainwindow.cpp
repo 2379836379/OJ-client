@@ -3,39 +3,34 @@
 
 #include "config/appconfig.h"
 #include "config/apppaths.h"
+#include "browse/ContestPage.h"
+#include "browse/Group.h"
+#include "browse/ProblemPage.h"
+#include "browse/UserHomepage.h"
+#include "cache/CacheService.h"
+#include "cache/ContestPageCache.h"
+#include "cache/GroupHomepageCache.h"
+#include "cache/GroupPageCache.h"
+#include "cache/HomepageCache.h"
+#include "cache/ProblemPageCache.h"
+#include "cache/UserHomepageCache.h"
 #include "network/cookiestore.h"
 #include "network/openaiclient.h"
 #include "network/openjudgeclient.h"
-#include "parser/HomepageParser.h"
-#include "repository/cache/classcacherepository.h"
-#include "repository/cache/contestcacherepository.h"
-#include "repository/cache/homecacherepository.h"
-#include "repository/cache/problemcacherepository.h"
 #include "repository/favorite/favoriteproblemrepository.h"
 #include "repository/meta/problemmetarepository.h"
 #include "repository/login/logincacherepository.h"
-#include "repository/submit/classrepository.h"
-#include "repository/submit/contestrepository.h"
-#include "repository/submit/homerepository.h"
-#include "repository/submit/problemrepository.h"
-#include "repository/submit/resultrepository.h"
-#include "repository/submit/submitrepository.h"
-#include "service/browse/classservice.h"
-#include "service/browse/contestservice.h"
-#include "service/browse/homeservice.h"
-#include "service/browse/problemservice.h"
-#include "service/cache/cacheservice.h"
 #include "service/favorite/favoriteproblemservice.h"
 #include "service/meta/problemmetaservice.h"
-#include "service/app/applicationsizeservice.h"
+#include "app/applicationsizeservice.h"
 #include "service/ai/aiservice.h"
 #include "service/login/loginservice.h"
 #include "service/login/emailverifyservice.h"
 #include "service/login/logincacheservice.h"
 #include "service/reminder/deadlinealarmservice.h"
 #include "service/reminder/reminderservice.h"
-#include "service/submit/resultservice.h"
-#include "service/submit/submitservice.h"
+#include "submit/resultservice.h"
+#include "submit/submitservice.h"
 #include "ui/pages/classpage.h"
 #include "ui/pages/contestpage.h"
 #include "ui/pages/aiconfigpage.h"
@@ -406,24 +401,25 @@ MainWindow::MainWindow(QWidget *parent)
     m_client->setCookieStore(m_cookieStore);
     writeStartupLog("MainWindow: core clients created");
 
-    m_homeRepository = new HomeRepository(m_client, this);
-    m_homeCacheRepository = new HomeCacheRepository();
-    m_classRepository = new ClassRepository(m_client, this);
-    m_classCacheRepository = new ClassCacheRepository();
-    m_contestRepository = new ContestRepository(m_client, this);
-    m_contestCacheRepository = new ContestCacheRepository();
-    m_problemRepository = new ProblemRepository(m_client, this);
-    m_problemCacheRepository = new ProblemCacheRepository();
+    m_homepageCache = new HomepageCache();
+    m_userHomepageCache = new UserHomepageCache();
+    m_groupHomepageCache = new GroupHomepageCache();
+    m_groupPageCache = new GroupPageCache();
+    m_contestPageCache = new ContestPageCache();
+    m_problemPageCache = new ProblemPageCache();
     m_loginCacheRepository = new LoginCacheRepository();
-    m_resultRepository = new ResultRepository(m_client, this);
-    m_submitRepository = new SubmitRepository(m_client, this);
-    m_reminderClassRepository = new ClassRepository(m_client, this);
-    writeStartupLog("MainWindow: repositories created");
-
-    m_cacheService = new CacheService(m_homeCacheRepository,
-                                      m_classCacheRepository,
-                                      m_contestCacheRepository,
-                                      m_problemCacheRepository,
+    m_userHomepage = new Browse::UserHomepage(m_client, m_userHomepageCache, this);
+    m_browseGroup = new Browse::Group(
+        m_client, m_groupHomepageCache, m_groupPageCache, this);
+    m_reminderGroup = new Browse::Group(m_client, nullptr, nullptr, this);
+    m_browseContestPage = new Browse::ContestPage(m_client, m_contestPageCache, this);
+    m_browseProblemPage = new Browse::ProblemPage(m_client, m_problemPageCache, this);
+    m_cacheService = new CacheService(m_homepageCache,
+                                      m_userHomepageCache,
+                                      m_groupHomepageCache,
+                                      m_groupPageCache,
+                                      m_contestPageCache,
+                                      m_problemPageCache,
                                       this);
     m_loginService = new LoginService(m_client, this);
     m_loginCacheService = new LoginCacheService(m_loginCacheRepository, this);
@@ -513,25 +509,15 @@ MainWindow::MainWindow(QWidget *parent)
                                  openAiConfig.model);
     m_alarmEnabled = AppConfig::loadAlarmEnabled(false);
     m_alarmRingPath = AppConfig::loadRingPath();
-    m_homeService = new HomeService(m_homeRepository, m_homeCacheRepository, this);
-    m_classService = new ClassService(
-        m_classRepository, m_classCacheRepository, this);
-    m_contestService = new ContestService(
-        m_contestRepository, m_contestCacheRepository, this);
-    m_problemService = new ProblemService(
-        m_problemRepository, m_problemCacheRepository, this);
     m_favoriteProblemRepository = new FavoriteProblemRepository();
     m_favoriteProblemService = new FavoriteProblemService(
         m_favoriteProblemRepository, this);
     m_problemMetaRepository = new ProblemMetaRepository();
     m_problemMetaService = new ProblemMetaService(
         m_problemMetaRepository, this);
-    m_resultService = new ResultService(m_resultRepository, this);
-    m_submitService = new SubmitService(m_submitRepository, this);
-    m_reminderService = new ReminderService(
-        m_reminderClassRepository,
-        m_classCacheRepository,
-        this);
+    m_resultService = new ResultService(m_client, this);
+    m_submitService = new SubmitService(m_client, this);
+    m_reminderService = new ReminderService(m_reminderGroup, this);
     m_deadlineAlarmService = new DeadlineAlarmService(this);
     m_deadlineAlarmService->setEnabled(m_alarmEnabled);
     m_alarmAudioOutput = new QAudioOutput(this);
@@ -576,10 +562,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete m_homeCacheRepository;
-    delete m_classCacheRepository;
-    delete m_contestCacheRepository;
-    delete m_problemCacheRepository;
+    delete m_homepageCache;
+    delete m_userHomepageCache;
+    delete m_groupHomepageCache;
+    delete m_groupPageCache;
+    delete m_contestPageCache;
+    delete m_problemPageCache;
     delete m_loginCacheRepository;
     delete m_favoriteProblemRepository;
     delete m_problemMetaRepository;
@@ -591,7 +579,7 @@ void MainWindow::setupUiState()
     writeStartupLog("MainWindow: setupUiState begin");
     m_loginPage = new LoginPage(this);
     writeStartupLog("MainWindow: login page created");
-    m_homePage = new HomePage(this);
+    m_homePage = new HomePage(m_contestPageCache, this);
     writeStartupLog("MainWindow: home page created");
     m_aiConfigPage = new AiConfigPage(this);
     writeStartupLog("MainWindow: ai config page created");
@@ -784,7 +772,7 @@ void MainWindow::connectSignals()
             m_verifiedEmail = m_loginPage->email();
             showRootPage(m_homePage);
             m_homePage->showOpeningHome();
-            m_homeService->openHome(personalHomeUrl);
+            m_userHomepage->open(personalHomeUrl);
         });
     connect(
         m_loginCacheService,
@@ -877,7 +865,7 @@ void MainWindow::connectSignals()
         [this](const QString &name, const QString &url) {
             m_classPage->openClass(name, url);
             pushPage(m_classPage);
-            m_classService->openClass(QUrl(url));
+            m_browseGroup->open(QUrl(url));
         });
     connect(
         m_homePage,
@@ -923,12 +911,12 @@ void MainWindow::connectSignals()
         &HomePage::refreshRequested,
         this,
         [this]() {
-            const QUrl homeUrl = m_homeService->currentHomeUrl();
+            const QUrl homeUrl = m_userHomepage->currentUrl();
             if (!homeUrl.isValid() || homeUrl.scheme().isEmpty()) {
                 return;
             }
             m_homePage->showOpeningHome();
-            m_homeService->openHome(homeUrl);
+            m_userHomepage->open(homeUrl);
         });
     connect(
         m_homePage,
@@ -982,7 +970,7 @@ void MainWindow::connectSignals()
 
             m_contestPage->openContest(title, contestUrl.toString());
             pushPage(m_contestPage);
-            m_contestService->openContest(contestUrl);
+            m_browseContestPage->open(contestUrl);
         });
 
     connect(m_classPage, &ClassPage::backRequested, this, &MainWindow::popPage);
@@ -996,7 +984,7 @@ void MainWindow::connectSignals()
         [this](const QString &title, const QString &url) {
             m_contestPage->openContest(title, url);
             pushPage(m_contestPage);
-            m_contestService->openContest(QUrl(url));
+            m_browseContestPage->open(QUrl(url));
         });
 
     connect(m_contestPage, &ContestPage::backRequested, this, &MainWindow::popPage);
@@ -1779,8 +1767,8 @@ void MainWindow::connectSignals()
         });
 
     connect(
-        m_homeService,
-        &HomeService::loadingChanged,
+        m_userHomepage,
+        &Browse::UserHomepage::loadingChanged,
         this,
         [this](bool loading) {
             if (loading) {
@@ -1788,15 +1776,15 @@ void MainWindow::connectSignals()
             }
         });
     connect(
-        m_homeService,
-        &HomeService::failed,
+        m_userHomepage,
+        &Browse::UserHomepage::failed,
         this,
         [this](const QString &message) {
             m_homePage->showHomeLoadFailed(message);
         });
     connect(
-        m_homeService,
-        &HomeService::homeLoaded,
+        m_userHomepage,
+        &Browse::UserHomepage::loaded,
         this,
         [this](const QList<JoinedClassInfo> &classes) {
             showRootPage(m_homePage);
@@ -1827,8 +1815,8 @@ void MainWindow::connectSignals()
         });
 
     connect(
-        m_classService,
-        &ClassService::loadingChanged,
+        m_browseGroup,
+        &Browse::Group::loadingChanged,
         this,
         [this](bool loading) {
             if (loading) {
@@ -1840,31 +1828,31 @@ void MainWindow::connectSignals()
         &ClassPage::refreshRequested,
         this,
         [this]() {
-            const QUrl classUrl = m_classService->currentClassUrl();
+            const QUrl classUrl = m_browseGroup->currentUrl();
             if (!classUrl.isValid() || classUrl.scheme().isEmpty()) {
                 return;
             }
             m_classPage->showLoadingContests();
-            m_classService->openClass(classUrl);
+            m_browseGroup->open(classUrl);
         });
     connect(
-        m_classService,
-        &ClassService::failed,
+        m_browseGroup,
+        &Browse::Group::failed,
         this,
         [this](const QString &message) {
             m_classPage->showClassLoadFailed(message);
         });
     connect(
-        m_classService,
-        &ClassService::classLoaded,
+        m_browseGroup,
+        &Browse::Group::loaded,
         this,
-        [this](const ClassPageInfo &, const GroupPageInfo &groupPageInfo) {
+        [this](const QUrl &, const GroupPageInfo &groupPageInfo) {
             m_classPage->showContestSets(groupPageInfo);
         });
 
     connect(
-        m_contestService,
-        &ContestService::loadingChanged,
+        m_browseContestPage,
+        &Browse::ContestPage::loadingChanged,
         this,
         [this](bool loading) {
             if (loading) {
@@ -1876,45 +1864,45 @@ void MainWindow::connectSignals()
         &ContestPage::refreshRequested,
         this,
         [this]() {
-            const QUrl contestUrl = m_contestService->currentContestUrl();
+            const QUrl contestUrl = m_browseContestPage->currentUrl();
             if (!contestUrl.isValid() || contestUrl.scheme().isEmpty()) {
                 return;
             }
             m_contestPage->showLoadingProblems();
-            m_contestService->openContest(contestUrl);
+            m_browseContestPage->open(contestUrl);
         });
     connect(
-        m_contestService,
-        &ContestService::failed,
+        m_browseContestPage,
+        &Browse::ContestPage::failed,
         this,
         [this](const QString &message) {
             m_contestPage->showContestLoadFailed(message);
         });
     connect(
-        m_contestService,
-        &ContestService::contestLoaded,
+        m_browseContestPage,
+        &Browse::ContestPage::loaded,
         this,
         [this](const ContestPageInfo &contestPageInfo) {
             m_contestPage->showProblems(contestPageInfo);
         });
 
     connect(
-        m_problemService,
-        &ProblemService::loadingChanged,
+        m_browseProblemPage,
+        &Browse::ProblemPage::loadingChanged,
         this,
         [this](bool loading) {
             Q_UNUSED(loading);
         });
     connect(
-        m_problemService,
-        &ProblemService::failed,
+        m_browseProblemPage,
+        &Browse::ProblemPage::failed,
         this,
         [this](const QString &message) {
             m_problemPage->showProblemLoadFailed(message);
         });
     connect(
-        m_problemService,
-        &ProblemService::problemLoaded,
+        m_browseProblemPage,
+        &Browse::ProblemPage::loaded,
         this,
         [this](const ProblemPageInfo &problemPageInfo) {
             writeStartupLog("MainWindow: problemLoaded signal received");
@@ -2068,7 +2056,7 @@ void MainWindow::openProblemPage(const QString &problemUrl,
         return;
     }
 
-    m_problemService->openProblem(QUrl(problemUrl));
+    m_browseProblemPage->open(QUrl(problemUrl));
 }
 
 void MainWindow::saveCurrentProblemToFavorites()

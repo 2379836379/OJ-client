@@ -1,19 +1,19 @@
 #pragma once
 
-#include "parser/resultparser.h"
+#include "parser/ResultPage.h"
 
 #include <QObject>
 #include <QTimer>
 #include <QUrl>
 
-class ResultRepository;
+class OpenJudgeClient;
 
 class ResultService : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ResultService(ResultRepository *repository, QObject *parent = nullptr);
+    explicit ResultService(OpenJudgeClient *client, QObject *parent = nullptr);
 
     void openResult(const QUrl &resultPageUrl);
     QUrl currentResultUrl() const;
@@ -26,8 +26,8 @@ signals:
 private:
     void scheduleRetry();
 
-    ResultRepository *m_repository = nullptr;
+    OpenJudgeClient *m_client = nullptr;
     QUrl m_currentResultUrl;
+    QUrl m_expectedResultUrl;
     QTimer m_retryTimer;
-    bool m_loading = false;
 };

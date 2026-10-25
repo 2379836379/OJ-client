@@ -1,6 +1,6 @@
 #include "resultservice.h"
 
-#include "repository/submit/resultrepository.h"
+#include "network/openjudgeclient.h"
 
 namespace
 {
@@ -10,9 +10,9 @@ bool isWaitingStatus(const QString &statusText)
 }
 }
 
-ResultService::ResultService(ResultRepository *repository, QObject *parent)
+ResultService::ResultService(OpenJudgeClient *client, QObject *parent)
     : QObject(parent)
-    , m_repository(repository)
+    , m_client(client)
 {
     m_retryTimer.setSingleShot(true);
     connect(&m_retryTimer, &QTimer::timeout, this, [this]() {
@@ -20,16 +20,30 @@ ResultService::ResultService(ResultRepository *repository, QObject *parent)
             return;
         }
 
-        m_loading = true;
+        m_expectedResultUrl = m_currentResultUrl;
         emit loadingChanged(true);
-        m_repository->fetchResultPage(m_currentResultUrl);
+        m_client->fetchResultPage(m_currentResultUrl);
     });
 
     connect(
-        m_repository,
-        &ResultRepository::resultPageFetched,
+        m_client,
+        &OpenJudgeClient::resultPageFinished,
         this,
-        [this](const ResultPageInfo &resultPageInfo) {
+        [this](const NetworkResult &result) {
+            if (!m_expectedResultUrl.isEmpty()
+                && result.requestUrl != m_expectedResultUrl) {
+                return;
+            }
+            m_expectedResultUrl = {};
+            if (!result.ok) {
+                m_retryTimer.stop();
+                emit loadingChanged(false);
+                emit failed(result.errorString);
+                return;
+            }
+
+            const ResultPageInfo resultPageInfo =
+                ResultPageParser::parseResultPage(result.body);
             emit resultLoaded(resultPageInfo);
 
             if (isWaitingStatus(resultPageInfo.statusText)) {
@@ -38,19 +52,7 @@ ResultService::ResultService(ResultRepository *repository, QObject *parent)
             }
 
             m_retryTimer.stop();
-            m_loading = false;
             emit loadingChanged(false);
-        });
-
-    connect(
-        m_repository,
-        &ResultRepository::requestFailed,
-        this,
-        [this](const QString &, const QString &message) {
-            m_retryTimer.stop();
-            m_loading = false;
-            emit loadingChanged(false);
-            emit failed(message);
         });
 }
 
@@ -58,9 +60,9 @@ void ResultService::openResult(const QUrl &resultPageUrl)
 {
     m_retryTimer.stop();
     m_currentResultUrl = resultPageUrl;
-    m_loading = true;
+    m_expectedResultUrl = resultPageUrl;
     emit loadingChanged(true);
-    m_repository->fetchResultPage(resultPageUrl);
+    m_client->fetchResultPage(resultPageUrl);
 }
 
 QUrl ResultService::currentResultUrl() const

@@ -1,18 +1,12 @@
 #include "reminderservice.h"
 
-#include "repository/cache/classcacherepository.h"
-#include "repository/submit/classrepository.h"
+#include "browse/Group.h"
 
 #include <algorithm>
 #include <QRegularExpression>
 
 namespace
 {
-bool isContestItem(const ContestSetInfo &contestSet)
-{
-    return contestSet.itemClass.contains("contest-info");
-}
-
 bool isWithinOneWeek(const QDateTime &now, const QDateTime &deadline)
 {
     const qint64 seconds = now.secsTo(deadline);
@@ -42,94 +36,74 @@ bool sameReminders(const QList<DeadlineReminder> &lhs,
 }
 }
 
-ReminderService::ReminderService(ClassRepository *classRepository,
-                                 ClassCacheRepository *classCacheRepository,
+ReminderService::ReminderService(Browse::Group *group,
                                  QObject *parent)
     : QObject(parent)
-    , m_classRepository(classRepository)
-    , m_classCacheRepository(classCacheRepository)
+    , m_group(group)
 {
     connect(
-        m_classRepository,
-        &ClassRepository::contestSetsFetched,
+        m_group,
+        &Browse::Group::loaded,
         this,
-        [this](const ClassPageInfo &classPageInfo,
-               const GroupPageInfo &groupPageInfo) {
-            if (m_classCacheRepository != nullptr) {
-                m_classCacheRepository->saveClass(classPageInfo, groupPageInfo);
-            }
-            updateClassReminders(
-                classPageInfo.classPageUrl,
-                collectReminders(classPageInfo, groupPageInfo));
-            processNextClass();
+        [this](const QUrl &groupPageUrl, const GroupPageInfo &groupPageInfo) {
+            m_currentGroupPageUrl = groupPageUrl;
+            updateGroupReminders(
+                m_currentGroup.url,
+                collectReminders(m_currentGroup,
+                                 m_currentGroupPageUrl,
+                                 groupPageInfo));
+            processNextGroup();
         });
 
-    connect(
-        m_classRepository,
-        &ClassRepository::requestFailed,
-        this,
-        [this](const QString &, const QString &message) {
+    auto handleFailure = [this](const QString &message) {
             if (!message.isEmpty()) {
                 emit failed(message);
             }
-            processNextClass();
-        });
+            processNextGroup();
+        };
+    connect(m_group, &Browse::Group::failed, this, handleFailure);
 }
 
-void ReminderService::refreshReminders(const QList<JoinedClassInfo> &classes)
+void ReminderService::refreshReminders(const QList<JoinedClassInfo> &groups)
 {
-    m_pendingClasses.clear();
-    m_remindersByClass.clear();
-    for (const JoinedClassInfo &joinedClass : classes) {
-        m_pendingClasses.enqueue(joinedClass);
+    m_pendingGroups.clear();
+    m_remindersByGroup.clear();
+    for (const JoinedClassInfo &group : groups) {
+        m_pendingGroups.enqueue(group);
     }
 
     m_loading = true;
     emit loadingChanged(true);
-    processNextClass();
+    processNextGroup();
 }
 
-void ReminderService::processNextClass()
+void ReminderService::processNextGroup()
 {
-    if (m_pendingClasses.isEmpty()) {
+    if (m_pendingGroups.isEmpty()) {
         finalizeRefresh();
         return;
     }
 
-    const JoinedClassInfo joinedClass = m_pendingClasses.dequeue();
-    if (m_classCacheRepository != nullptr) {
-        ClassPageInfo cachedClassInfo;
-        GroupPageInfo cachedGroupInfo;
-        if (m_classCacheRepository->loadClass(
-                joinedClass.url, &cachedClassInfo, &cachedGroupInfo)) {
-            updateClassReminders(
-                joinedClass.url,
-                collectReminders(cachedClassInfo, cachedGroupInfo));
-        }
-    }
-
-    m_classRepository->fetchContestSets(QUrl(joinedClass.url));
+    m_currentGroup = m_pendingGroups.dequeue();
+    m_currentGroupPageUrl = {};
+    m_group->open(QUrl(m_currentGroup.url));
 }
 
 QList<DeadlineReminder> ReminderService::collectReminders(
-    const ClassPageInfo &classPageInfo,
+    const JoinedClassInfo &group,
+    const QUrl &groupPageUrl,
     const GroupPageInfo &groupPageInfo) const
 {
     QList<DeadlineReminder> reminders;
     const QDateTime now = QDateTime::currentDateTime();
-    const QUrl groupPageUrl(groupPageInfo.groupPageUrl);
     for (const ContestSetInfo &contestSet : groupPageInfo.contestSets) {
-        if (!isContestItem(contestSet)) {
-            continue;
-        }
-
         const QDateTime deadline = parseDeadline(contestSet.endtime);
         if (!deadline.isValid() || !isWithinOneWeek(now, deadline)) {
             continue;
         }
 
         DeadlineReminder reminder;
-        reminder.courseName = classPageInfo.courseName;
+        reminder.courseName = group.name;
         reminder.contestTitle = contestSet.title;
         reminder.contestUrl =
             groupPageUrl.resolved(QUrl(contestSet.url)).toString();
@@ -140,23 +114,23 @@ QList<DeadlineReminder> ReminderService::collectReminders(
     return reminders;
 }
 
-void ReminderService::updateClassReminders(const QString &classUrl,
+void ReminderService::updateGroupReminders(const QString &groupUrl,
                                            const QList<DeadlineReminder> &reminders)
 {
-    const auto existingIt = m_remindersByClass.constFind(classUrl);
-    if (existingIt != m_remindersByClass.cend()
+    const auto existingIt = m_remindersByGroup.constFind(groupUrl);
+    if (existingIt != m_remindersByGroup.cend()
         && sameReminders(existingIt.value(), reminders)) {
         return;
     }
 
-    m_remindersByClass.insert(classUrl, reminders);
+    m_remindersByGroup.insert(groupUrl, reminders);
     emitCombinedReminders();
 }
 
 void ReminderService::emitCombinedReminders()
 {
     QList<DeadlineReminder> combined;
-    for (auto it = m_remindersByClass.cbegin(); it != m_remindersByClass.cend(); ++it) {
+    for (auto it = m_remindersByGroup.cbegin(); it != m_remindersByGroup.cend(); ++it) {
         combined += it.value();
     }
 

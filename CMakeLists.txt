@@ -86,54 +86,53 @@ qt_add_executable(oj
     src/parser/ResultPage.h
     src/parser/SubmitPage.cpp
     src/parser/SubmitPage.h
-    src/repository/submit/homerepository.cpp
-    src/repository/submit/homerepository.h
-    src/repository/cache/homecacherepository.cpp
-    src/repository/cache/homecacherepository.h
-    src/repository/cache/classcacherepository.cpp
-    src/repository/cache/classcacherepository.h
-    src/repository/submit/classrepository.cpp
-    src/repository/submit/classrepository.h
-    src/repository/cache/contestcacherepository.cpp
-    src/repository/cache/contestcacherepository.h
-    src/repository/submit/contestrepository.cpp
-    src/repository/submit/contestrepository.h
-    src/repository/submit/problemrepository.cpp
-    src/repository/submit/problemrepository.h
-    src/repository/submit/resultrepository.cpp
-    src/repository/submit/resultrepository.h
-    src/repository/submit/submitrepository.cpp
-    src/repository/submit/submitrepository.h
-    src/repository/cache/problemcacherepository.cpp
-    src/repository/cache/problemcacherepository.h
     src/repository/favorite/favoriteproblemrepository.cpp
     src/repository/favorite/favoriteproblemrepository.h
     src/repository/meta/problemmetarepository.cpp
     src/repository/meta/problemmetarepository.h
     src/repository/login/logincacherepository.cpp
     src/repository/login/logincacherepository.h
-    src/service/browse/homeservice.cpp
-    src/service/browse/homeservice.h
-    src/service/browse/classservice.cpp
-    src/service/browse/classservice.h
-    src/service/browse/contestservice.cpp
-    src/service/browse/contestservice.h
-    src/service/browse/problemservice.cpp
-    src/service/browse/problemservice.h
-    src/service/app/applicationsizeservice.cpp
-    src/service/app/applicationsizeservice.h
+    src/app/applicationsizeservice.cpp
+    src/app/applicationsizeservice.h
     src/service/ai/aiservice.cpp
     src/service/ai/aiservice.h
-    src/service/cache/cacheservice.cpp
-    src/service/cache/cacheservice.h
     src/service/reminder/deadlinealarmservice.cpp
     src/service/reminder/deadlinealarmservice.h
     src/service/reminder/reminderservice.cpp
     src/service/reminder/reminderservice.h
-    src/service/submit/resultservice.cpp
-    src/service/submit/resultservice.h
-    src/service/submit/submitservice.cpp
-    src/service/submit/submitservice.h
+    src/submit/resultservice.cpp
+    src/submit/resultservice.h
+    src/submit/submitservice.cpp
+    src/submit/submitservice.h
+    src/browse/Group.cpp
+    src/browse/Group.h
+    src/browse/GroupHomepage.cpp
+    src/browse/GroupHomepage.h
+    src/browse/GroupPage.cpp
+    src/browse/GroupPage.h
+    src/browse/Homepage.cpp
+    src/browse/Homepage.h
+    src/browse/UserHomepage.cpp
+    src/browse/UserHomepage.h
+    src/browse/ContestPage.cpp
+    src/browse/ContestPage.h
+    src/browse/ProblemPage.cpp
+    src/browse/ProblemPage.h
+    src/cache/CacheService.cpp
+    src/cache/CacheService.h
+    src/cache/PageCacheStore.h
+    src/cache/HomepageCache.cpp
+    src/cache/HomepageCache.h
+    src/cache/UserHomepageCache.cpp
+    src/cache/UserHomepageCache.h
+    src/cache/GroupHomepageCache.cpp
+    src/cache/GroupHomepageCache.h
+    src/cache/GroupPageCache.cpp
+    src/cache/GroupPageCache.h
+    src/cache/ContestPageCache.cpp
+    src/cache/ContestPageCache.h
+    src/cache/ProblemPageCache.cpp
+    src/cache/ProblemPageCache.h
     src/service/favorite/favoriteproblemservice.cpp
     src/service/favorite/favoriteproblemservice.h
     src/service/meta/problemmetaservice.cpp

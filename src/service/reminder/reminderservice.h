@@ -1,16 +1,18 @@
 #pragma once
 
-#include "parser/UserHomePageParser.h"
-#include "parser/groupparser.h"
-#include "parser/HomepageParser.h"
+#include "parser/GroupPage.h"
+#include "parser/UserHomepage.h"
 
 #include <QDateTime>
 #include <QHash>
 #include <QObject>
 #include <QQueue>
+#include <QUrl>
 
-class ClassRepository;
-class ClassCacheRepository;
+namespace Browse
+{
+class Group;
+}
 
 struct DeadlineReminder
 {
@@ -26,11 +28,10 @@ class ReminderService : public QObject
     Q_OBJECT
 
 public:
-    explicit ReminderService(ClassRepository *classRepository,
-                             ClassCacheRepository *classCacheRepository,
+    explicit ReminderService(Browse::Group *group,
                              QObject *parent = nullptr);
 
-    void refreshReminders(const QList<JoinedClassInfo> &classes);
+    void refreshReminders(const QList<JoinedClassInfo> &groups);
 
 signals:
     void loadingChanged(bool loading);
@@ -38,18 +39,20 @@ signals:
     void failed(const QString &message);
 
 private:
-    void processNextClass();
-    QList<DeadlineReminder> collectReminders(const ClassPageInfo &classPageInfo,
+    void processNextGroup();
+    QList<DeadlineReminder> collectReminders(const JoinedClassInfo &group,
+                                             const QUrl &groupPageUrl,
                                              const GroupPageInfo &groupPageInfo) const;
-    void updateClassReminders(const QString &classUrl,
+    void updateGroupReminders(const QString &groupUrl,
                               const QList<DeadlineReminder> &reminders);
     void emitCombinedReminders();
     QDateTime parseDeadline(const QString &text) const;
     void finalizeRefresh();
 
-    ClassRepository *m_classRepository = nullptr;
-    ClassCacheRepository *m_classCacheRepository = nullptr;
-    QQueue<JoinedClassInfo> m_pendingClasses;
-    QHash<QString, QList<DeadlineReminder>> m_remindersByClass;
+    Browse::Group *m_group = nullptr;
+    QQueue<JoinedClassInfo> m_pendingGroups;
+    JoinedClassInfo m_currentGroup;
+    QUrl m_currentGroupPageUrl;
+    QHash<QString, QList<DeadlineReminder>> m_remindersByGroup;
     bool m_loading = false;
 };

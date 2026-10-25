@@ -1,7 +1,7 @@
 #include "ui/pages/homepage.h"
 #include "ui/lightmodeiconhelper.h"
 
-#include "repository/cache/contestcacherepository.h"
+#include "cache/ContestPageCache.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -234,12 +234,13 @@ QString buildHomePageStyle(bool dark)
     );
 }
 
-QString formatReminderContestTitle(const DeadlineReminder &reminder)
+QString formatReminderContestTitle(const DeadlineReminder &reminder,
+                                   ContestPageCache *contestCache)
 {
     QString text = reminder.contestTitle;
-    ContestCacheRepository cacheRepository;
     ContestPageInfo contestPageInfo;
-    if (cacheRepository.loadContest(reminder.contestUrl, &contestPageInfo)
+    if (contestCache != nullptr
+        && contestCache->load(reminder.contestUrl, &contestPageInfo)
         && contestPageInfo.totalProblems > 0) {
         text += QString(" (%1/%2)")
                     .arg(QString::number(contestPageInfo.solvedProblems),
@@ -251,11 +252,12 @@ QString formatReminderContestTitle(const DeadlineReminder &reminder)
     return text;
 }
 
-bool shouldHideCompletedReminder(const DeadlineReminder &reminder)
+bool shouldHideCompletedReminder(const DeadlineReminder &reminder,
+                                 ContestPageCache *contestCache)
 {
-    ContestCacheRepository cacheRepository;
     ContestPageInfo contestPageInfo;
-    if (!cacheRepository.loadContest(reminder.contestUrl, &contestPageInfo)) {
+    if (contestCache == nullptr
+        || !contestCache->load(reminder.contestUrl, &contestPageInfo)) {
         return false;
     }
     return contestPageInfo.totalProblems > 0
@@ -263,8 +265,9 @@ bool shouldHideCompletedReminder(const DeadlineReminder &reminder)
 }
 }
 
-HomePage::HomePage(QWidget *parent)
+HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     : QWidget(parent)
+    , m_contestCache(contestCache)
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -614,7 +617,7 @@ void HomePage::showReminders(const QList<DeadlineReminder> &reminders)
     m_reminderListWidget->clear();
     QList<DeadlineReminder> visibleReminders;
     for (const DeadlineReminder &reminder : reminders) {
-        if (!shouldHideCompletedReminder(reminder)) {
+        if (!shouldHideCompletedReminder(reminder, m_contestCache)) {
             visibleReminders.append(reminder);
         }
     }
@@ -633,7 +636,7 @@ void HomePage::showReminders(const QList<DeadlineReminder> &reminders)
 
     for (const DeadlineReminder &reminder : visibleReminders) {
         auto *item = new QListWidgetItem(
-            formatReminderContestTitle(reminder),
+            formatReminderContestTitle(reminder, m_contestCache),
             m_reminderListWidget);
         item->setData(Qt::UserRole, reminder.contestUrl);
         item->setData(Qt::UserRole + 1, reminder.contestTitle);

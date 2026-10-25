@@ -1,19 +1,17 @@
 #pragma once
 
 #include "network/openjudgeclient.h"
-#include "parser/submitparser.h"
+#include "parser/SubmitPage.h"
 
 #include <QObject>
 #include <QUrl>
-
-class SubmitRepository;
 
 class SubmitService : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit SubmitService(SubmitRepository *repository, QObject *parent = nullptr);
+    explicit SubmitService(OpenJudgeClient *client, QObject *parent = nullptr);
 
     void openSubmit(const QUrl &submitPageUrl);
     void submitSolution(const QString &language, const QString &sourceText);
@@ -33,9 +31,9 @@ signals:
     void failed(const QString &message);
 
 private:
-    SubmitRepository *m_repository = nullptr;
+    OpenJudgeClient *m_client = nullptr;
     QUrl m_currentSubmitUrl;
     SubmitPageInfo m_currentSubmitPageInfo;
-    bool m_loading = false;
-    bool m_submitting = false;
+    QUrl m_expectedSubmitUrl;
+    QUrl m_expectedActionUrl;
 };

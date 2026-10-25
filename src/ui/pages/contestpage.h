@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser/contestparser.h"
+#include "parser/ContestPage.h"
 
 #include <QWidget>
 
