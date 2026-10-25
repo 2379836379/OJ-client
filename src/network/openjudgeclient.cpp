@@ -1,6 +1,7 @@
 #include "openjudgeclient.h"
 #include "cookiestore.h"
 
+#include "config/appconfig.h"
 #include "config/apppaths.h"
 
 #include <QCoreApplication>
@@ -31,6 +32,7 @@ void writeStartupLog(const QString &message)
 
 OpenJudgeClient::OpenJudgeClient(QObject *parent)
     : QObject(parent)
+    , m_serverUrl(AppConfig::loadServerUrl())
 {
 }
 

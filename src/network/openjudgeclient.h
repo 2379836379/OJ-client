@@ -83,6 +83,6 @@ private:
 private:
     QNetworkAccessManager m_manager;
     QString m_baseUrl = "http://openjudge.cn";
-    QString m_serverUrl = "http://10.129.240.62:18080";
+    QString m_serverUrl;
     CookieStore *m_cookieStore = nullptr;
 };

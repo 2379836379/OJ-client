@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QByteArray>
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUrl>
@@ -11,7 +12,7 @@ class EmailVerifyService : public QObject
 public:
     explicit EmailVerifyService(QObject *parent = nullptr);
 
-    void setBaseUrl(const QUrl &baseUrl);
+    void setServerUrl(const QUrl &ServerUrl);
     void sendCode(const QString &email);
     void verifyCode(const QString &email, const QString &code);
     bool isSending() const;
@@ -29,7 +30,7 @@ private:
                               const QString &fallback) const;
 
     QNetworkAccessManager m_manager;
-    QUrl m_baseUrl = QUrl("http://10.129.240.62:8080");
+    QUrl m_ServerUrl;
     bool m_sending = false;
     bool m_verifying = false;
 };

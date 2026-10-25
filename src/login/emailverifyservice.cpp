@@ -1,4 +1,6 @@
-#include "service/login/emailverifyservice.h"
+#include "emailverifyservice.h"
+
+#include "config/appconfig.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -7,13 +9,16 @@
 
 EmailVerifyService::EmailVerifyService(QObject *parent)
     : QObject(parent)
+    , m_ServerUrl(AppConfig::loadServerUrl())
 {
 }
 
-void EmailVerifyService::setBaseUrl(const QUrl &baseUrl)
+void EmailVerifyService::setServerUrl(const QUrl &serverUrl)
 {
-    if (baseUrl.isValid() && !baseUrl.scheme().isEmpty()) {
-        m_baseUrl = baseUrl;
+    if (serverUrl.isValid()
+        && (serverUrl.scheme() == QStringLiteral("http")
+            || serverUrl.scheme() == QStringLiteral("https"))) {
+        m_ServerUrl = serverUrl;
     }
 }
 
@@ -23,7 +28,12 @@ void EmailVerifyService::sendCode(const QString &email)
         return;
     }
 
-    QUrl url = m_baseUrl.resolved(QUrl("/auth/send-code"));
+    if (!m_ServerUrl.isValid() || m_ServerUrl.scheme().isEmpty()) {
+        emit failed(QStringLiteral("Server URL is not configured."));
+        return;
+    }
+
+    QUrl url = m_ServerUrl.resolved(QUrl("/auth/send-code"));
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/json; charset=utf-8");
@@ -71,7 +81,12 @@ void EmailVerifyService::verifyCode(const QString &email, const QString &code)
         return;
     }
 
-    QUrl url = m_baseUrl.resolved(QUrl("/auth/login-code"));
+    if (!m_ServerUrl.isValid() || m_ServerUrl.scheme().isEmpty()) {
+        emit failed(QStringLiteral("Server URL is not configured."));
+        return;
+    }
+
+    QUrl url = m_ServerUrl.resolved(QUrl("/auth/login-code"));
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader,
                       "application/json; charset=utf-8");

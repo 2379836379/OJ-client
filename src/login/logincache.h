@@ -10,11 +10,11 @@ struct CachedLoginInfo
     QString updatedAt;
 };
 
-class LoginCacheRepository
+class LoginCache
 {
 public:
-    LoginCacheRepository();
-    ~LoginCacheRepository();
+    LoginCache();
+    ~LoginCache();
 
     bool initialize();
     bool saveLogin(const QString &email, const QString &password);

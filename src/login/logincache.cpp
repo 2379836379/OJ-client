@@ -1,4 +1,4 @@
-#include "repository/login/logincacherepository.h"
+#include "logincache.h"
 
 #include "config/apppaths.h"
 
@@ -18,12 +18,12 @@ QString databasePath()
 }
 }
 
-LoginCacheRepository::LoginCacheRepository()
+LoginCache::LoginCache()
     : m_connectionName(QUuid::createUuid().toString(QUuid::WithoutBraces))
 {
 }
 
-LoginCacheRepository::~LoginCacheRepository()
+LoginCache::~LoginCache()
 {
     if (QSqlDatabase::contains(m_connectionName)) {
         QSqlDatabase database = QSqlDatabase::database(m_connectionName);
@@ -32,12 +32,12 @@ LoginCacheRepository::~LoginCacheRepository()
     QSqlDatabase::removeDatabase(m_connectionName);
 }
 
-bool LoginCacheRepository::initialize()
+bool LoginCache::initialize()
 {
     return ensureReady();
 }
 
-bool LoginCacheRepository::saveLogin(const QString &email, const QString &password)
+bool LoginCache::saveLogin(const QString &email, const QString &password)
 {
     if (!ensureReady()) {
         return false;
@@ -66,7 +66,7 @@ bool LoginCacheRepository::saveLogin(const QString &email, const QString &passwo
     return ok;
 }
 
-bool LoginCacheRepository::loadLastLogin(CachedLoginInfo *loginInfo) const
+bool LoginCache::loadLastLogin(CachedLoginInfo *loginInfo) const
 {
     if (!QSqlDatabase::contains(m_connectionName)) {
         return false;
@@ -94,8 +94,8 @@ bool LoginCacheRepository::loadLastLogin(CachedLoginInfo *loginInfo) const
     return true;
 }
 
-bool LoginCacheRepository::loadLoginByEmail(const QString &email,
-                                            CachedLoginInfo *loginInfo) const
+bool LoginCache::loadLoginByEmail(const QString &email,
+                                  CachedLoginInfo *loginInfo) const
 {
     if (!QSqlDatabase::contains(m_connectionName)) {
         return false;
@@ -125,7 +125,7 @@ bool LoginCacheRepository::loadLoginByEmail(const QString &email,
     return true;
 }
 
-QList<CachedLoginInfo> LoginCacheRepository::loadAllLogins() const
+QList<CachedLoginInfo> LoginCache::loadAllLogins() const
 {
     QList<CachedLoginInfo> records;
     if (!QSqlDatabase::contains(m_connectionName)) {
@@ -152,12 +152,12 @@ QList<CachedLoginInfo> LoginCacheRepository::loadAllLogins() const
     return records;
 }
 
-QString LoginCacheRepository::lastError() const
+QString LoginCache::lastError() const
 {
     return m_lastError;
 }
 
-bool LoginCacheRepository::ensureReady()
+bool LoginCache::ensureReady()
 {
     if (m_initialized) {
         return true;
@@ -175,7 +175,7 @@ bool LoginCacheRepository::ensureReady()
     return true;
 }
 
-bool LoginCacheRepository::openDatabase()
+bool LoginCache::openDatabase()
 {
     if (!QSqlDatabase::contains(m_connectionName)) {
         QSqlDatabase database =
@@ -200,7 +200,7 @@ bool LoginCacheRepository::openDatabase()
     return ok;
 }
 
-bool LoginCacheRepository::createTable()
+bool LoginCache::createTable()
 {
     QSqlQuery query(QSqlDatabase::database(m_connectionName));
     const bool ok = query.exec(
