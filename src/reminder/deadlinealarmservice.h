@@ -1,6 +1,6 @@
 #pragma once
 
-#include "service/reminder/reminderservice.h"
+#include "reminderservice.h"
 
 #include <QObject>
 #include <QSet>

@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>OpenJudge - 百练 - 首页</title>
+<meta name="keywords" content="北京大学, 百练, ACM, 计算机, 教学, 编程, 算法, 考试, 练习, 比赛" />
+<meta name="description" content="" />
+<link href="http://static.openjudge.cn/styles/global.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/styles.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/styles/group.css?1792658133.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://static.openjudge.cn/favicon.ico?1792658134.ico" rel="shortcut icon" type="image/x-icon" />
+<!--[if IE]>
+   <script type="text/javascript" src="http://static.openjudge.cn/scripts/html5.js?1792658135.js"></script>
+<![endif]-->
+<!--[if lt IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie6-deprecated.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 7]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie7.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<!--[if IE 8]>
+	<link type="text/css" href="http://static.openjudge.cn/styles/ie8.css?1792658133.css" rel="stylesheet" />
+<![endif]-->
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery-1.4.3.min.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/jquery.form.js?1792658134.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/base-nc.js?1792658135.js"></script>
+<script type="text/javascript" src="http://static.openjudge.cn/scripts/api.js?1792658134.js"></script>
+<script type="text/javascript">
+    //<![CDATA[
+var web_root = '/',
+	static_root = 'http://static.openjudge.cn/',
+	script_root = 'http://static.openjudge.cn/scripts',
+	style_root = 'http://static.openjudge.cn/styles';
+    //]]>
+</script>    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?cba6845c6d8176f123f81538e1796b8a";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+	<div id="headerTop">
+  <div class="wrapper">
+    <h1 class="logo"><a href="http://openjudge.cn/" title="首页" rel="home">OpenJudge</a></h1>
+    <ul id="userToolbar">
+            <li><a class="link" href="http://openjudge.cn/user/1481664/">2400013518</a></li>
+      <li><a class="link" href="http://openjudge.cn/messages/">信箱</a></li>
+      <li class="account-link">
+      	<a class="link w_arr_down" href="http://openjudge.cn/settings/">账号</a>
+   		<div class="account-list">
+   			<dl>
+   				<dt><a href="http://openjudge.cn/user/1481664/" title="2400013518"><img src="http://static.openjudge.cn/images/default_avatar_small.png" alt="2400013518" width="50" height="50"/></a></dt>
+   				<dd><a href="http://openjudge.cn/user/1481664/">2400013518</a></dd>
+   			</dl>
+   			<ul>
+   			    <li class="line"></li>
+   				<li><a href="http://openjudge.cn/settings/">个人信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/account/">账户设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/avatar/">头像设置</a></li>
+   				<li><a href="http://openjudge.cn/settings/contact/">联系信息</a></li>
+   				<li><a href="http://openjudge.cn/settings/preference/">偏好设置</a></li>
+   				<li class="line"></li>
+   				<li><a href="/auth/logout/" onclick="api.logout(local.redirect);return false;" title="登出">登出</a></li>
+   			</ul>
+   		</div>  	
+      </li>
+          </ul>
+    <div class="practice-search">
+		 <form class="search-form" action="/search/" method="get">
+	        <input name="q" type="text" value="题目ID, 标题, 描述" onclick="this.select()">
+	        <button type="submit"></button>
+	     </form>	
+	</div>
+    <div style="clear:both;"></div>
+  </div>
+</div>
+    	<div id="pagebody">
+		<div class="wrapper">
+			<script type="text/javascript">
+$(document).ready(
+		function(){
+			$('#help').hide();
+			$('#help-display').toggle(function() {
+											$('#help').show();
+											this.value = '隐藏详情';
+										}, function(){
+											$('#help').hide();
+											this.value = '显示详情';
+										}
+									);
+			});
+</script>
+<div id="side" class="col-3">
+	<div id="groupBigLogo"><img src="http://media.openjudge.cn/groups/3/logo_large.jpg" alt="百练" /></div>
+	<div class="group-description">
+		<p>百练是北京大学ACM训练和相关程序课程在线考试系统</p>
+	</div>
+	<div class="group-setting">
+		<ul>	
+									<li><a href="/mine/">修改设定</a></li>
+			<li><a href="javascript:void(0);" onclick="if (confirm('你确定要退出小组吗？')) api.leaveGroup(3,null,local.redirect);">退出小组</a></li>
+					</ul>	
+	</div>
+	<div class="admin-list">
+		<h4>管理员</h4>
+		<ul>
+						<li><a class="user-anchor red-name" href="http://openjudge.cn/user/6340/in/group-3/">frank</a></li>
+					</ul>
+	</div>
+				
+	<div class="announcement">
+		<h4>公告</h4>
+		<ul>
+							<li>
+					<span><abbr class="date" title="2012-03-09 14:56:35">2012-03-09</abbr></span>
+										<a href="http://qwsfsx.openjudge.cn/topic/5203/">
+						踩气球活动即将开始，敬请关注					</a>
+									</li>
+							<li>
+					<span><abbr class="date" title="2009-11-03 18:32:41">2009-11-03</abbr></span>
+										<a href="http://test.openjudge.cn/contest1758/">
+						新版百练测试赛，丰富奖品等你来拿					</a>
+									</li>
+							<li>
+					<span><abbr class="date" title="2009-11-03 13:52:16">2009-11-03</abbr></span>
+										test announcement1									</li>
+							<li>
+					<span><abbr class="date" title="2009-11-01 00:23:39">2009-11-01</abbr></span>
+										<a href="http://qwsfsx.openjudge.cn/topic/5203/">
+						踩气球活动即将开始, 欢迎大家参与					</a>
+									</li>
+							<li>
+					<span><abbr class="date" title="2009-10-31 04:21:09">2009-10-31</abbr></span>
+										题目状态页面显示统计数据									</li>
+							<li>
+					<span><abbr class="date" title="2009-10-30 23:34:32">2009-10-30</abbr></span>
+										登录后首页显示尚未解决的题目列表									</li>
+							<li>
+					<span><abbr class="date" title="2009-10-30 16:11:01">2009-10-30</abbr></span>
+										<a href="http://poj.grids.cn/practice/status/">
+						状态列表增加显示题目标题					</a>
+									</li>
+							<li>
+					<span><abbr class="date" title="2009-10-29 16:36:25">2009-10-29</abbr></span>
+										<a href="problems">
+						题目搜索框可以直接输入题目编号					</a>
+									</li>
+					</ul>
+	</div>
+	</div>
+
+<div id="main" class="col-7">
+
+	<div class="group-name">	
+		<h1>百练</h1>
+					<div style="clear:both"></div> 
+			</div>
+	<div class="main-content">
+
+		<ul class="current-contest label">
+				<li class="practice-info">
+				<h3>
+					<span>»</span><a href="/practice/">练习</a>(2368题)				</h3>
+				<span class="recently-update">最新题目</span>
+				<table>
+					<thead>
+						<tr>
+							<td>题目ID</td>
+							<td>标题</td>
+							<td>通过率</td>
+							<td>通过人数</td>
+							<td>尝试人数</td>
+							<td>添加时间</td>
+						</tr>
+					</thead>
+					<tbody>
+										<tr>
+						<td><a href="/practice/4152/">4152</a></td>
+						<td><a href="/practice/4152/">最佳加法表达式</a></td>
+						<td><a href="/practice/4152/statistics/">53%</a></td>
+						<td><a href="/practice/4152/statistics/">1020</a></td>
+						<td><a href="/practice/4152/statistics/">1941</a></td>
+						<td>2017-12-08</td>
+					</tr>
+										<tr>
+						<td><a href="/practice/4151/">4151</a></td>
+						<td><a href="/practice/4151/">电影节</a></td>
+						<td><a href="/practice/4151/statistics/">86%</a></td>
+						<td><a href="/practice/4151/statistics/">1995</a></td>
+						<td><a href="/practice/4151/statistics/">2329</a></td>
+						<td>2017-10-06</td>
+					</tr>
+										<tr>
+						<td><a href="/practice/4150/">4150</a></td>
+						<td><a href="/practice/4150/">上机</a></td>
+						<td><a href="/practice/4150/statistics/">74%</a></td>
+						<td><a href="/practice/4150/statistics/">526</a></td>
+						<td><a href="/practice/4150/statistics/">714</a></td>
+						<td>2017-08-02</td>
+					</tr>
+										<tr>
+						<td><a href="/practice/4149/">4149</a></td>
+						<td><a href="/practice/4149/">课程大作业</a></td>
+						<td><a href="/practice/4149/statistics/">60%</a></td>
+						<td><a href="/practice/4149/statistics/">420</a></td>
+						<td><a href="/practice/4149/statistics/">697</a></td>
+						<td>2017-05-20</td>
+					</tr>
+										<tr>
+						<td><a href="/practice/4148/">4148</a></td>
+						<td><a href="/practice/4148/">生理周期</a></td>
+						<td><a href="/practice/4148/statistics/">85%</a></td>
+						<td><a href="/practice/4148/statistics/">2298</a></td>
+						<td><a href="/practice/4148/statistics/">2707</a></td>
+						<td>2017-01-22</td>
+					</tr>
+										</tbody>
+				</table>
+			</li>
+			</ul>
+			
+		<div class="coming-contest label">
+			<h3>
+				<span>»</span><a href="/contests/coming">计划中的比赛</a>
+			</h3>
+												<p>无</p>
+									</div>
+				<div class="past-contest label">
+			<h3>
+				<span>»</span><a href="/contests/past">已结束的比赛</a>
+			</h3>
+			<ul class="container">
+							<li><a href="/bigdatacamp2026/">2026年叉院大数据&amp;机器学习中心夏令营上机</a><span>2026-07-07 14:00:00</span></li>
+							<li><a href="/xly20260704/">计算机学院2026年优秀大学生夏令营上机</a><span>2026-07-04 15:30:00</span></li>
+							<li><a href="/xly20260702/">智能学院2026年优秀大学生夏令营上机</a><span>2026-07-02 13:00:00</span></li>
+							<li><a href="/ss2026jsj/">2026计算机学院研究生上机测试</a><span>2026-03-25 09:00:00</span></li>
+							<li><a href="/ss2026zn/">2026智能学院研究生上机测试</a><span>2026-03-25 09:00:00</span></li>
+						</ul>
+		</div>
+		</div>
+	
+	
+	
+		
+			
+
+			</div>
+
+		</div>
+	</div>
+	<div id="footer">
+	<div class="wrapper">
+		<ul class="oj-info">
+			<li>&copy;2002-2022 POJ <a href="http://www.beian.miit.gov.cn">京ICP备20010980号-1</a></li>
+		</ul>
+		<ul class="debug-info">
+									<li>
+				<a style="color:red" href="javascript:void(0);" onclick="api.switchLanguage('en_US');">English</a></li>
+						<li><a href="http://openjudge.cn/help.html" rel="nofollow">帮助</a></li>
+			<li><a href="http://openjudge.cn/about.html" rel="nofollow">关于</a></li>
+		</ul>
+		<div style="clear:both;"></div>
+	</div>
+</div>
+	</body>
+</html>

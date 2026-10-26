@@ -100,10 +100,10 @@ qt_add_executable(oj
     src/login/emailverifyservice.h
     src/app/applicationsizeservice.cpp
     src/app/applicationsizeservice.h
-    src/service/reminder/deadlinealarmservice.cpp
-    src/service/reminder/deadlinealarmservice.h
-    src/service/reminder/reminderservice.cpp
-    src/service/reminder/reminderservice.h
+    src/reminder/deadlinealarmservice.cpp
+    src/reminder/deadlinealarmservice.h
+    src/reminder/reminderservice.cpp
+    src/reminder/reminderservice.h
     src/submit/resultservice.cpp
     src/submit/resultservice.h
     src/submit/submitservice.cpp

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "parser/ProblemPage.h"
-#include "service/reminder/reminderservice.h"
+#include "reminder/reminderservice.h"
 
 #include <QCloseEvent>
 #include <QMainWindow>

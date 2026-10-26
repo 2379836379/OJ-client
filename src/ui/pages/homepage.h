@@ -1,7 +1,7 @@
 #pragma once
 
 #include "parser/UserHomepage.h"
-#include "service/reminder/reminderservice.h"
+#include "reminder/reminderservice.h"
 
 #include <QWidget>
 
