@@ -6,6 +6,8 @@
 
 struct ProblemPageInfo
 {
+    QString problemUrl;
+    QString title;
     QString submitUrl;
     QString timeLimit;
     QString memoryLimit;

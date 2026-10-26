@@ -15,18 +15,18 @@
 #include "cache/ProblemPageCache.h"
 #include "cache/UserHomepageCache.h"
 #include "network/cookiestore.h"
-#include "network/openaiclient.h"
+#include "ai/openaiclient.h"
+#include "ai/aiconfig.h"
 #include "network/openjudgeclient.h"
 #include "repository/favorite/favoriteproblemrepository.h"
 #include "repository/meta/problemmetarepository.h"
-#include "repository/login/logincacherepository.h"
+#include "login/logincache.h"
+#include "login/loginservice.h"
+#include "login/emailverifyservice.h"
 #include "service/favorite/favoriteproblemservice.h"
 #include "service/meta/problemmetaservice.h"
 #include "app/applicationsizeservice.h"
-#include "service/ai/aiservice.h"
-#include "service/login/loginservice.h"
-#include "service/login/emailverifyservice.h"
-#include "service/login/logincacheservice.h"
+#include "ai/aiservice.h"
 #include "service/reminder/deadlinealarmservice.h"
 #include "service/reminder/reminderservice.h"
 #include "submit/resultservice.h"
@@ -335,11 +335,8 @@ QString formatSubmitResponse(const NetworkResult &result)
 
 QString formatResultPageSummary(const ResultPageInfo &resultPageInfo)
 {
-    QString text = QString("Submission ID: %1\nStatus: %2")
-                       .arg(resultPageInfo.submissionId.isEmpty()
-                                ? QString("<none>")
-                                : resultPageInfo.submissionId,
-                            resultPageInfo.statusText.isEmpty()
+    QString text = QString("Status: %1")
+                       .arg(resultPageInfo.statusText.isEmpty()
                                 ? QString("<none>")
                                 : resultPageInfo.statusText);
     if (!resultPageInfo.detailTitle.isEmpty()) {
@@ -407,7 +404,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_groupPageCache = new GroupPageCache();
     m_contestPageCache = new ContestPageCache();
     m_problemPageCache = new ProblemPageCache();
-    m_loginCacheRepository = new LoginCacheRepository();
+    m_loginCache = new LoginCache();
     m_userHomepage = new Browse::UserHomepage(m_client, m_userHomepageCache, this);
     m_browseGroup = new Browse::Group(
         m_client, m_groupHomepageCache, m_groupPageCache, this);
@@ -422,22 +419,11 @@ MainWindow::MainWindow(QWidget *parent)
                                       m_problemPageCache,
                                       this);
     m_loginService = new LoginService(m_client, this);
-    m_loginCacheService = new LoginCacheService(m_loginCacheRepository, this);
     m_emailVerifyService = new EmailVerifyService(this);
     m_applicationSizeService = new ApplicationSizeService(this);
     writeStartupLog("MainWindow: app services created");
 
-    const QString openJudgeBaseUrl =
-        AppConfig::loadOpenJudgeBaseUrl("http://openjudge.cn");
-    const QString judgerBaseUrl =
-        AppConfig::loadJudgerBaseUrl("http://10.129.240.62:18080");
-    const QString emailVerifyUrl =
-        AppConfig::loadEmailVerifyUrl("http://10.129.240.62:8080");
-    m_client->setBaseUrl(openJudgeBaseUrl);
-    m_client->setJudgerBaseUrl(judgerBaseUrl);
-    m_emailVerifyService->setBaseUrl(QUrl(emailVerifyUrl));
-    writeStartupLog("MainWindow: service endpoints configured");
-    const OpenAiConfig openAiConfig = AppConfig::loadOpenAiConfig();
+    const OpenAiConfig openAiConfig = AIConfig::loadOpenAiConfig();
     writeStartupLog("MainWindow: openai config loaded");
     m_openAiClient->setBaseUrl(openAiConfig.baseUrl);
     m_aiService = new AiService(m_openAiClient, this);
@@ -543,11 +529,14 @@ MainWindow::MainWindow(QWidget *parent)
     writeStartupLog("MainWindow: ensureStartupVisible complete");
     QTimer::singleShot(0, this, [this]() {
         writeStartupLog("MainWindow: deferred initialization begin");
-        if (m_loginCacheService->initialize()) {
+        if (m_loginCache->initialize()) {
             CachedLoginInfo loginInfo;
-            if (m_loginCacheService->loadLastLogin(&loginInfo)) {
+            if (m_loginCache->loadLastLogin(&loginInfo)) {
                 m_loginPage->setCredentials(loginInfo.email, loginInfo.password);
             }
+        } else {
+            writeStartupLog("MainWindow: login cache initialization failed: "
+                            + m_loginCache->lastError());
         }
         applyLoginCacheState(m_loginPage->email());
 
@@ -568,7 +557,7 @@ MainWindow::~MainWindow()
     delete m_groupPageCache;
     delete m_contestPageCache;
     delete m_problemPageCache;
-    delete m_loginCacheRepository;
+    delete m_loginCache;
     delete m_favoriteProblemRepository;
     delete m_problemMetaRepository;
     delete ui;
@@ -620,7 +609,7 @@ void MainWindow::setupUiState()
     writeStartupLog("MainWindow: problem page ai summary set");
     QString configPath;
     m_aiConfigPage->setConfigText(configPath = m_aiService->config().sourcePath,
-                                  AppConfig::loadConfigText(&configPath));
+                                  AIConfig::loadConfigText(&configPath));
     writeStartupLog("MainWindow: ai config text loaded");
     m_storagePage->setAlarmEnabled(m_alarmEnabled);
     m_storagePage->setRingPath(m_alarmRingPath);
@@ -766,22 +755,15 @@ void MainWindow::connectSignals()
         &LoginService::loginSucceeded,
         this,
         [this](const QUrl &personalHomeUrl) {
-            m_loginCacheService->saveLogin(
-                m_loginPage->email(),
-                m_loginPage->password());
+            if (!m_loginCache->saveLogin(m_loginPage->email(),
+                                         m_loginPage->password())) {
+                writeStartupLog("MainWindow: failed to save login: "
+                                + m_loginCache->lastError());
+            }
             m_verifiedEmail = m_loginPage->email();
             showRootPage(m_homePage);
             m_homePage->showOpeningHome();
             m_userHomepage->open(personalHomeUrl);
-        });
-    connect(
-        m_loginCacheService,
-        &LoginCacheService::failed,
-        this,
-        [this](const QString &message) {
-            if (ui->pageStack->currentWidget() == m_loginPage) {
-                m_loginPage->showLoginFailed(message);
-            }
         });
     connect(
         m_emailVerifyService,
@@ -934,7 +916,7 @@ void MainWindow::connectSignals()
         this,
         [this]() {
             QString configPath;
-            const QString configText = AppConfig::loadConfigText(&configPath);
+            const QString configText = AIConfig::loadConfigText(&configPath);
             m_aiConfigPage->setConfigText(configPath, configText);
             pushPage(m_aiConfigPage);
         });
@@ -943,10 +925,7 @@ void MainWindow::connectSignals()
         &HomePage::settingsRequested,
         this,
         [this]() {
-            m_settingsPage->setUrls(
-                AppConfig::loadOpenJudgeBaseUrl("http://openjudge.cn"),
-                AppConfig::loadJudgerBaseUrl("http://10.129.240.62:18080"),
-                AppConfig::loadEmailVerifyUrl("http://10.129.240.62:8080"));
+            m_settingsPage->setServerUrl(AppConfig::loadServerUrl());
             pushPage(m_settingsPage);
         });
     connect(
@@ -1234,8 +1213,6 @@ void MainWindow::connectSignals()
                     info.sampleInput = problemObject.value("sampleInput").toString();
                     info.sampleOutput = problemObject.value("sampleOutput").toString();
                     info.hint = problemObject.value("hint").toString();
-                    info.tried_people = 0;
-                    info.passed_people = 0;
                     if (m_favoriteProblemService->saveFavoriteToFolder(info, folderId)) {
                         ++importedProblems;
                     }
@@ -1406,11 +1383,11 @@ void MainWindow::connectSignals()
         [this](const QString &content) {
             QString errorMessage;
             QString savedPath;
-            if (!AppConfig::saveConfigText(content, &savedPath, &errorMessage)) {
+            if (!AIConfig::saveConfigText(content, &savedPath, &errorMessage)) {
                 m_aiConfigPage->showSaveFailed(errorMessage);
                 return;
             }
-            OpenAiConfig savedConfig = AppConfig::loadOpenAiConfig();
+            OpenAiConfig savedConfig = AIConfig::loadOpenAiConfig();
             m_openAiClient->setBaseUrl(savedConfig.baseUrl);
             m_aiService->setConfig(savedConfig);
             m_aiConfigSummary = QString("Config: %1 | model: %2")
@@ -1429,26 +1406,22 @@ void MainWindow::connectSignals()
         m_settingsPage,
         &SettingsPage::saveRequested,
         this,
-        [this](const QString &openJudgeUrl,
-               const QString &judgerUrl,
-               const QString &emailVerifyUrl) {
+        [this](const QString &serverUrl) {
+            const QUrl url(serverUrl);
+            if (!url.isValid() || url.host().isEmpty()
+                || (url.scheme() != QStringLiteral("http")
+                    && url.scheme() != QStringLiteral("https"))) {
+                m_settingsPage->showSaveFailed(
+                    "Enter a valid HTTP or HTTPS server URL.");
+                return;
+            }
             QString errorMessage;
-            if (!AppConfig::saveOpenJudgeBaseUrl(openJudgeUrl, &errorMessage)
-                || !AppConfig::saveJudgerBaseUrl(judgerUrl, &errorMessage)
-                || !AppConfig::saveEmailVerifyUrl(emailVerifyUrl, &errorMessage)) {
+            if (!AppConfig::saveServerUrl(serverUrl, &errorMessage)) {
                 m_settingsPage->showSaveFailed(errorMessage);
                 return;
             }
-            // Live apply; empty fields fall back to the same defaults used at startup.
-            const QString effectiveOpenJudge =
-                openJudgeUrl.isEmpty() ? QStringLiteral("http://openjudge.cn") : openJudgeUrl;
-            const QString effectiveJudger =
-                judgerUrl.isEmpty() ? QStringLiteral("http://10.129.240.62:18080") : judgerUrl;
-            const QString effectiveEmailVerify =
-                emailVerifyUrl.isEmpty() ? QStringLiteral("http://10.129.240.62:8080") : emailVerifyUrl;
-            m_client->setBaseUrl(effectiveOpenJudge);
-            m_client->setJudgerBaseUrl(effectiveJudger);
-            m_emailVerifyService->setBaseUrl(QUrl(effectiveEmailVerify));
+            m_client->setServerUrl(serverUrl);
+            m_emailVerifyService->setServerUrl(QUrl(serverUrl));
             m_settingsPage->showSaveSucceeded();
         });
     connect(
@@ -1654,9 +1627,8 @@ void MainWindow::connectSignals()
         this,
         [this](const ResultPageInfo &resultPageInfo) {
             m_problemPage->appendResultPageInfo(resultPageInfo);
-            writeStartupLog(QString("MainWindow: resultLoaded status=%1 submitId=%2 awaitingAi=%3")
+            writeStartupLog(QString("MainWindow: resultLoaded status=%1 awaitingAi=%2")
                                 .arg(resultPageInfo.statusText,
-                                     resultPageInfo.submissionId,
                                      m_pendingAiSubmitAwaitingResult ? "true" : "false"));
             if (!m_pendingAiSubmitCallId.isEmpty() && m_pendingAiSubmitAwaitingResult) {
                 const QString waitingStatus = resultPageInfo.statusText.trimmed().toLower();
@@ -2168,7 +2140,7 @@ bool MainWindow::requiresEmailVerification(const QString &email) const
     }
 
     CachedLoginInfo loginInfo;
-    return !m_loginCacheService->tryLoadLoginByEmail(normalizedEmail, &loginInfo);
+    return !m_loginCache->loadLoginByEmail(normalizedEmail, &loginInfo);
 }
 
 void MainWindow::showAlarmNotification(const QString &title, const QString &text)
@@ -2235,7 +2207,7 @@ void MainWindow::applyLoginCacheState(const QString &email)
     }
 
     CachedLoginInfo loginInfo;
-    if (m_loginCacheService->tryLoadLoginByEmail(normalizedEmail, &loginInfo)) {
+    if (m_loginCache->loadLoginByEmail(normalizedEmail, &loginInfo)) {
         m_loginPage->setPassword(loginInfo.password);
         m_loginPage->setVerificationRequired(false);
         return;

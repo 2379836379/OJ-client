@@ -34,7 +34,7 @@ Group::Group(OpenJudgeClient *client,
 void Group::open(const QUrl &url)
 {
     m_url = url;
-    m_groupPageUrl = {};
+    m_groupPageUrl = QUrl();
     emit loadingChanged(true);
     m_homepage->open(url);
 }

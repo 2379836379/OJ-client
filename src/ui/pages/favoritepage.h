@@ -1,7 +1,7 @@
 #pragma once
 
 #include "service/favorite/favoriteproblemservice.h"
-#include "parser/problemparser.h"
+#include "parser/ProblemPage.h"
 
 #include <QWidget>
 

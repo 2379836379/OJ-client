@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config/appconfig.h"
+#include "ai/aiconfig.h"
 
 #include <QObject>
 #include <QJsonObject>

@@ -1,6 +1,6 @@
-#include "service/ai/aiservice.h"
+#include "ai/aiservice.h"
 
-#include "network/openaiclient.h"
+#include "ai/openaiclient.h"
 
 #include "config/apppaths.h"
 

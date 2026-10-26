@@ -130,6 +130,8 @@ void printProblemPage(QTextStream &out)
     const QByteArray html = loadFixture(QStringLiteral("ProblemPage.html"));
     const ProblemPageInfo page = ProblemPageParser::parseProblemPage(
         html, QUrl(QStringLiteral("http://dxfjgc.openjudge.cn/2026autumn05/1/")));
+    field(out, QStringLiteral("problemUrl"), page.problemUrl);
+    field(out, QStringLiteral("title"), page.title);
     field(out, QStringLiteral("submitUrl"), page.submitUrl);
     field(out, QStringLiteral("timeLimit"), page.timeLimit);
     field(out, QStringLiteral("memoryLimit"), page.memoryLimit);

@@ -1,0 +1,1 @@
+openjudge的访问顺序：homepage-userhomepage-grouphomepage-grouppage-contestpage-problempage-submitpage-resultpage

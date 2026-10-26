@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "parser/problemparser.h"
+#include "parser/ProblemPage.h"
 #include "service/reminder/reminderservice.h"
 
 #include <QCloseEvent>
@@ -16,7 +16,7 @@ class OpenJudgeClient;
 class CookieStore;
 class FavoriteProblemRepository;
 class ProblemMetaRepository;
-class LoginCacheRepository;
+class LoginCache;
 class HomepageCache;
 class UserHomepageCache;
 class GroupHomepageCache;
@@ -25,7 +25,6 @@ class ContestPageCache;
 class ProblemPageCache;
 class CacheService;
 class LoginService;
-class LoginCacheService;
 class EmailVerifyService;
 class ApplicationSizeService;
 class OpenAiClient;
@@ -107,10 +106,9 @@ private:
     GroupPageCache *m_groupPageCache = nullptr;
     ContestPageCache *m_contestPageCache = nullptr;
     ProblemPageCache *m_problemPageCache = nullptr;
-    LoginCacheRepository *m_loginCacheRepository = nullptr;
+    LoginCache *m_loginCache = nullptr;
     CacheService *m_cacheService = nullptr;
     LoginService *m_loginService = nullptr;
-    LoginCacheService *m_loginCacheService = nullptr;
     EmailVerifyService *m_emailVerifyService = nullptr;
     ApplicationSizeService *m_applicationSizeService = nullptr;
     OpenAiClient *m_openAiClient = nullptr;

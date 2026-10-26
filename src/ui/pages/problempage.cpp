@@ -1140,7 +1140,7 @@ ProblemPage::ProblemPage(QWidget *parent)
         }
         ProblemMeta meta;
         meta.problemUrl = m_currentProblemUrl;
-        meta.title = m_displayedProblemInfo.title;
+        meta.title = m_currentProblemTitle;
         meta.taskStatus = m_taskStatusCombo->currentData().toString();
         meta.difficulty = m_difficultyCombo->currentData().toInt();
         meta.priority = 0;
@@ -1471,6 +1471,7 @@ void ProblemPage::openProblem(const QString &problemTitle)
 void ProblemPage::showProblemLoadedFromFavorites(const ProblemPageInfo &problemPageInfo)
 {
     m_currentProblemUrl = problemPageInfo.problemUrl;
+    m_currentProblemTitle = problemPageInfo.title;
     m_displayedProblemInfo = problemPageInfo;
     m_hasDisplayedProblemInfo = true;
     m_translatedDescription.clear();
@@ -1490,6 +1491,7 @@ void ProblemPage::showProblemLoadedFromFavorites(const ProblemPageInfo &problemP
 void ProblemPage::showProblem(const ProblemPageInfo &problemPageInfo)
 {
     m_currentProblemUrl = problemPageInfo.problemUrl;
+    m_currentProblemTitle = problemPageInfo.title;
     m_displayedProblemInfo = problemPageInfo;
     m_hasDisplayedProblemInfo = true;
     m_translatedDescription.clear();
@@ -1978,7 +1980,7 @@ void ProblemPage::saveCurrentDraft()
 
 void ProblemPage::restoreDraftOrStarterCode(const ProblemPageInfo &problemPageInfo)
 {
-    const QString key = problemPageInfo.problemUrl;
+    const QString key = m_currentProblemUrl;
     if (!key.isEmpty() && m_codeDraftByProblemUrl.contains(key)) {
         setSourceCodeText(m_codeDraftByProblemUrl.value(key));
         writeStartupLog("ProblemPage::openSubmit draft restored");

@@ -357,7 +357,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_collapsedStorageButton->setToolTip("Set");
     m_collapsedSettingsButton = new QPushButton("U", m_collapsedToolsPanel);
     m_collapsedSettingsButton->setObjectName("homeToolIconButton");
-    m_collapsedSettingsButton->setToolTip("Server URLs");
+    m_collapsedSettingsButton->setToolTip("Server URL");
     m_collapsedAiConfigButton = new QPushButton("A", m_collapsedToolsPanel);
     m_collapsedAiConfigButton->setObjectName("homeToolIconButton");
     m_collapsedAiConfigButton->setToolTip("AI Config");
@@ -437,7 +437,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_statsButton->setToolTip("Stats");
     m_reviewButton->setToolTip("Review");
     m_storageButton->setToolTip("Set");
-    m_settingsButton->setToolTip("Server URLs");
+    m_settingsButton->setToolTip("Server URL");
     m_aiConfigButton->setToolTip("AI Config");
     m_logoutButton->setToolTip("Log Out");
     m_collapsedFavoritesButton->setToolTip("Favorites");
@@ -445,7 +445,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_collapsedStatsButton->setToolTip("Stats");
     m_collapsedReviewButton->setToolTip("Review");
     m_collapsedStorageButton->setToolTip("Set");
-    m_collapsedSettingsButton->setToolTip("Server URLs");
+    m_collapsedSettingsButton->setToolTip("Server URL");
     m_collapsedAiConfigButton->setToolTip("AI Config");
     m_collapsedLogoutButton->setToolTip("Log Out");
     LightModeIconHelper::applyIcon(homeButton, "homepage.svg");

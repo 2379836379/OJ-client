@@ -58,10 +58,20 @@ namespace ProblemPageParser
 ProblemPageInfo parseProblemPage(const QByteArray &html, const QUrl &baseUrl)
 {
     ProblemPageInfo info;
+    info.problemUrl = baseUrl.toString();
 
     HtmlParserCommon::Document document(html);
     lxb_dom_node_t *problemContent = nullptr;
     for (lxb_dom_node_t *node : HtmlParserCommon::descendants(document.root())) {
+        if (HtmlParserCommon::isTag(node, LXB_TAG_DIV)
+            && HtmlParserCommon::attribute(node, "id") == QStringLiteral("pageTitle")) {
+            for (lxb_dom_node_t *child : HtmlParserCommon::descendants(node)) {
+                if (HtmlParserCommon::isTag(child, LXB_TAG_H2)) {
+                    info.title = HtmlParserCommon::text(child).simplified();
+                    break;
+                }
+            }
+        }
         if (HtmlParserCommon::isTag(node, LXB_TAG_DL)
                    && HtmlParserCommon::hasClass(
                        node, QStringLiteral("problem-content"))) {

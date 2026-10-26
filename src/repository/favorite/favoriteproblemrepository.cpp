@@ -259,14 +259,14 @@ QList<ProblemPageInfo> FavoriteProblemRepository::loadFavoritesInFolder(qint64 f
     return favorites;
 }
 
-bool FavoriteProblemRepository::saveFavoriteToFolder(const ProblemPageInfo &problemPageInfo,
+bool FavoriteProblemRepository::saveFavoriteToFolder(const ProblemPageInfo &problemPage,
                                                      qint64 folderId)
 {
     if (!openDatabase()) {
         return false;
     }
 
-    if (!upsertProblem(problemPageInfo)) {
+    if (!upsertProblem(problemPage)) {
         return false;
     }
 
@@ -277,7 +277,7 @@ bool FavoriteProblemRepository::saveFavoriteToFolder(const ProblemPageInfo &prob
         "ON CONFLICT(folder_id, problem_url) DO UPDATE SET "
         "saved_at = CURRENT_TIMESTAMP");
     query.bindValue(":folder_id", folderId);
-    query.bindValue(":problem_url", problemPageInfo.problemUrl);
+    query.bindValue(":problem_url", problemPage.problemUrl);
 
     const bool ok = query.exec();
     if (!ok) {
@@ -307,7 +307,7 @@ bool FavoriteProblemRepository::removeFavoriteFromFolder(const QString &problemU
     return ok;
 }
 
-bool FavoriteProblemRepository::upsertProblem(const ProblemPageInfo &problemPageInfo)
+bool FavoriteProblemRepository::upsertProblem(const ProblemPageInfo &problemPage)
 {
     if (!openDatabase()) {
         return false;
@@ -335,18 +335,18 @@ bool FavoriteProblemRepository::upsertProblem(const ProblemPageInfo &problemPage
         "sample_output = excluded.sample_output, "
         "hint = excluded.hint, "
         "saved_at = CURRENT_TIMESTAMP");
-    query.bindValue(":problem_url", problemPageInfo.problemUrl);
-    query.bindValue(":title", problemPageInfo.title);
-    query.bindValue(":submit_url", problemPageInfo.submitUrl);
-    query.bindValue(":time_limit", problemPageInfo.timeLimit);
-    query.bindValue(":memory_limit", problemPageInfo.memoryLimit);
-    query.bindValue(":description", problemPageInfo.description);
-    query.bindValue(":starter_code", problemPageInfo.starterCode);
-    query.bindValue(":input_spec", problemPageInfo.inputSpec);
-    query.bindValue(":output_spec", problemPageInfo.outputSpec);
-    query.bindValue(":sample_input", problemPageInfo.sampleInput);
-    query.bindValue(":sample_output", problemPageInfo.sampleOutput);
-    query.bindValue(":hint", problemPageInfo.hint);
+    query.bindValue(":problem_url", problemPage.problemUrl);
+    query.bindValue(":title", problemPage.title);
+    query.bindValue(":submit_url", problemPage.submitUrl);
+    query.bindValue(":time_limit", problemPage.timeLimit);
+    query.bindValue(":memory_limit", problemPage.memoryLimit);
+    query.bindValue(":description", problemPage.description);
+    query.bindValue(":starter_code", problemPage.starterCode);
+    query.bindValue(":input_spec", problemPage.inputSpec);
+    query.bindValue(":output_spec", problemPage.outputSpec);
+    query.bindValue(":sample_input", problemPage.sampleInput);
+    query.bindValue(":sample_output", problemPage.sampleOutput);
+    query.bindValue(":hint", problemPage.hint);
 
     const bool ok = query.exec();
     if (!ok) {
@@ -356,7 +356,7 @@ bool FavoriteProblemRepository::upsertProblem(const ProblemPageInfo &problemPage
 }
 
 bool FavoriteProblemRepository::loadFavorite(
-    const QString &problemUrl, ProblemPageInfo *problemPageInfo) const
+    const QString &problemUrl, ProblemPageInfo *problemPage) const
 {
     if (!QSqlDatabase::contains(m_connectionName)) {
         return false;
@@ -372,8 +372,8 @@ bool FavoriteProblemRepository::loadFavorite(
         return false;
     }
 
-    if (problemPageInfo != nullptr) {
-        *problemPageInfo = readProblem(query);
+    if (problemPage != nullptr) {
+        *problemPage = readProblem(query);
     }
     return true;
 }

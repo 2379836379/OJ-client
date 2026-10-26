@@ -1,4 +1,4 @@
-#include "config/aiconfig.h"
+#include "ai/aiconfig.h"
 
 #include "config/apppaths.h"
 

@@ -13,7 +13,7 @@ SubmitService::SubmitService(OpenJudgeClient *client, QObject *parent)
                 && result.requestUrl != m_expectedSubmitUrl) {
                 return;
             }
-            m_expectedSubmitUrl = {};
+            m_expectedSubmitUrl = QUrl();
             if (!result.ok) {
                 emit loadingChanged(false);
                 emit failed(result.errorString);
@@ -35,7 +35,7 @@ SubmitService::SubmitService(OpenJudgeClient *client, QObject *parent)
                 && result.requestUrl != m_expectedActionUrl) {
                 return;
             }
-            m_expectedActionUrl = {};
+            m_expectedActionUrl = QUrl();
             emit submittingChanged(false);
             if (!result.ok) {
                 emit failed(result.errorString);

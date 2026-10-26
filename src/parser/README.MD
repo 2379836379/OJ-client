@@ -83,10 +83,12 @@ ProblemPageInfo ProblemPageParser::parseProblemPage(
     const QByteArray &html, const QUrl &baseUrl);
 ```
 
-从题目详情页读取题目说明、限制、输入输出、样例和提示。`baseUrl` 用于解析固定相对路径 `submit/`，作为提交页 URL 的基准。
+从题目详情页读取页面 URL、标题、题目说明、限制、输入输出、样例和提示。`baseUrl` 是当前题目页 URL，用于填写 `problemUrl`，并解析固定相对路径 `submit/`。
 
 | 字段 | 类型 | 含义 |
 | --- | --- | --- |
+| `problemUrl` | `QString` | 当前题目页 URL，即 `baseUrl` |
+| `title` | `QString` | `#pageTitle h2` 的规范化文本 |
 | `submitUrl` | `QString` | 相对于 `baseUrl` 解析出的 `submit/` URL |
 | `timeLimit` | `QString` | “总时间限制”对应的 `<dd>` 文本 |
 | `memoryLimit` | `QString` | “内存限制”对应的 `<dd>` 文本 |
@@ -98,7 +100,7 @@ ProblemPageInfo ProblemPageParser::parseProblemPage(
 | `sampleOutput` | `QString` | “样例输出”对应的 `<dd>` 文本 |
 | `hint` | `QString` | “提示”对应的 `<dd>` 文本 |
 
-普通文本取值会折叠连续空白；`starterCode` 保留 `<pre>` 内部换行并去除首尾空白。当前结构没有题目标题、尝试人数或通过人数返回字段。
+普通文本取值会折叠连续空白；`starterCode` 保留 `<pre>` 内部换行并去除首尾空白。当前结构不返回尝试人数或通过人数。
 
 ## ResultPage
 

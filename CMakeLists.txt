@@ -59,14 +59,16 @@ qt_add_executable(oj
     src/ui/pages/storagepage.h
     src/config/appconfig.cpp
     src/config/appconfig.h
-    src/config/aiconfig.cpp
-    src/config/aiconfig.h
     src/config/apppaths.cpp
     src/config/apppaths.h
+    src/ai/aiconfig.cpp
+    src/ai/aiconfig.h
+    src/ai/openaiclient.cpp
+    src/ai/openaiclient.h
+    src/ai/aiservice.cpp
+    src/ai/aiservice.h
     src/network/cookiestore.cpp
     src/network/cookiestore.h
-    src/network/openaiclient.cpp
-    src/network/openaiclient.h
     src/network/openjudgeclient.cpp
     src/network/openjudgeclient.h
     src/parser/Homepage.cpp
@@ -90,12 +92,14 @@ qt_add_executable(oj
     src/repository/favorite/favoriteproblemrepository.h
     src/repository/meta/problemmetarepository.cpp
     src/repository/meta/problemmetarepository.h
-    src/repository/login/logincacherepository.cpp
-    src/repository/login/logincacherepository.h
+    src/login/logincache.cpp
+    src/login/logincache.h
+    src/login/loginservice.cpp
+    src/login/loginservice.h
+    src/login/emailverifyservice.cpp
+    src/login/emailverifyservice.h
     src/app/applicationsizeservice.cpp
     src/app/applicationsizeservice.h
-    src/service/ai/aiservice.cpp
-    src/service/ai/aiservice.h
     src/service/reminder/deadlinealarmservice.cpp
     src/service/reminder/deadlinealarmservice.h
     src/service/reminder/reminderservice.cpp
@@ -137,12 +141,6 @@ qt_add_executable(oj
     src/service/favorite/favoriteproblemservice.h
     src/service/meta/problemmetaservice.cpp
     src/service/meta/problemmetaservice.h
-    src/service/login/emailverifyservice.cpp
-    src/service/login/emailverifyservice.h
-    src/service/login/logincacheservice.cpp
-    src/service/login/logincacheservice.h
-    src/service/login/loginservice.cpp
-    src/service/login/loginservice.h
     third_party/tree-sitter/lib/src/lib.c
     third_party/tree-sitter-cpp/src/parser.c
     third_party/tree-sitter-cpp/src/scanner.c

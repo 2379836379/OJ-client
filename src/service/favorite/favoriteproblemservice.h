@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser/problemparser.h"
+#include "parser/ProblemPage.h"
 
 #include <QObject>
 
@@ -24,14 +24,14 @@ public:
     bool initialize();
     bool createFolder(const QString &folderName, qint64 *folderId = nullptr);
     bool removeFolder(qint64 folderId);
-    bool saveFavoriteToFolder(const ProblemPageInfo &problemPageInfo, qint64 folderId);
+    bool saveFavoriteToFolder(const ProblemPageInfo &problemPage, qint64 folderId);
     bool removeFavoriteFromFolder(const QString &problemUrl, qint64 folderId);
     QList<FavoriteFolderInfo> loadFolders() const;
     QList<ProblemPageInfo> loadFavoritesInFolder(qint64 folderId) const;
     void refreshFolders();
     void refreshFavoritesInFolder(qint64 folderId);
     bool tryLoadFavorite(const QString &problemUrl,
-                         ProblemPageInfo *problemPageInfo = nullptr);
+                         ProblemPageInfo *problemPage = nullptr);
     QString lastError() const;
 
 signals:
@@ -40,9 +40,9 @@ signals:
     void folderRemoved(qint64 folderId);
     void folderFavoritesLoaded(qint64 folderId,
                                const QList<ProblemPageInfo> &favorites);
-    void favoriteLoaded(const ProblemPageInfo &problemPageInfo);
+    void favoriteLoaded(const ProblemPageInfo &problemPage);
     void favoriteSavedToFolder(qint64 folderId,
-                               const ProblemPageInfo &problemPageInfo);
+                               const ProblemPageInfo &problemPage);
     void favoriteRemovedFromFolder(qint64 folderId, const QString &problemUrl);
     void failed(const QString &message);
 

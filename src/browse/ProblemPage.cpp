@@ -19,7 +19,8 @@ ProblemPage::ProblemPage(OpenJudgeClient *client, ProblemPageCache *cache, QObje
                     return;
                 }
                 m_cacheHit = false;
-                const auto page = ProblemPageParser::parseProblemPage(result.body, result.finalUrl);
+                const ProblemPageInfo page = ProblemPageParser::parseProblemPage(
+                    result.body, result.finalUrl);
                 if (m_cache) m_cache->save(m_url.toString(), page);
                 emit loaded(page);
             });
@@ -30,7 +31,9 @@ void ProblemPage::open(const QUrl &url)
     m_url = url;
     ProblemPageInfo page;
     m_cacheHit = m_cache && m_cache->load(url.toString(), &page);
-    if (m_cacheHit) emit loaded(page);
+    if (m_cacheHit) {
+        emit loaded(page);
+    }
     emit loadingChanged(true);
     if (m_client) m_client->fetchProblemPage(url);
     else {

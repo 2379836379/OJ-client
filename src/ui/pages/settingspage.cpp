@@ -22,7 +22,7 @@ SettingsPage::SettingsPage(QWidget *parent)
     topLayout->setContentsMargins(24, 18, 24, 18);
     topLayout->setSpacing(16);
 
-    auto *titleLabel = new QLabel("Server URLs", topFrame);
+    auto *titleLabel = new QLabel("Server URL", topFrame);
     titleLabel->setObjectName("settingsTitleLabel");
     topLayout->addWidget(titleLabel, 1);
     auto *homeButton = new QPushButton("Home", topFrame);
@@ -74,23 +74,11 @@ SettingsPage::SettingsPage(QWidget *parent)
     contentLayout->setContentsMargins(24, 22, 24, 22);
     contentLayout->setSpacing(14);
 
-    auto *openJudgeLabel = new QLabel("OpenJudge base URL", contentFrame);
-    openJudgeLabel->setObjectName("settingsFieldLabel");
-    m_openJudgeEdit = new QLineEdit(contentFrame);
-    m_openJudgeEdit->setObjectName("settingsLineEdit");
-    m_openJudgeEdit->setPlaceholderText("http://openjudge.cn");
-
-    auto *judgerLabel = new QLabel("Judger base URL", contentFrame);
-    judgerLabel->setObjectName("settingsFieldLabel");
-    m_judgerEdit = new QLineEdit(contentFrame);
-    m_judgerEdit->setObjectName("settingsLineEdit");
-    m_judgerEdit->setPlaceholderText("http://host:18080");
-
-    auto *emailVerifyLabel = new QLabel("Email verify URL", contentFrame);
-    emailVerifyLabel->setObjectName("settingsFieldLabel");
-    m_emailVerifyEdit = new QLineEdit(contentFrame);
-    m_emailVerifyEdit->setObjectName("settingsLineEdit");
-    m_emailVerifyEdit->setPlaceholderText("http://host:8080");
+    auto *serverLabel = new QLabel("Application server URL", contentFrame);
+    serverLabel->setObjectName("settingsFieldLabel");
+    m_serverUrlEdit = new QLineEdit(contentFrame);
+    m_serverUrlEdit->setObjectName("settingsLineEdit");
+    m_serverUrlEdit->setPlaceholderText("http://host:18080");
 
     m_statusLabel = new QLabel(contentFrame);
     m_statusLabel->setObjectName("settingsStatusLabel");
@@ -99,12 +87,8 @@ SettingsPage::SettingsPage(QWidget *parent)
     auto *saveButton = new QPushButton("Save", contentFrame);
     saveButton->setObjectName("settingsSaveButton");
 
-    contentLayout->addWidget(openJudgeLabel);
-    contentLayout->addWidget(m_openJudgeEdit);
-    contentLayout->addWidget(judgerLabel);
-    contentLayout->addWidget(m_judgerEdit);
-    contentLayout->addWidget(emailVerifyLabel);
-    contentLayout->addWidget(m_emailVerifyEdit);
+    contentLayout->addWidget(serverLabel);
+    contentLayout->addWidget(m_serverUrlEdit);
     contentLayout->addWidget(m_statusLabel);
     contentLayout->addStretch();
     contentLayout->addWidget(saveButton, 0, Qt::AlignLeft);
@@ -200,19 +184,13 @@ SettingsPage::SettingsPage(QWidget *parent)
         setToolsExpanded(!m_toolsExpanded);
     });
     connect(saveButton, &QPushButton::clicked, this, [this]() {
-        emit saveRequested(m_openJudgeEdit->text().trimmed(),
-                           m_judgerEdit->text().trimmed(),
-                           m_emailVerifyEdit->text().trimmed());
+        emit saveRequested(m_serverUrlEdit->text().trimmed());
     });
 }
 
-void SettingsPage::setUrls(const QString &openJudgeUrl,
-                           const QString &judgerUrl,
-                           const QString &emailVerifyUrl)
+void SettingsPage::setServerUrl(const QString &serverUrl)
 {
-    m_openJudgeEdit->setText(openJudgeUrl);
-    m_judgerEdit->setText(judgerUrl);
-    m_emailVerifyEdit->setText(emailVerifyUrl);
+    m_serverUrlEdit->setText(serverUrl);
     m_statusLabel->clear();
 }
 

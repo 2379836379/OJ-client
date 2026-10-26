@@ -34,7 +34,7 @@ ResultService::ResultService(OpenJudgeClient *client, QObject *parent)
                 && result.requestUrl != m_expectedResultUrl) {
                 return;
             }
-            m_expectedResultUrl = {};
+            m_expectedResultUrl = QUrl();
             if (!result.ok) {
                 m_retryTimer.stop();
                 emit loadingChanged(false);

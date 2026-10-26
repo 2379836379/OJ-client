@@ -1,4 +1,4 @@
-#include "network/openaiclient.h"
+#include "ai/openaiclient.h"
 
 #include "config/apppaths.h"
 

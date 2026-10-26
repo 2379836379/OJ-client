@@ -1,6 +1,6 @@
 #pragma once
 
-#include "parser/problemparser.h"
+#include "parser/ProblemPage.h"
 #include "service/favorite/favoriteproblemservice.h"
 
 #include <QList>
@@ -25,9 +25,9 @@ public:
     bool removeFolder(qint64 folderId);
     QList<FavoriteFolderInfo> loadFolders() const;
     QList<ProblemPageInfo> loadFavoritesInFolder(qint64 folderId) const;
-    bool saveFavoriteToFolder(const ProblemPageInfo &problemPageInfo, qint64 folderId);
+    bool saveFavoriteToFolder(const ProblemPageInfo &problemPage, qint64 folderId);
     bool removeFavoriteFromFolder(const QString &problemUrl, qint64 folderId);
-    bool loadFavorite(const QString &problemUrl, ProblemPageInfo *problemPageInfo) const;
+    bool loadFavorite(const QString &problemUrl, ProblemPageInfo *problemPage) const;
     bool saveProblemTranslation(const QString &problemUrl,
                                 const ProblemTranslationInfo &translationInfo);
     bool loadProblemTranslation(const QString &problemUrl,
@@ -37,7 +37,7 @@ public:
 private:
     bool openDatabase();
     bool ensureSchema();
-    bool upsertProblem(const ProblemPageInfo &problemPageInfo);
+    bool upsertProblem(const ProblemPageInfo &problemPage);
     ProblemPageInfo readProblem(const class QSqlQuery &query) const;
 
     QString m_connectionName;

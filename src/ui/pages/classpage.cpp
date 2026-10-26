@@ -268,8 +268,11 @@ void ClassPage::showContestSets(const GroupPageInfo &groupPageInfo)
     m_contestListWidget->clear();
     for (const ContestSetInfo &contestSet : groupPageInfo.contestSets) {
         QString text = contestSet.title;
-        if (!contestSet.extraText.isEmpty()) {
-            text += " | " + contestSet.extraText;
+        if (contestSet.problemnumber > 0) {
+            text += QString(" (%1 problems)").arg(contestSet.problemnumber);
+        }
+        if (!contestSet.endtime.isEmpty()) {
+            text += " | " + contestSet.endtime;
         }
         auto *item = new QListWidgetItem(text, m_contestListWidget);
         item->setData(Qt::UserRole, contestSet.url);

@@ -85,7 +85,7 @@ void ReminderService::processNextGroup()
     }
 
     m_currentGroup = m_pendingGroups.dequeue();
-    m_currentGroupPageUrl = {};
+    m_currentGroupPageUrl = QUrl();
     m_group->open(QUrl(m_currentGroup.url));
 }
 

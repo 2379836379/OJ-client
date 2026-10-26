@@ -76,7 +76,7 @@ bool FavoriteProblemService::removeFolder(qint64 folderId)
     return true;
 }
 
-bool FavoriteProblemService::saveFavoriteToFolder(const ProblemPageInfo &problemPageInfo,
+bool FavoriteProblemService::saveFavoriteToFolder(const ProblemPageInfo &problemPage,
                                                   qint64 folderId)
 {
     if (m_repository == nullptr) {
@@ -84,13 +84,13 @@ bool FavoriteProblemService::saveFavoriteToFolder(const ProblemPageInfo &problem
         return false;
     }
 
-    const bool ok = m_repository->saveFavoriteToFolder(problemPageInfo, folderId);
+    const bool ok = m_repository->saveFavoriteToFolder(problemPage, folderId);
     if (!ok) {
         emit failed(m_repository->lastError());
         return false;
     }
 
-    emit favoriteSavedToFolder(folderId, problemPageInfo);
+    emit favoriteSavedToFolder(folderId, problemPage);
     refreshFolders();
     refreshFavoritesInFolder(folderId);
     return true;
@@ -151,21 +151,21 @@ void FavoriteProblemService::refreshFavoritesInFolder(qint64 folderId)
 }
 
 bool FavoriteProblemService::tryLoadFavorite(
-    const QString &problemUrl, ProblemPageInfo *problemPageInfo)
+    const QString &problemUrl, ProblemPageInfo *problemPage)
 {
     if (m_repository == nullptr) {
         return false;
     }
 
-    ProblemPageInfo loadedProblemInfo;
-    if (!m_repository->loadFavorite(problemUrl, &loadedProblemInfo)) {
+    ProblemPageInfo loadedProblem;
+    if (!m_repository->loadFavorite(problemUrl, &loadedProblem)) {
         return false;
     }
 
-    if (problemPageInfo != nullptr) {
-        *problemPageInfo = loadedProblemInfo;
+    if (problemPage != nullptr) {
+        *problemPage = loadedProblem;
     }
-    emit favoriteLoaded(loadedProblemInfo);
+    emit favoriteLoaded(loadedProblem);
     return true;
 }
 

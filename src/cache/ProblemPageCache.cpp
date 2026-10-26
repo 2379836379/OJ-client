@@ -19,11 +19,13 @@ bool ProblemPageCache::load(const QString &problemPageUrl, ProblemPageInfo *page
     const QJsonDocument doc = QJsonDocument::fromJson(payload);
     if (!doc.isObject()) return false;
     const QJsonObject object = doc.object();
-    const QStringList keys{"submitUrl", "timeLimit", "memoryLimit", "description",
+    const QStringList keys{"problemUrl", "title", "submitUrl", "timeLimit", "memoryLimit", "description",
                            "starterCode", "inputSpec", "outputSpec", "sampleInput",
                            "sampleOutput", "hint"};
     for (const QString &key : keys) if (!object.value(key).isString()) return false;
     ProblemPageInfo loaded;
+    loaded.problemUrl = object.value("problemUrl").toString();
+    loaded.title = object.value("title").toString();
     loaded.submitUrl = object.value("submitUrl").toString();
     loaded.timeLimit = object.value("timeLimit").toString();
     loaded.memoryLimit = object.value("memoryLimit").toString();
@@ -40,7 +42,8 @@ bool ProblemPageCache::load(const QString &problemPageUrl, ProblemPageInfo *page
 
 bool ProblemPageCache::save(const QString &problemPageUrl, const ProblemPageInfo &pageInfo)
 {
-    const QJsonObject object{{"submitUrl", pageInfo.submitUrl}, {"timeLimit", pageInfo.timeLimit},
+    const QJsonObject object{{"problemUrl", pageInfo.problemUrl}, {"title", pageInfo.title},
+                             {"submitUrl", pageInfo.submitUrl}, {"timeLimit", pageInfo.timeLimit},
                              {"memoryLimit", pageInfo.memoryLimit}, {"description", pageInfo.description},
                              {"starterCode", pageInfo.starterCode}, {"inputSpec", pageInfo.inputSpec},
                              {"outputSpec", pageInfo.outputSpec}, {"sampleInput", pageInfo.sampleInput},

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "network/openjudgeclient.h"
-#include "parser/problemparser.h"
-#include "parser/resultparser.h"
-#include "parser/submitparser.h"
+#include "parser/ProblemPage.h"
+#include "parser/ResultPage.h"
+#include "parser/SubmitPage.h"
 #include "repository/meta/problemmetarepository.h"
 
 #include <QHash>
@@ -182,6 +182,7 @@ private:
     bool m_problemTranslationLoading = false;
     bool m_showingOriginalProblem = false;
     QString m_currentProblemUrl;
+    QString m_currentProblemTitle;
     QHash<QString, QString> m_codeDraftByProblemUrl;
     QHash<QString, QString> m_languageDraftByProblemUrl;
 };

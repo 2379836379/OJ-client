@@ -1,4 +1,4 @@
-#include "service/app/applicationsizeservice.h"
+#include "app/applicationsizeservice.h"
 
 #include "config/apppaths.h"
 
