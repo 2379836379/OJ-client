@@ -1,4 +1,4 @@
-#include "service/meta/problemmetaservice.h"
+#include "problemmetaservice.h"
 
 #include <QDateTime>
 

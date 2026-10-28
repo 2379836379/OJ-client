@@ -1,6 +1,6 @@
 #pragma once
 
-#include "service/favorite/favoriteproblemservice.h"
+#include "favorite/favoriteproblemservice.h"
 #include "parser/ProblemPage.h"
 
 #include <QWidget>

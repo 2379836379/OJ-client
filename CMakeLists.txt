@@ -88,10 +88,10 @@ qt_add_executable(oj
     src/parser/ResultPage.h
     src/parser/SubmitPage.cpp
     src/parser/SubmitPage.h
-    src/repository/favorite/favoriteproblemrepository.cpp
-    src/repository/favorite/favoriteproblemrepository.h
-    src/repository/meta/problemmetarepository.cpp
-    src/repository/meta/problemmetarepository.h
+    src/favorite/favoriteproblemrepository.cpp
+    src/favorite/favoriteproblemrepository.h
+    src/meta/problemmetarepository.cpp
+    src/meta/problemmetarepository.h
     src/login/logincache.cpp
     src/login/logincache.h
     src/login/loginservice.cpp
@@ -137,10 +137,10 @@ qt_add_executable(oj
     src/cache/ContestPageCache.h
     src/cache/ProblemPageCache.cpp
     src/cache/ProblemPageCache.h
-    src/service/favorite/favoriteproblemservice.cpp
-    src/service/favorite/favoriteproblemservice.h
-    src/service/meta/problemmetaservice.cpp
-    src/service/meta/problemmetaservice.h
+    src/favorite/favoriteproblemservice.cpp
+    src/favorite/favoriteproblemservice.h
+    src/meta/problemmetaservice.cpp
+    src/meta/problemmetaservice.h
     third_party/tree-sitter/lib/src/lib.c
     third_party/tree-sitter-cpp/src/parser.c
     third_party/tree-sitter-cpp/src/scanner.c

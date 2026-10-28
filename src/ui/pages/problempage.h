@@ -4,7 +4,7 @@
 #include "parser/ProblemPage.h"
 #include "parser/ResultPage.h"
 #include "parser/SubmitPage.h"
-#include "repository/meta/problemmetarepository.h"
+#include "meta/problemmetarepository.h"
 
 #include <QHash>
 #include <QWidget>

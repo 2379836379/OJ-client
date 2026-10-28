@@ -1,6 +1,6 @@
 #include "favoriteproblemservice.h"
 
-#include "repository/favorite/favoriteproblemrepository.h"
+#include "favoriteproblemrepository.h"
 
 FavoriteProblemService::FavoriteProblemService(
     FavoriteProblemRepository *repository, QObject *parent)

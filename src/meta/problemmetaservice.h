@@ -1,6 +1,6 @@
 #pragma once
 
-#include "repository/meta/problemmetarepository.h"
+#include "problemmetarepository.h"
 
 #include <QHash>
 #include <QList>

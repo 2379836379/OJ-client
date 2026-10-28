@@ -1,7 +1,7 @@
 #pragma once
 
-#include "repository/meta/problemmetarepository.h"
-#include "service/favorite/favoriteproblemservice.h"
+#include "meta/problemmetarepository.h"
+#include "favorite/favoriteproblemservice.h"
 
 #include <QHash>
 #include <QList>
