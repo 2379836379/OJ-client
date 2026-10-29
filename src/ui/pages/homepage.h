@@ -6,12 +6,9 @@
 #include <QWidget>
 
 class ContestPageCache;
-class QLabel;
 class QListWidget;
-class QListWidgetItem;
+class PageShell;
 class QPushButton;
-class QFrame;
-class QWidget;
 
 class HomePage : public QWidget
 {
@@ -46,33 +43,10 @@ signals:
     void reminderSelected(const QString &title, const QString &url);
 
 private:
-    void setToolsExpanded(bool expanded);
-
-    QFrame *m_toolsFrame = nullptr;
-    QFrame *m_contentCard = nullptr;
+    PageShell *m_shell = nullptr;
     QListWidget *m_classListWidget = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_favoritesButton = nullptr;
-    QPushButton *m_tasksButton = nullptr;
-    QPushButton *m_statsButton = nullptr;
-    QPushButton *m_reviewButton = nullptr;
-    QPushButton *m_storageButton = nullptr;
-    QPushButton *m_settingsButton = nullptr;
-    QPushButton *m_aiConfigButton = nullptr;
-    QPushButton *m_logoutButton = nullptr;
-    QPushButton *m_themeButton = nullptr;
-    QPushButton *m_collapsedFavoritesButton = nullptr;
-    QPushButton *m_collapsedTasksButton = nullptr;
-    QPushButton *m_collapsedStatsButton = nullptr;
-    QPushButton *m_collapsedReviewButton = nullptr;
-    QPushButton *m_collapsedStorageButton = nullptr;
-    QPushButton *m_collapsedSettingsButton = nullptr;
-    QPushButton *m_collapsedAiConfigButton = nullptr;
-    QPushButton *m_collapsedLogoutButton = nullptr;
     QListWidget *m_reminderListWidget = nullptr;
+    QPushButton *m_themeButton = nullptr;
     ContestPageCache *m_contestCache = nullptr;
-    bool m_toolsExpanded = true;
     bool m_darkMode = false;
 };

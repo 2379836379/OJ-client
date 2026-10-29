@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>images/icon.svg</file>
         <file>images/icon-page-1.ico</file>
+        <file>src/ui/styles/pageshell.qss</file>
     </qresource>
 </RCC>

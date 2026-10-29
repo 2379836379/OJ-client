@@ -4,6 +4,7 @@ project(oj LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_AUTORCC ON)
 
 if (MSVC)
     add_compile_options(/Zc:__cplusplus)
@@ -29,6 +30,9 @@ qt_add_executable(oj
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
     src/ui/mainwindow.ui
+    src/ui/uitheme.h
+    src/ui/pageshell.cpp
+    src/ui/pageshell.h
     src/ui/lightmodeiconhelper.cpp
     src/ui/lightmodeiconhelper.h
     src/ui/treesittersyntaxhighlighter.cpp
