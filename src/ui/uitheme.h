@@ -9,16 +9,12 @@ struct Palette
 {
     QString page;
     QString surface;
-    QString surfaceRaised;
     QString border;
     QString text;
-    QString mutedText;
     QString accent;
     QString accentText;
     QString hover;
     QString selected;
-    QString field;
-    QString fieldBorder;
 };
 
 inline constexpr int PageSpacing = 18;
@@ -41,11 +37,7 @@ inline Palette palette(bool dark)
                 "#e8edf2",
                 "#a9b7c5",
                 "#75c7ad",
-                "#10251f",
-                "#26313c",
-                "#234257",
-                "#121920",
-                "#3a4652"};
+                "#234257"};
     }
 
     return {"#f3f1eb",
@@ -55,11 +47,7 @@ inline Palette palette(bool dark)
             "#1f2328",
             "#5e675f",
             "#7fb8a6",
-            "#12343b",
-            "#eef4ef",
-            "#dcefea",
-            "#fcfbf8",
-            "#d9d4c8"};
+            "#dcefea"};
 }
 
 inline QString pageShellStyleSheet(bool dark)
@@ -77,12 +65,9 @@ inline QString pageShellStyleSheet(bool dark)
     style.replace(QStringLiteral("@radius@"), QString::number(PanelRadius));
     style.replace(QStringLiteral("@text@"), colors.text);
     style.replace(QStringLiteral("@hover@"), colors.hover);
-    style.replace(QStringLiteral("@field@"), colors.field);
-    style.replace(QStringLiteral("@field-border@"), colors.fieldBorder);
     style.replace(QStringLiteral("@selected@"), colors.selected);
     style.replace(QStringLiteral("@accent@"), colors.accent);
     style.replace(QStringLiteral("@accent-text@"), colors.accentText);
-    style.replace(QStringLiteral("@muted-text@"), colors.mutedText);
     return style;
 }
 }

@@ -14,18 +14,11 @@
     border-radius: @radius@px;
 }
 
-#pageShellToolsToggle,
 #pageShellToolButton{
     color: @text@;
     background: transparent;
     border: none;
     padding: 8px 10px;
-}
-
-#pageShellToolsToggle:hover, 
-#pageShellToolButton:hover,
-#pageShellToolIconButton:hover {
-    background: @hover@;
 }
 
 #pageShellToolIconButton {
@@ -35,9 +28,9 @@
     padding: 0;
 }
 
-#pageShellContent[framed="false"] {
-    background: transparent;
-    border: none;
+#pageShellToolButton:hover,
+#pageShellToolIconButton:hover {
+    background: @hover@;
 }
 
 #pageShellToolButton[active="true"] {
@@ -45,19 +38,7 @@
     color: @accent-text@;
 }
 
-#pageShellPrimaryButton {
-    background: @accent@;
-    color: @accent-text@;
-    border: none;
-    padding: 8px 12px;
-}
-
-#pageShellContent {
-    color: @text@;
-}
-
-#pageShellField {
-    background: @field@;
-    border: 1px solid @field-border@;
-    color: @text@;
+#pageShellToolIconButton[active="true"] {
+    background: @selected@;
+    color: @accent@;
 }

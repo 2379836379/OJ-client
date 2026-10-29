@@ -65,17 +65,10 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     , m_contestCache(contestCache)
 {
     m_shell = new PageShell(QStringLiteral("OJ"), this);
-    m_shell->setContentFramed(false);
+    m_shell->titleLabel()->parentWidget()->hide();
     auto *pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
-
-    auto *homeButton = m_shell->addHeaderAction(QString(), "pageShellActionButton", "Home");
-    m_themeButton = m_shell->addHeaderAction(QString(), "pageShellActionButton", "Dark Mode");
-    auto *refreshButton = m_shell->addHeaderAction(QString(), "pageShellActionButton", "Refresh");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(m_themeButton, "dark-mode.png");
-    LightModeIconHelper::applyIcon(refreshButton, "refresh.svg");
 
     const auto addTool = [this](const QString &text,
                                 const QString &iconText,
@@ -87,12 +80,47 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
         connect(button, &QPushButton::clicked, this, request);
 
         auto *iconButton = new QPushButton(iconText, m_shell);
-        iconButton->setObjectName("pageShellToolIconButton");
+        iconButton->setObjectName("pageShellToolButton");
         iconButton->setFixedSize(36, 36);
         iconButton->setToolTip(toolTip);
         m_shell->collapsedToolsLayout()->addWidget(iconButton);
         connect(iconButton, &QPushButton::clicked, this, request);
     };
+
+    auto *homeButton = new QPushButton("Home", m_shell);
+    homeButton->setObjectName("pageShellToolButton");
+    homeButton->setToolTip("Home");
+    m_shell->toolsLayout()->addWidget(homeButton);
+    auto *collapsedHomeButton = new QPushButton("H", m_shell);
+    collapsedHomeButton->setObjectName("pageShellToolButton");
+    collapsedHomeButton->setFixedSize(36, 36);
+    collapsedHomeButton->setToolTip("Home");
+    LightModeIconHelper::applyIcon(collapsedHomeButton, "homepage.svg");
+    m_shell->collapsedToolsLayout()->addWidget(collapsedHomeButton);
+    connect(homeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
+    connect(collapsedHomeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
+
+    m_themeButton = new QPushButton("Dark Mode", m_shell);
+    m_themeButton->setObjectName("pageShellToolButton");
+    m_themeButton->setToolTip("Dark Mode");
+    m_shell->toolsLayout()->addWidget(m_themeButton);
+    auto *collapsedThemeButton = new QPushButton("D", m_shell);
+    collapsedThemeButton->setObjectName("pageShellToolButton");
+    collapsedThemeButton->setFixedSize(36, 36);
+    collapsedThemeButton->setToolTip("Dark Mode");
+    LightModeIconHelper::applyIcon(collapsedThemeButton, "dark-mode.png");
+    m_shell->collapsedToolsLayout()->addWidget(collapsedThemeButton);
+
+    auto *refreshButton = new QPushButton("Refresh", m_shell);
+    refreshButton->setObjectName("pageShellToolButton");
+    refreshButton->setToolTip("Refresh");
+    m_shell->toolsLayout()->addWidget(refreshButton);
+    auto *collapsedRefreshButton = new QPushButton("R", m_shell);
+    collapsedRefreshButton->setObjectName("pageShellToolButton");
+    collapsedRefreshButton->setFixedSize(36, 36);
+    collapsedRefreshButton->setToolTip("Refresh");
+    LightModeIconHelper::applyIcon(collapsedRefreshButton, "refresh.svg");
+    m_shell->collapsedToolsLayout()->addWidget(collapsedRefreshButton);
 
     addTool("Open Favorites", "F", "Favorites", &HomePage::favoritesRequested);
     addTool("Task Board", "T", "Task Board", &HomePage::tasksRequested);
@@ -105,7 +133,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_shell->toolsLayout()->addWidget(storageButton);
     connect(storageButton, &QPushButton::clicked, this, &HomePage::storageRequested);
     auto *collapsedStorageButton = new QPushButton("S", m_shell);
-    collapsedStorageButton->setObjectName("pageShellToolIconButton");
+    collapsedStorageButton->setObjectName("pageShellToolButton");
     collapsedStorageButton->setFixedSize(36, 36);
     collapsedStorageButton->setToolTip("Set");
     LightModeIconHelper::applyIcon(collapsedStorageButton, "set.svg");
@@ -119,7 +147,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_shell->toolsLayout()->addWidget(aiButton);
     connect(aiButton, &QPushButton::clicked, this, &HomePage::aiConfigRequested);
     auto *collapsedAiButton = new QPushButton("A", m_shell);
-    collapsedAiButton->setObjectName("pageShellToolIconButton");
+    collapsedAiButton->setObjectName("pageShellToolButton");
     collapsedAiButton->setFixedSize(36, 36);
     collapsedAiButton->setToolTip("AI Config");
     LightModeIconHelper::applyIcon(collapsedAiButton, "ai-config.svg");
@@ -160,10 +188,14 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_shell->contentLayout()->addLayout(columnsLayout, 1);
 
     connect(refreshButton, &QPushButton::clicked, this, &HomePage::refreshRequested);
+    connect(collapsedRefreshButton, &QPushButton::clicked, this, &HomePage::refreshRequested);
     auto *refreshShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_R), this);
     refreshShortcut->setContext(Qt::WidgetWithChildrenShortcut);
     connect(refreshShortcut, &QShortcut::activated, this, &HomePage::refreshRequested);
     connect(m_themeButton, &QPushButton::clicked, this, [this]() {
+        emit themeToggleRequested(!m_darkMode);
+    });
+    connect(collapsedThemeButton, &QPushButton::clicked, this, [this]() {
         emit themeToggleRequested(!m_darkMode);
     });
     connect(m_classListWidget, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
