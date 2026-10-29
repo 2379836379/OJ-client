@@ -3,13 +3,13 @@
 }
 
 #pageShellTools {
-    background: @surface@;
+    background: @page@;
     border: 1px solid @border@;
     border-radius: @radius@px;
 }
 
 #pageShellContent {
-    background: @surface@;
+    background: @page@;
     border: 1px solid @border@;
     border-radius: @radius@px;
 }
@@ -35,7 +35,7 @@
 
 #pageShellToolButton[active="true"] {
     background: @selected@;
-    color: @accent-text@;
+    color: @accent@;
 }
 
 #pageShellToolIconButton[active="true"] {

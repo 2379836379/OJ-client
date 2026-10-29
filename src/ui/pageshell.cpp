@@ -4,36 +4,16 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
-#include <QStyle>
 #include <QVBoxLayout>
 
-PageShell::PageShell(const QString &title, QWidget *parent)
+PageShell::PageShell(QWidget *parent)
     : QWidget(parent)
 {
     setObjectName("pageShell");
     auto *rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(0, 0, 0, 0);
     rootLayout->setSpacing(UiTheme::PageSpacing);
-
-    auto *header = new QFrame(this);
-    header->setObjectName("pageShellHeader");
-    header->setFixedHeight(UiTheme::HeaderHeight);
-    auto *headerLayout = new QHBoxLayout(header);
-    headerLayout->setContentsMargins(UiTheme::HeaderHorizontalPadding,
-                                     UiTheme::HeaderVerticalPadding,
-                                     UiTheme::HeaderHorizontalPadding,
-                                     UiTheme::HeaderVerticalPadding);
-    headerLayout->setSpacing(12);
-
-    m_titleLabel = new QLabel(title, header);
-    m_titleLabel->setObjectName("pageShellHeaderTitle");
-    headerLayout->addWidget(m_titleLabel, 1);
-    m_headerActions = new QHBoxLayout();
-    m_headerActions->setContentsMargins(0, 0, 0, 0);
-    m_headerActions->setSpacing(8);
-    headerLayout->addLayout(m_headerActions);
 
     auto *bodyLayout = new QHBoxLayout();
     bodyLayout->setContentsMargins(0, 0, 0, 0);
@@ -45,7 +25,7 @@ PageShell::PageShell(const QString &title, QWidget *parent)
     toolsOuterLayout->setContentsMargins(12, 14, 12, 14);
     toolsOuterLayout->setSpacing(10);
     m_toolsToggle = new QPushButton(toolsFrame);
-    m_toolsToggle->setObjectName("pageShellToolsToggle");
+    m_toolsToggle->setObjectName("pageShellToolButton");
     m_toolsToggle->setToolTip("Collapse tools");
     toolsOuterLayout->addWidget(m_toolsToggle);
 
@@ -75,15 +55,9 @@ PageShell::PageShell(const QString &title, QWidget *parent)
 
     bodyLayout->addWidget(toolsFrame, 1);
     bodyLayout->addWidget(contentFrame, 4);
-    rootLayout->addWidget(header);
     rootLayout->addLayout(bodyLayout, 1);
     setToolsExpanded(true);
     setDarkMode(false);
-}
-
-QHBoxLayout *PageShell::headerActions() const
-{
-    return m_headerActions;
 }
 
 QVBoxLayout *PageShell::toolsLayout() const
@@ -101,41 +75,9 @@ QVBoxLayout *PageShell::contentLayout() const
     return m_contentLayout;
 }
 
-QLabel *PageShell::titleLabel() const
-{
-    return m_titleLabel;
-}
-
-QPushButton *PageShell::addHeaderAction(const QString &text,
-                                        const QString &objectName,
-                                        const QString &toolTip)
-{
-    auto *button = new QPushButton(text, this);
-    button->setObjectName(objectName.isEmpty()
-                              ? QStringLiteral("pageShellActionButton")
-                              : objectName);
-    if (!toolTip.isEmpty()) {
-        button->setToolTip(toolTip);
-    }
-    m_headerActions->addWidget(button);
-    return button;
-}
-
 void PageShell::setDarkMode(bool dark)
 {
     setStyleSheet(UiTheme::pageShellStyleSheet(dark));
-}
-
-void PageShell::setContentFramed(bool framed)
-{
-    QWidget *contentFrame = m_contentLayout->parentWidget();
-    contentFrame->setProperty("framed", framed);
-    m_contentLayout->setContentsMargins(framed ? UiTheme::PanelHorizontalPadding : 0,
-                                        framed ? UiTheme::PanelVerticalPadding : 0,
-                                        framed ? UiTheme::PanelHorizontalPadding : 0,
-                                        framed ? UiTheme::PanelVerticalPadding : 0);
-    contentFrame->style()->unpolish(contentFrame);
-    contentFrame->style()->polish(contentFrame);
 }
 
 void PageShell::setToolsExpanded(bool expanded)
@@ -152,9 +94,4 @@ void PageShell::setToolsExpanded(bool expanded)
                                     : QStringLiteral("Expand"));
     m_toolsToggle->setToolTip(expanded ? QStringLiteral("Collapse tools")
                                       : QStringLiteral("Expand tools"));
-}
-
-bool PageShell::toolsExpanded() const
-{
-    return m_toolsExpanded;
 }

@@ -8,19 +8,14 @@ namespace UiTheme
 struct Palette
 {
     QString page;
-    QString surface;
     QString border;
     QString text;
-    QString accent;
     QString accentText;
     QString hover;
     QString selected;
 };
 
 inline constexpr int PageSpacing = 18;
-inline constexpr int HeaderHeight = 80;
-inline constexpr int HeaderHorizontalPadding = 24;
-inline constexpr int HeaderVerticalPadding = 18;
 inline constexpr int ToolRailExpandedWidth = 240;
 inline constexpr int ToolRailCollapsedWidth = 84;
 inline constexpr int PanelHorizontalPadding = 20;
@@ -31,22 +26,18 @@ inline Palette palette(bool dark)
 {
     if (dark) {
         return {"#111820",
-                "#1b232c",
-                "#202a34",
                 "#2c3844",
                 "#e8edf2",
-                "#a9b7c5",
-                "#75c7ad",
+                "#10251f",
+                "#26313c",
                 "#234257"};
     }
 
     return {"#f3f1eb",
-            "#fbfaf7",
-            "#f6f3ec",
             "#ded8cc",
             "#1f2328",
-            "#5e675f",
-            "#7fb8a6",
+            "#12343b",
+            "#eef4ef",
             "#dcefea"};
 }
 
@@ -66,7 +57,6 @@ inline QString pageShellStyleSheet(bool dark)
     style.replace(QStringLiteral("@text@"), colors.text);
     style.replace(QStringLiteral("@hover@"), colors.hover);
     style.replace(QStringLiteral("@selected@"), colors.selected);
-    style.replace(QStringLiteral("@accent@"), colors.accent);
     style.replace(QStringLiteral("@accent-text@"), colors.accentText);
     return style;
 }

@@ -64,8 +64,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     : QWidget(parent)
     , m_contestCache(contestCache)
 {
-    m_shell = new PageShell(QStringLiteral("OJ"), this);
-    m_shell->titleLabel()->parentWidget()->hide();
+    m_shell = new PageShell(this);
     auto *pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
