@@ -8,7 +8,6 @@
 class ContestPageCache;
 class QListWidget;
 class PageShell;
-class QPushButton;
 
 class HomePage : public QWidget
 {
@@ -46,7 +45,6 @@ private:
     PageShell *m_shell = nullptr;
     QListWidget *m_classListWidget = nullptr;
     QListWidget *m_reminderListWidget = nullptr;
-    QPushButton *m_themeButton = nullptr;
     ContestPageCache *m_contestCache = nullptr;
     bool m_darkMode = false;
 };

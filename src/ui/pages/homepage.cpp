@@ -1,7 +1,6 @@
 #include "ui/pages/homepage.h"
 
 #include "cache/ContestPageCache.h"
-#include "ui/lightmodeiconhelper.h"
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
@@ -10,7 +9,6 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <QPushButton>
 #include <QShortcut>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -74,91 +72,37 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
 
-    const auto addTool = [this](const QString &text,
-                                const QString &iconText,
-                                const QString &toolTip,
-                                void (HomePage::*request)()) {
-        auto *button = new QPushButton(text, m_shell);
-        button->setObjectName("pageShellToolButton");
-        m_shell->toolsLayout()->addWidget(button);
-        connect(button, &QPushButton::clicked, this, request);
-
-        auto *iconButton = new QPushButton(iconText, m_shell);
-        iconButton->setObjectName("pageShellToolButton");
-        iconButton->setFixedSize(36, 36);
-        iconButton->setToolTip(toolTip);
-        m_shell->collapsedToolsLayout()->addWidget(iconButton, 0, Qt::AlignHCenter);
-        connect(iconButton, &QPushButton::clicked, this, request);
-    };
-
-    auto *homeButton = new QPushButton("Home", m_shell);
-    homeButton->setObjectName("pageShellToolButton");
-    homeButton->setToolTip("Home");
-    m_shell->toolsLayout()->addWidget(homeButton);
-    auto *collapsedHomeButton = new QPushButton("H", m_shell);
-    collapsedHomeButton->setObjectName("pageShellToolButton");
-    collapsedHomeButton->setFixedSize(36, 36);
-    collapsedHomeButton->setToolTip("Home");
-    LightModeIconHelper::applyIcon(collapsedHomeButton, "homepage.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedHomeButton, 0, Qt::AlignHCenter);
-    connect(homeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
-    connect(collapsedHomeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
-
-    m_themeButton = new QPushButton("Dark Mode", m_shell);
-    m_themeButton->setObjectName("pageShellToolButton");
-    m_themeButton->setToolTip("Dark Mode");
-    m_shell->toolsLayout()->addWidget(m_themeButton);
-    auto *collapsedThemeButton = new QPushButton("D", m_shell);
-    collapsedThemeButton->setObjectName("pageShellToolButton");
-    collapsedThemeButton->setFixedSize(36, 36);
-    collapsedThemeButton->setToolTip("Dark Mode");
-    LightModeIconHelper::applyIcon(collapsedThemeButton, "dark-mode.png");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedThemeButton, 0, Qt::AlignHCenter);
-
-    auto *refreshButton = new QPushButton("Refresh", m_shell);
-    refreshButton->setObjectName("pageShellToolButton");
-    refreshButton->setToolTip("Refresh");
-    m_shell->toolsLayout()->addWidget(refreshButton);
-    auto *collapsedRefreshButton = new QPushButton("R", m_shell);
-    collapsedRefreshButton->setObjectName("pageShellToolButton");
-    collapsedRefreshButton->setFixedSize(36, 36);
-    collapsedRefreshButton->setToolTip("Refresh");
-    LightModeIconHelper::applyIcon(collapsedRefreshButton, "refresh.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedRefreshButton, 0, Qt::AlignHCenter);
-
-    addTool("Open Favorites", "F", "Favorites", &HomePage::favoritesRequested);
-    addTool("Task Board", "T", "Task Board", &HomePage::tasksRequested);
-    addTool("Stats", "St", "Stats", &HomePage::statsRequested);
-    addTool("Review", "R", "Review", &HomePage::reviewRequested);
-
-    auto *storageButton = new QPushButton("Set", m_shell);
-    storageButton->setObjectName("pageShellToolButton");
-    storageButton->setToolTip("Set");
-    m_shell->toolsLayout()->addWidget(storageButton);
-    connect(storageButton, &QPushButton::clicked, this, &HomePage::storageRequested);
-    auto *collapsedStorageButton = new QPushButton("S", m_shell);
-    collapsedStorageButton->setObjectName("pageShellToolButton");
-    collapsedStorageButton->setFixedSize(36, 36);
-    collapsedStorageButton->setToolTip("Set");
-    LightModeIconHelper::applyIcon(collapsedStorageButton, "set.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedStorageButton, 0, Qt::AlignHCenter);
-    connect(collapsedStorageButton, &QPushButton::clicked, this, &HomePage::storageRequested);
-
-    addTool("URLs", "U", "Server URL", &HomePage::settingsRequested);
-    auto *aiButton = new QPushButton("AI Config", m_shell);
-    aiButton->setObjectName("pageShellToolButton");
-    aiButton->setToolTip("AI Config");
-    m_shell->toolsLayout()->addWidget(aiButton);
-    connect(aiButton, &QPushButton::clicked, this, &HomePage::aiConfigRequested);
-    auto *collapsedAiButton = new QPushButton("A", m_shell);
-    collapsedAiButton->setObjectName("pageShellToolButton");
-    collapsedAiButton->setFixedSize(36, 36);
-    collapsedAiButton->setToolTip("AI Config");
-    LightModeIconHelper::applyIcon(collapsedAiButton, "ai-config.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedAiButton, 0, Qt::AlignHCenter);
-    connect(collapsedAiButton, &QPushButton::clicked, this, &HomePage::aiConfigRequested);
-
-    addTool("Log Out", "L", "Log Out", &HomePage::logoutRequested);
+    m_shell->addTool("Home", "H", "Home", [] {}, "homepage.svg");
+    m_shell->addTool("Dark Mode", "D", "Dark Mode", [this]() {
+        emit themeToggleRequested(!m_darkMode);
+    }, "dark-mode.png");
+    m_shell->addTool("Refresh", "R", "Refresh", [this]() {
+        emit refreshRequested();
+    }, "refresh.svg");
+    m_shell->addTool("Open Favorites", "F", "Favorites", [this]() {
+        emit favoritesRequested();
+    }, "favorite.png");
+    m_shell->addTool("Task Board", "T", "Task Board", [this]() {
+        emit tasksRequested();
+    });
+    m_shell->addTool("Stats", "St", "Stats", [this]() {
+        emit statsRequested();
+    });
+    m_shell->addTool("Review", "R", "Review", [this]() {
+        emit reviewRequested();
+    });
+    m_shell->addTool("Set", "S", "Set", [this]() {
+        emit storageRequested();
+    }, "set.svg");
+    m_shell->addTool("URLs", "U", "Server URL", [this]() {
+        emit settingsRequested();
+    });
+    m_shell->addTool("AI Config", "A", "AI Config", [this]() {
+        emit aiConfigRequested();
+    }, "ai-config.svg");
+    m_shell->addTool("Log Out", "L", "Log Out", [this]() {
+        emit logoutRequested();
+    }, "log out.svg");
     m_shell->toolsLayout()->addStretch();
     m_shell->collapsedToolsLayout()->addStretch();
 
@@ -201,17 +145,6 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     columnsLayout->addWidget(remindersFrame, 1);
     m_shell->contentLayout()->addLayout(columnsLayout, 1);
 
-    connect(refreshButton, &QPushButton::clicked, this, &HomePage::refreshRequested);
-    connect(collapsedRefreshButton, &QPushButton::clicked, this, &HomePage::refreshRequested);
-    auto *refreshShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_R), this);
-    refreshShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(refreshShortcut, &QShortcut::activated, this, &HomePage::refreshRequested);
-    connect(m_themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
-    connect(collapsedThemeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
     connect(m_classListWidget, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         emit classSelected(item->text(), item->data(Qt::UserRole).toString());
     });
