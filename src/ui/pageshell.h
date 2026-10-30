@@ -15,10 +15,11 @@ public:
     QVBoxLayout *toolsLayout() const;
     QVBoxLayout *collapsedToolsLayout() const;
     QVBoxLayout *contentLayout() const;
-    void addTool(const QString &text,
-                 const QString &toolTip,
-                 const std::function<void()> &action,
-                 const QString &iconFile = QString());
+    QPushButton *addTool(const QString &text,
+                         const QString &toolTip,
+                         const std::function<void()> &action,
+                         const QString &iconFile = QString(),
+                         QPushButton **collapsedButton = nullptr);
 
     void setDarkMode(bool dark);
 

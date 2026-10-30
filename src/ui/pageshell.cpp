@@ -72,33 +72,38 @@ QVBoxLayout *PageShell::contentLayout() const
     return m_contentLayout;
 }
 
-void PageShell::addTool(const QString &text,
-                        const QString &toolTip,
-                        const std::function<void()> &action,
-                        const QString &iconFile)
+QPushButton *PageShell::addTool(const QString &text,
+                                const QString &toolTip,
+                                const std::function<void()> &action,
+                                const QString &iconFile,
+                                QPushButton **collapsedButton)
 {
     auto *expandedButton = new QPushButton(text, m_toolsExpandedPanel);
     expandedButton->setObjectName("pageShellToolButton");
     expandedButton->setToolTip(toolTip);
     m_toolsLayout->addWidget(expandedButton);
 
-    auto *collapsedButton = new QPushButton(m_toolsCollapsedPanel);
-    collapsedButton->setObjectName("pageShellToolButton");
-    collapsedButton->setFixedSize(36, 36);
-    collapsedButton->setToolTip(toolTip);
-    LightModeIconHelper::applyIcon(collapsedButton, iconFile);
-    m_collapsedToolsLayout->addWidget(collapsedButton, 0, Qt::AlignHCenter);
+    auto *collapsedToolButton = new QPushButton(m_toolsCollapsedPanel);
+    collapsedToolButton->setObjectName("pageShellToolButton");
+    collapsedToolButton->setFixedSize(36, 36);
+    collapsedToolButton->setToolTip(toolTip);
+    LightModeIconHelper::applyIcon(collapsedToolButton, iconFile);
+    m_collapsedToolsLayout->addWidget(collapsedToolButton, 0, Qt::AlignHCenter);
+    if (collapsedButton != nullptr) {
+        *collapsedButton = collapsedToolButton;
+    }
 
     connect(expandedButton, &QPushButton::clicked, this, [action]() {
         if (action) {
             action();
         }
     });
-    connect(collapsedButton, &QPushButton::clicked, this, [action]() {
+    connect(collapsedToolButton, &QPushButton::clicked, this, [action]() {
         if (action) {
             action();
         }
     });
+    return expandedButton;
 }
 
 void PageShell::setDarkMode(bool dark)

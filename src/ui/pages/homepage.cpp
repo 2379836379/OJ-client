@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QPushButton>
 #include <QShortcut>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -73,9 +74,9 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     pageLayout->addWidget(m_shell);
 
     m_shell->addTool("Home","Home", [] {}, "homepage.svg");
-    m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
+    m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.png");
+    }, "dark-mode.png", &m_collapsedThemeToolButton);
     m_shell->addTool("Refresh", "Refresh", [this]() {
         emit refreshRequested();
     }, "refresh.svg");
@@ -165,6 +166,11 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
 void HomePage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    const QString themeModeLabel = dark ? QStringLiteral("Light Mode")
+                                        : QStringLiteral("Dark Mode");
+    m_themeToolButton->setText(themeModeLabel);
+    m_themeToolButton->setToolTip(themeModeLabel);
+    m_collapsedThemeToolButton->setToolTip(themeModeLabel);
     m_shell->setDarkMode(dark);
     const UiTheme::Palette colors = UiTheme::palette(dark);
     m_shell->setStyleSheet(
