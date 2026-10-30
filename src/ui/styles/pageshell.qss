@@ -35,10 +35,8 @@
 
 #pageShellToolButton[active="true"] {
     background: @selected@;
-    color: @accent@;
 }
 
 #pageShellToolIconButton[active="true"] {
     background: @selected@;
-    color: @accent@;
 }

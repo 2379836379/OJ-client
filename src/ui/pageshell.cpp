@@ -13,7 +13,6 @@ PageShell::PageShell(QWidget *parent)
     setObjectName("pageShell");
     auto *rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(0, 0, 0, 0);
-    rootLayout->setSpacing(UiTheme::PageSpacing);
 
     auto *bodyLayout = new QHBoxLayout();
     bodyLayout->setContentsMargins(0, 0, 0, 0);
@@ -23,7 +22,7 @@ PageShell::PageShell(QWidget *parent)
     toolsFrame->setObjectName("pageShellTools");
     auto *toolsOuterLayout = new QVBoxLayout(toolsFrame);
     toolsOuterLayout->setContentsMargins(12, 14, 12, 14);
-    toolsOuterLayout->setSpacing(10);
+    toolsOuterLayout->setSpacing(8);
     m_toolsToggle = new QPushButton(toolsFrame);
     m_toolsToggle->setObjectName("pageShellToolButton");
     m_toolsToggle->setToolTip("Collapse tools");
@@ -47,10 +46,7 @@ PageShell::PageShell(QWidget *parent)
     auto *contentFrame = new QFrame(this);
     contentFrame->setObjectName("pageShellContent");
     m_contentLayout = new QVBoxLayout(contentFrame);
-    m_contentLayout->setContentsMargins(UiTheme::PanelHorizontalPadding,
-                                       UiTheme::PanelVerticalPadding,
-                                       UiTheme::PanelHorizontalPadding,
-                                       UiTheme::PanelVerticalPadding);
+    m_contentLayout->setContentsMargins(0, 0, 0, 0);
     m_contentLayout->setSpacing(14);
 
     bodyLayout->addWidget(toolsFrame, 1);

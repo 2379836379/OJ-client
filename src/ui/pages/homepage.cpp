@@ -5,6 +5,7 @@
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
+#include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
@@ -18,6 +19,9 @@
 
 namespace
 {
+constexpr int HomePanelPaddingX = 20;
+constexpr int HomePanelPaddingY = 18;
+
 QString homeListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
@@ -26,7 +30,7 @@ QString homeListStyle(bool dark)
                "QListWidget::item { padding: 12px 4px; border-radius: 8px; margin: 2px 0px; }"
                "QListWidget::item:selected { background: %2; color: %3; }"
                "QListWidget::item:hover { background: %4; }")
-        .arg(colors.text, colors.selected, colors.accentText, colors.hover);
+        .arg(colors.text, colors.selected, colors.accent, colors.hover);
 }
 
 QString formatReminderContestTitle(const DeadlineReminder &reminder,
@@ -65,6 +69,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     , m_contestCache(contestCache)
 {
     m_shell = new PageShell(this);
+    m_shell->contentLayout()->setContentsMargins(0,0,0,0);
     auto *pageLayout = new QVBoxLayout(this);
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
@@ -161,29 +166,39 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     columnsLayout->setContentsMargins(0, 0, 0, 0);
     columnsLayout->setSpacing(UiTheme::PageSpacing);
 
-    auto *classesColumn = new QVBoxLayout();
-    classesColumn->setContentsMargins(0, 0, 0, 0);
+    auto *classesFrame = new QFrame(m_shell);
+    classesFrame->setObjectName("homeCourseFrame");
+    auto *classesColumn = new QVBoxLayout(classesFrame);
+    classesColumn->setContentsMargins(HomePanelPaddingX,
+                                      HomePanelPaddingY,
+                                      HomePanelPaddingX,
+                                      HomePanelPaddingY);
     classesColumn->setSpacing(14);
-    auto *classesTitle = new QLabel("Course List", m_shell);
+    auto *classesTitle = new QLabel("Course List", classesFrame);
     classesTitle->setObjectName("homeSectionLabel");
-    m_classListWidget = new QListWidget(m_shell);
+    m_classListWidget = new QListWidget(classesFrame);
     m_classListWidget->setObjectName("homeClassList");
     m_classListWidget->setMinimumHeight(420);
     classesColumn->addWidget(classesTitle);
     classesColumn->addWidget(m_classListWidget, 1);
 
-    auto *remindersColumn = new QVBoxLayout();
-    remindersColumn->setContentsMargins(0, 0, 0, 0);
+    auto *remindersFrame = new QFrame(m_shell);
+    remindersFrame->setObjectName("homeDueFrame");
+    auto *remindersColumn = new QVBoxLayout(remindersFrame);
+    remindersColumn->setContentsMargins(HomePanelPaddingX,
+                                        HomePanelPaddingY,
+                                        HomePanelPaddingX,
+                                        HomePanelPaddingY);
     remindersColumn->setSpacing(14);
-    auto *remindersTitle = new QLabel("Due Soon", m_shell);
+    auto *remindersTitle = new QLabel("Due Soon", remindersFrame);
     remindersTitle->setObjectName("homeSectionLabel");
-    m_reminderListWidget = new QListWidget(m_shell);
+    m_reminderListWidget = new QListWidget(remindersFrame);
     m_reminderListWidget->setObjectName("homeReminderList");
     remindersColumn->addWidget(remindersTitle);
     remindersColumn->addWidget(m_reminderListWidget, 1);
 
-    columnsLayout->addLayout(classesColumn, 1);
-    columnsLayout->addLayout(remindersColumn, 1);
+    columnsLayout->addWidget(classesFrame, 1);
+    columnsLayout->addWidget(remindersFrame, 1);
     m_shell->contentLayout()->addLayout(columnsLayout, 1);
 
     connect(refreshButton, &QPushButton::clicked, this, &HomePage::refreshRequested);
@@ -221,8 +236,13 @@ void HomePage::setDarkMode(bool dark)
     const UiTheme::Palette colors = UiTheme::palette(dark);
     m_shell->setStyleSheet(
         UiTheme::pageShellStyleSheet(dark)
-        + QString("#homeSectionLabel { color: %1; font-size: 16px; font-weight: 600; }")
-              .arg(colors.text));
+        + QString("#pageShellContent { background: transparent; border: none; }"
+                  "#homeCourseFrame, #homeDueFrame { background: %1; border: 1px solid %2; border-radius: %3px; }"
+                  "#homeSectionLabel { color: %4; font-size: 16px; font-weight: 600; }")
+              .arg(colors.page,
+                   colors.border,
+                   QString::number(UiTheme::PanelRadius),
+                   colors.text));
     m_classListWidget->setStyleSheet(homeListStyle(dark));
     m_reminderListWidget->setStyleSheet(homeListStyle(dark));
 }

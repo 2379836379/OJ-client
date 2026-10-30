@@ -10,35 +10,32 @@ struct Palette
     QString page;
     QString border;
     QString text;
-    QString accentText;
-    QString hover;
     QString selected;
+    QString hover;
 };
-
-inline constexpr int PageSpacing = 18;
+//页面外层和内容区之间的间距；首页双栏之间也使用它。
+inline constexpr int PageSpacing = 4;
+//侧边工具栏展开和折叠时的宽度
 inline constexpr int ToolRailExpandedWidth = 240;
 inline constexpr int ToolRailCollapsedWidth = 84;
-inline constexpr int PanelHorizontalPadding = 20;
-inline constexpr int PanelVerticalPadding = 18;
-inline constexpr int PanelRadius = 8;
+//圆角半径
+inline constexpr int PanelRadius = 4;
 
 inline Palette palette(bool dark)
 {
     if (dark) {
-        return {"#111820",
-                "#2c3844",
-                "#e8edf2",
-                "#10251f",
-                "#26313c",
-                "#234257"};
+        return {"#1E1E1E",
+                "#303031",
+                "#D4D4D4",
+                "#007ACC",
+                "#2A2D2E"};
     }
 
-    return {"#f3f1eb",
-            "#ded8cc",
-            "#1f2328",
-            "#12343b",
-            "#eef4ef",
-            "#dcefea"};
+    return {"#FFFFFF",
+            "#D4D4D4",
+            "#000000",
+            "#007ACC",
+            "#E8E8E8"};
 }
 
 inline QString pageShellStyleSheet(bool dark)
@@ -51,13 +48,12 @@ inline QString pageShellStyleSheet(bool dark)
 
     QString style = QString::fromUtf8(styleFile.readAll());
     style.replace(QStringLiteral("@page@"), colors.page);
-    style.replace(QStringLiteral("@surface@"), colors.surface);
     style.replace(QStringLiteral("@border@"), colors.border);
     style.replace(QStringLiteral("@radius@"), QString::number(PanelRadius));
     style.replace(QStringLiteral("@text@"), colors.text);
     style.replace(QStringLiteral("@hover@"), colors.hover);
     style.replace(QStringLiteral("@selected@"), colors.selected);
-    style.replace(QStringLiteral("@accent-text@"), colors.accentText);
+    style.replace(QStringLiteral("@accent@"), colors.accent);
     return style;
 }
 }
