@@ -79,34 +79,34 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     m_collapsedHomeToolButton->setProperty("active", true);
     m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.png", &m_collapsedThemeToolButton);
+    }, "dark-mode.svg", &m_collapsedThemeToolButton);
     m_shell->addTool("Refresh", "Refresh", [this]() {
         emit refreshRequested();
     }, "refresh.svg");
     m_shell->addTool("Open Favorites","Favorites", [this]() {
         emit favoritesRequested();
-    }, "favorite.png");
+    }, "favorite.svg");
     m_shell->addTool("Task Board","Task Board", [this]() {
         emit tasksRequested();
-    }, "taskboard.png");
+    }, "taskboard.svg");
     m_shell->addTool("Stats","Stats", [this]() {
         emit statsRequested();
-    }, "stats.png");
+    }, "stats.svg");
     m_shell->addTool("Review", "Review", [this]() {
         emit reviewRequested();
-    }, "review.png");
+    }, "review.svg");
     m_shell->addTool("Set", "Set", [this]() {
         emit storageRequested();
     }, "set.svg");
     m_shell->addTool("URLs", "Server URL", [this]() {
         emit settingsRequested();
-    }, "urls.png");
+    }, "urls.svg");
     m_shell->addTool("AI Config", "AI Config", [this]() {
         emit aiConfigRequested();
     }, "aiconfig.svg");
     m_shell->addTool("Log Out", "Log Out", [this]() {
         emit logoutRequested();
-    }, "log out.svg");
+    }, "logout.svg");
     m_shell->toolsLayout()->addStretch();
     m_shell->collapsedToolsLayout()->addStretch();
 

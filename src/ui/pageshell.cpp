@@ -5,6 +5,7 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -121,8 +122,21 @@ void PageShell::setToolsExpanded(bool expanded)
     QWidget *toolsFrame = m_toolsExpandedPanel->parentWidget();
     toolsFrame->setMinimumWidth(width);
     toolsFrame->setMaximumWidth(width);
-    m_toolsToggle->setText(expanded ? QStringLiteral("Collapse")
-                                    : QStringLiteral("Expand"));
+    toolsFrame->layout()->setAlignment(
+        m_toolsToggle, expanded ? Qt::Alignment{} : Qt::AlignHCenter);
+    m_toolsToggle->setObjectName(expanded ? "pageShellToolButton"
+                                         : "pageShellToolIconButton");
+    if (expanded) {
+        m_toolsToggle->setProperty("_iconFileName", QString());
+        m_toolsToggle->setIcon(QIcon());
+        m_toolsToggle->setText(QStringLiteral("Collapse"));
+        m_toolsToggle->setMinimumWidth(0);
+        m_toolsToggle->setMaximumWidth(QWIDGETSIZE_MAX);
+    } else {
+        m_toolsToggle->setText(QString());
+        LightModeIconHelper::applyIcon(m_toolsToggle, QStringLiteral("tools.svg"));
+        m_toolsToggle->setFixedSize(36, 36);
+    }
     m_toolsToggle->setToolTip(expanded ? QStringLiteral("Collapse tools")
                                       : QStringLiteral("Expand tools"));
 }

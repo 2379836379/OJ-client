@@ -18,15 +18,8 @@ QString normalizeFileName(const QString &fileName, bool darkMode)
     if (!darkMode) {
         return fileName;
     }
-
-    if (fileName.compare("dark-mode.png", Qt::CaseInsensitive) == 0) {
+    if (fileName.compare("dark-mode.svg", Qt::CaseInsensitive) == 0) {
         return QStringLiteral("light-mode.svg");
-    }
-    if (fileName.compare("ai-config.svg", Qt::CaseInsensitive) == 0) {
-        return QStringLiteral("aiconfig.svg");
-    }
-    if (fileName.compare("log out.svg", Qt::CaseInsensitive) == 0) {
-        return QStringLiteral("logout.svg");
     }
     return fileName;
 }
