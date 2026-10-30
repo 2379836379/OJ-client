@@ -72,35 +72,35 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
 
-    m_shell->addTool("Home", "H", "Home", [] {}, "homepage.svg");
-    m_shell->addTool("Dark Mode", "D", "Dark Mode", [this]() {
+    m_shell->addTool("Home","Home", [] {}, "homepage.svg");
+    m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
     }, "dark-mode.png");
-    m_shell->addTool("Refresh", "R", "Refresh", [this]() {
+    m_shell->addTool("Refresh", "Refresh", [this]() {
         emit refreshRequested();
     }, "refresh.svg");
-    m_shell->addTool("Open Favorites", "F", "Favorites", [this]() {
+    m_shell->addTool("Open Favorites","Favorites", [this]() {
         emit favoritesRequested();
     }, "favorite.png");
-    m_shell->addTool("Task Board", "T", "Task Board", [this]() {
+    m_shell->addTool("Task Board","Task Board", [this]() {
         emit tasksRequested();
-    });
-    m_shell->addTool("Stats", "St", "Stats", [this]() {
+    }, "taskboard.png");
+    m_shell->addTool("Stats","Stats", [this]() {
         emit statsRequested();
-    });
-    m_shell->addTool("Review", "R", "Review", [this]() {
+    }, "stats.png");
+    m_shell->addTool("Review", "Review", [this]() {
         emit reviewRequested();
-    });
-    m_shell->addTool("Set", "S", "Set", [this]() {
+    }, "review.png");
+    m_shell->addTool("Set", "Set", [this]() {
         emit storageRequested();
     }, "set.svg");
-    m_shell->addTool("URLs", "U", "Server URL", [this]() {
+    m_shell->addTool("URLs", "Server URL", [this]() {
         emit settingsRequested();
-    });
-    m_shell->addTool("AI Config", "A", "AI Config", [this]() {
+    }, "urls.png");
+    m_shell->addTool("AI Config", "AI Config", [this]() {
         emit aiConfigRequested();
-    }, "ai-config.svg");
-    m_shell->addTool("Log Out", "L", "Log Out", [this]() {
+    }, "aiconfig.svg");
+    m_shell->addTool("Log Out", "Log Out", [this]() {
         emit logoutRequested();
     }, "log out.svg");
     m_shell->toolsLayout()->addStretch();

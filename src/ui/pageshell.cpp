@@ -73,7 +73,6 @@ QVBoxLayout *PageShell::contentLayout() const
 }
 
 void PageShell::addTool(const QString &text,
-                        const QString &collapsedText,
                         const QString &toolTip,
                         const std::function<void()> &action,
                         const QString &iconFile)
@@ -83,13 +82,11 @@ void PageShell::addTool(const QString &text,
     expandedButton->setToolTip(toolTip);
     m_toolsLayout->addWidget(expandedButton);
 
-    auto *collapsedButton = new QPushButton(collapsedText, m_toolsCollapsedPanel);
+    auto *collapsedButton = new QPushButton(m_toolsCollapsedPanel);
     collapsedButton->setObjectName("pageShellToolButton");
     collapsedButton->setFixedSize(36, 36);
     collapsedButton->setToolTip(toolTip);
-    if (!iconFile.isEmpty()) {
-        LightModeIconHelper::applyIcon(collapsedButton, iconFile);
-    }
+    LightModeIconHelper::applyIcon(collapsedButton, iconFile);
     m_collapsedToolsLayout->addWidget(collapsedButton, 0, Qt::AlignHCenter);
 
     connect(expandedButton, &QPushButton::clicked, this, [action]() {
