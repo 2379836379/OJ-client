@@ -1,5 +1,5 @@
 #include "ui/pages/problempage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
 #include "ui/treesittersyntaxhighlighter.h"
 
 #include "config/apppaths.h"
@@ -536,91 +536,26 @@ ProblemPage::ProblemPage(QWidget *parent)
     : QWidget(parent)
 {
     writeStartupLog("ProblemPage: constructor begin");
+    m_shell = new PageShell(this);
+    m_shell->contentLayout()->setContentsMargins(0, 0, 0, 0);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(4);
+    layout->addWidget(m_shell);
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("problemTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    m_titleLabel = new QLabel("Problem", topFrame);
+    m_titleLabel = new QLabel("Problem", m_shell);
     m_titleLabel->setObjectName("problemTitleLabel");
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("problemTopActionButton");
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("problemTopActionButton");
-    m_translateButton = new QPushButton("Translate", topFrame);
-    m_translateButton->setObjectName("problemRefreshButton");
-
-    topLayout->addWidget(m_titleLabel, 1);
-    topLayout->addWidget(homeButton, 0, Qt::AlignRight);
-    topLayout->addWidget(themeButton, 0, Qt::AlignRight);
-    writeStartupLog("ProblemPage: top frame complete");
-
-    auto *bottomLayout = new QHBoxLayout();
-    bottomLayout->setSpacing(4);
-
-    m_toolsFrame = new QFrame(this);
-    m_toolsFrame->setObjectName("problemLeftFrame");
-    auto *leftLayout = new QVBoxLayout(m_toolsFrame);
-    leftLayout->setContentsMargins(20, 18, 20, 18);
-    leftLayout->setSpacing(12);
-
-    m_toolsToggleButton = new QPushButton(m_toolsFrame);
-    m_toolsToggleButton->setObjectName("problemToolsToggleButton");
-
-    m_toolsPanel = new QWidget(m_toolsFrame);
-    auto *toolsPanelLayout = new QVBoxLayout(m_toolsPanel);
-    toolsPanelLayout->setContentsMargins(0, 0, 0, 0);
-    toolsPanelLayout->setSpacing(10);
-
-    m_backToolButton = new QPushButton("Back", m_toolsPanel);
-    m_backToolButton->setObjectName("problemToolButton");
-    m_favoriteToolButton = new QPushButton("Favorite Current Problem", m_toolsPanel);
-    m_favoriteToolButton->setObjectName("problemToolButton");
-    m_aiToolButton = new QPushButton("AI", m_toolsPanel);
-    m_aiToolButton->setObjectName("problemToolButton");
-    m_notesToolButton = new QPushButton("Notes", m_toolsPanel);
-    m_notesToolButton->setObjectName("problemToolButton");
-    toolsPanelLayout->addWidget(m_backToolButton);
-    toolsPanelLayout->addWidget(m_favoriteToolButton);
-    toolsPanelLayout->addWidget(m_aiToolButton);
-    toolsPanelLayout->addWidget(m_notesToolButton);
-    toolsPanelLayout->addStretch();
-
-    m_collapsedToolsPanel = new QWidget(m_toolsFrame);
-    m_collapsedToolsPanel->setObjectName("problemCollapsedToolsPanel");
-    auto *collapsedLayout = new QVBoxLayout(m_collapsedToolsPanel);
-    collapsedLayout->setContentsMargins(0, 0, 0, 0);
-    collapsedLayout->setSpacing(10);
-
-    m_collapsedBackButton = new QPushButton("B", m_collapsedToolsPanel);
-    m_collapsedBackButton->setObjectName("problemToolIconButton");
-    m_collapsedBackButton->setToolTip("Back");
-    m_collapsedFavoriteButton = new QPushButton("F", m_collapsedToolsPanel);
-    m_collapsedFavoriteButton->setObjectName("problemToolIconButton");
-    m_collapsedFavoriteButton->setToolTip("Favorite Current Problem");
-    m_collapsedAiButton = new QPushButton("Ai", m_collapsedToolsPanel);
-    m_collapsedAiButton->setObjectName("problemToolIconButton");
-    m_collapsedAiButton->setToolTip("AI");
-    m_collapsedNotesButton = new QPushButton("N", m_collapsedToolsPanel);
-    m_collapsedNotesButton->setObjectName("problemToolIconButton");
-    m_collapsedNotesButton->setToolTip("Notes");
-    collapsedLayout->addWidget(m_collapsedBackButton);
-    collapsedLayout->addWidget(m_collapsedFavoriteButton);
-    collapsedLayout->addWidget(m_collapsedAiButton);
-    collapsedLayout->addWidget(m_collapsedNotesButton);
-    collapsedLayout->addStretch();
-
-    leftLayout->addWidget(m_toolsToggleButton);
-    leftLayout->addWidget(m_toolsPanel);
-    leftLayout->addWidget(m_collapsedToolsPanel);
-    leftLayout->addStretch();
-    writeStartupLog("ProblemPage: tools frame complete");
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
+        emit themeToggleRequested(!m_darkMode);
+    }, "dark-mode.png", &m_collapsedThemeToolButton);
+    m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
+    m_favoriteToolButton = m_shell->addTool("Favorite Current Problem", "Favorite Current Problem", [this]() {
+        emit favoriteRequested();
+    }, "favorite.png", &m_collapsedFavoriteButton);
+    m_shell->addTool("AI", "AI", [this]() { setAiPanelVisible(!m_aiPanelVisible); }, "aiconfig.svg");
+    m_shell->addTool("Notes", "Notes", [this]() { setNotesPanelVisible(!m_notesPanelVisible); });
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
     auto *problemFrame = new QFrame(this);
     problemFrame->setObjectName("problemMiddleFrame");
@@ -632,6 +567,8 @@ ProblemPage::ProblemPage(QWidget *parent)
     auto *problemLabel = new QLabel("Problem", problemFrame);
     problemLabel->setObjectName("problemSectionLabel");
 
+    m_translateButton = new QPushButton("Translate", problemFrame);
+    m_translateButton->setObjectName("problemRefreshButton");
     auto *problemHeaderLayout = new QHBoxLayout();
     problemHeaderLayout->setContentsMargins(0, 0, 0, 0);
     problemHeaderLayout->setSpacing(12);
@@ -911,22 +848,8 @@ ProblemPage::ProblemPage(QWidget *parent)
     updateSplitterInteractivity();
     });
 
-    bottomLayout->addWidget(m_toolsFrame, 1);
-    bottomLayout->addWidget(m_contentSplitter, 4);
-
-    layout->addWidget(topFrame);
-    layout->addLayout(bottomLayout, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    m_backToolButton->setToolTip("Back");
-    m_favoriteToolButton->setToolTip("Favorite Current Problem");
-    m_collapsedBackButton->setToolTip("Back");
-    m_collapsedFavoriteButton->setToolTip("Favorite Current Problem");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.png");
-    LightModeIconHelper::applyIcon(m_collapsedBackButton, "back.svg");
-    LightModeIconHelper::applyIcon(m_collapsedFavoriteButton, "favorite.png");
+    m_shell->contentLayout()->addWidget(m_titleLabel);
+    m_shell->contentLayout()->addWidget(m_contentSplitter, 1);
     writeStartupLog("ProblemPage: layout assembly complete");
 
     setStyleSheet(
@@ -1099,13 +1022,6 @@ ProblemPage::ProblemPage(QWidget *parent)
     );
     writeStartupLog("ProblemPage: stylesheet applied");
 
-    setToolsExpanded(true);
-    writeStartupLog("ProblemPage: tools expanded set");
-
-    connect(homeButton, &QPushButton::clicked, this, &ProblemPage::homeRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
     connect(m_translateButton,
             &QPushButton::clicked,
             this,
@@ -1117,22 +1033,6 @@ ProblemPage::ProblemPage(QWidget *parent)
         if (!m_currentProblemUrl.isEmpty()) {
             QDesktopServices::openUrl(QUrl(m_currentProblemUrl));
         }
-    });
-    connect(m_backToolButton, &QPushButton::clicked, this, &ProblemPage::backRequested);
-    connect(m_collapsedBackButton, &QPushButton::clicked, this, &ProblemPage::backRequested);
-    connect(m_favoriteToolButton, &QPushButton::clicked, this, &ProblemPage::favoriteRequested);
-    connect(m_collapsedFavoriteButton, &QPushButton::clicked, this, &ProblemPage::favoriteRequested);
-    connect(m_aiToolButton, &QPushButton::clicked, this, [this]() {
-        setAiPanelVisible(!m_aiPanelVisible);
-    });
-    connect(m_collapsedAiButton, &QPushButton::clicked, this, [this]() {
-        setAiPanelVisible(!m_aiPanelVisible);
-    });
-    connect(m_notesToolButton, &QPushButton::clicked, this, [this]() {
-        setNotesPanelVisible(!m_notesPanelVisible);
-    });
-    connect(m_collapsedNotesButton, &QPushButton::clicked, this, [this]() {
-        setNotesPanelVisible(!m_notesPanelVisible);
     });
     connect(m_saveMetaButton, &QPushButton::clicked, this, [this]() {
         if (m_currentProblemUrl.isEmpty()) {
@@ -1165,13 +1065,6 @@ ProblemPage::ProblemPage(QWidget *parent)
                                                    currentLanguageValue());
             }
             updateCodeHighlightLanguage();
-        });
-    connect(
-        m_toolsToggleButton,
-        &QPushButton::clicked,
-        this,
-        [this]() {
-            setToolsExpanded(!m_toolsExpanded);
         });
     connect(m_aiAskButton, &QPushButton::clicked, this, [this]() {
         const QString question = m_aiPromptEdit->toPlainText().trimmed();
@@ -1238,34 +1131,6 @@ ProblemPage::ProblemPage(QWidget *parent)
     m_inputButton->setVisible(true);
     m_loadSampleButton->setVisible(true);
     writeStartupLog("ProblemPage: constructor end");
-}
-
-void ProblemPage::setToolsExpanded(bool expanded)
-{
-    m_toolsExpanded = expanded;
-    if (m_toolsFrame != nullptr) {
-        m_toolsFrame->setMinimumWidth(expanded ? 0 : 84);
-        m_toolsFrame->setMaximumWidth(expanded ? QWIDGETSIZE_MAX : 84);
-    }
-    if (m_toolsPanel != nullptr) {
-        m_toolsPanel->setVisible(expanded);
-    }
-    if (m_collapsedToolsPanel != nullptr) {
-        m_collapsedToolsPanel->setVisible(!expanded);
-    }
-    const QList<QPushButton *> iconButtons = {m_collapsedBackButton,
-                                              m_collapsedFavoriteButton,
-                                              m_collapsedAiButton,
-                                              m_collapsedNotesButton};
-    for (QPushButton *button : iconButtons) {
-        if (button != nullptr) {
-            button->setVisible(!expanded);
-        }
-    }
-    if (m_toolsToggleButton != nullptr) {
-        m_toolsToggleButton->setToolTip(expanded ? "Collapse Tools" : "Expand Tools");
-        LightModeIconHelper::applyToolsToggleIcon(m_toolsToggleButton, expanded);
-    }
 }
 
 void ProblemPage::updateSplitterInteractivity()
@@ -2077,6 +1942,12 @@ void ProblemPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     g_problemPageDarkMode = dark;
+    const QString themeLabel = dark ? QStringLiteral("Light Mode")
+                                    : QStringLiteral("Dark Mode");
+    m_themeToolButton->setText(themeLabel);
+    m_themeToolButton->setToolTip(themeLabel);
+    m_collapsedThemeToolButton->setToolTip(themeLabel);
+    m_shell->setDarkMode(dark);
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();

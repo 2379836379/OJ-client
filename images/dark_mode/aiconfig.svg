@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="Login-Key--Streamline-Ultimate" height="24" width="24">
-  <desc>
-    Login Key Streamline Icon: https://streamlinehq.com
-  </desc>
-  <path d="M23.5 0h-3a0.47 0.47 0 0 0 -0.35 0.15l-9.53 9.53a7.5 7.5 0 1 0 3.7 3.7l2.32 -2.31 1.93 0.65a1 1 0 0 0 1 -0.19 1 1 0 0 0 0.34 -0.91l-0.4 -2.42 0.72 -0.73 1.46 0.67A1 1 0 0 0 23.07 7l-0.51 -1.81 1.29 -1.3A0.47 0.47 0 0 0 24 3.5v-3a0.5 0.5 0 0 0 -0.5 -0.5ZM7 18.5A1.5 1.5 0 1 1 5.5 17 1.5 1.5 0 0 1 7 18.5Z" fill="#ffffff" stroke-width="1"></path>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key-round preview-icon"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>

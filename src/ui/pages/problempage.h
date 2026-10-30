@@ -14,6 +14,7 @@ class QCheckBox;
 class QLabel;
 class QLineEdit;
 class QObject;
+class PageShell;
 class QPlainTextEdit;
 class QPushButton;
 class QTextEdit;
@@ -104,7 +105,6 @@ signals:
 private:
     void saveCurrentDraft();
     void restoreDraftOrStarterCode(const ProblemPageInfo &problemPageInfo);
-    void setToolsExpanded(bool expanded);
     void setAiPanelVisible(bool visible);
     void setNotesPanelVisible(bool visible);
     void redistributeWorkspacePanels();
@@ -118,18 +118,11 @@ private:
     void refreshProblemDetailView();
 
     QLabel *m_titleLabel = nullptr;
-    QFrame *m_toolsFrame = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_backToolButton = nullptr;
     QPushButton *m_favoriteToolButton = nullptr;
-    QPushButton *m_aiToolButton = nullptr;
-    QPushButton *m_notesToolButton = nullptr;
-    QPushButton *m_collapsedBackButton = nullptr;
     QPushButton *m_collapsedFavoriteButton = nullptr;
-    QPushButton *m_collapsedAiButton = nullptr;
-    QPushButton *m_collapsedNotesButton = nullptr;
+    QPushButton *m_themeToolButton = nullptr;
+    QPushButton *m_collapsedThemeToolButton = nullptr;
+    PageShell *m_shell = nullptr;
     QTextEdit *m_detailTextEdit = nullptr;
     QPushButton *m_openInBrowserButton = nullptr;
     QFrame *m_aiFrame = nullptr;
@@ -163,7 +156,6 @@ private:
     QTextEdit *m_testResultTextEdit = nullptr;
     QTextEdit *m_submitResultTextEdit = nullptr;
     QString m_lastSubmitPreview;
-    bool m_toolsExpanded = true;
     bool m_testing = false;
     bool m_aiPanelVisible = false;
     bool m_notesPanelVisible = false;
