@@ -32,7 +32,7 @@ inline Palette palette(bool dark)
     }
 
     return {"#FFFFFF",
-            "#D4D4D4",
+            "#E5E5E5",
             "#000000",
             "#007ACC",
             "#E8E8E8"};
@@ -53,7 +53,6 @@ inline QString pageShellStyleSheet(bool dark)
     style.replace(QStringLiteral("@text@"), colors.text);
     style.replace(QStringLiteral("@hover@"), colors.hover);
     style.replace(QStringLiteral("@selected@"), colors.selected);
-    style.replace(QStringLiteral("@accent@"), colors.accent);
     return style;
 }
 }

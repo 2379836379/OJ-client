@@ -28,9 +28,9 @@ QString homeListStyle(bool dark)
     return QString(
                "QListWidget { background: transparent; border: none; outline: none; color: %1; }"
                "QListWidget::item { padding: 12px 4px; border-radius: 8px; margin: 2px 0px; }"
-               "QListWidget::item:selected { background: %2; color: %3; }"
-               "QListWidget::item:hover { background: %4; }")
-        .arg(colors.text, colors.selected, colors.accent, colors.hover);
+               "QListWidget::item:selected { background: transparent; color: %1;}"
+               "QListWidget::item:hover { background: %2; }")
+        .arg(colors.text, colors.hover);
 }
 
 QString formatReminderContestTitle(const DeadlineReminder &reminder,
@@ -87,7 +87,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
         iconButton->setObjectName("pageShellToolButton");
         iconButton->setFixedSize(36, 36);
         iconButton->setToolTip(toolTip);
-        m_shell->collapsedToolsLayout()->addWidget(iconButton);
+        m_shell->collapsedToolsLayout()->addWidget(iconButton, 0, Qt::AlignHCenter);
         connect(iconButton, &QPushButton::clicked, this, request);
     };
 
@@ -100,7 +100,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     collapsedHomeButton->setFixedSize(36, 36);
     collapsedHomeButton->setToolTip("Home");
     LightModeIconHelper::applyIcon(collapsedHomeButton, "homepage.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedHomeButton);
+    m_shell->collapsedToolsLayout()->addWidget(collapsedHomeButton, 0, Qt::AlignHCenter);
     connect(homeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
     connect(collapsedHomeButton, &QPushButton::clicked, this, [this]() { Q_UNUSED(this); });
 
@@ -113,7 +113,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     collapsedThemeButton->setFixedSize(36, 36);
     collapsedThemeButton->setToolTip("Dark Mode");
     LightModeIconHelper::applyIcon(collapsedThemeButton, "dark-mode.png");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedThemeButton);
+    m_shell->collapsedToolsLayout()->addWidget(collapsedThemeButton, 0, Qt::AlignHCenter);
 
     auto *refreshButton = new QPushButton("Refresh", m_shell);
     refreshButton->setObjectName("pageShellToolButton");
@@ -124,7 +124,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     collapsedRefreshButton->setFixedSize(36, 36);
     collapsedRefreshButton->setToolTip("Refresh");
     LightModeIconHelper::applyIcon(collapsedRefreshButton, "refresh.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedRefreshButton);
+    m_shell->collapsedToolsLayout()->addWidget(collapsedRefreshButton, 0, Qt::AlignHCenter);
 
     addTool("Open Favorites", "F", "Favorites", &HomePage::favoritesRequested);
     addTool("Task Board", "T", "Task Board", &HomePage::tasksRequested);
@@ -141,7 +141,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     collapsedStorageButton->setFixedSize(36, 36);
     collapsedStorageButton->setToolTip("Set");
     LightModeIconHelper::applyIcon(collapsedStorageButton, "set.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedStorageButton);
+    m_shell->collapsedToolsLayout()->addWidget(collapsedStorageButton, 0, Qt::AlignHCenter);
     connect(collapsedStorageButton, &QPushButton::clicked, this, &HomePage::storageRequested);
 
     addTool("URLs", "U", "Server URL", &HomePage::settingsRequested);
@@ -155,7 +155,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     collapsedAiButton->setFixedSize(36, 36);
     collapsedAiButton->setToolTip("AI Config");
     LightModeIconHelper::applyIcon(collapsedAiButton, "ai-config.svg");
-    m_shell->collapsedToolsLayout()->addWidget(collapsedAiButton);
+    m_shell->collapsedToolsLayout()->addWidget(collapsedAiButton, 0, Qt::AlignHCenter);
     connect(collapsedAiButton, &QPushButton::clicked, this, &HomePage::aiConfigRequested);
 
     addTool("Log Out", "L", "Log Out", &HomePage::logoutRequested);
