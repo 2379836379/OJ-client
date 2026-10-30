@@ -46,6 +46,8 @@ private:
     PageShell *m_shell = nullptr;
     QListWidget *m_classListWidget = nullptr;
     QListWidget *m_reminderListWidget = nullptr;
+    QPushButton *m_homeToolButton = nullptr;
+    QPushButton *m_collapsedHomeToolButton = nullptr;
     QPushButton *m_themeToolButton = nullptr;
     QPushButton *m_collapsedThemeToolButton = nullptr;
     ContestPageCache *m_contestCache = nullptr;

@@ -34,7 +34,7 @@ inline Palette palette(bool dark)
     return {"#FFFFFF",
             "#E5E5E5",
             "#000000",
-            "#007ACC",
+            "#CCE5FF",
             "#E8E8E8"};
 }
 

@@ -84,7 +84,7 @@ QPushButton *PageShell::addTool(const QString &text,
     m_toolsLayout->addWidget(expandedButton);
 
     auto *collapsedToolButton = new QPushButton(m_toolsCollapsedPanel);
-    collapsedToolButton->setObjectName("pageShellToolButton");
+    collapsedToolButton->setObjectName("pageShellToolIconButton");
     collapsedToolButton->setFixedSize(36, 36);
     collapsedToolButton->setToolTip(toolTip);
     LightModeIconHelper::applyIcon(collapsedToolButton, iconFile);

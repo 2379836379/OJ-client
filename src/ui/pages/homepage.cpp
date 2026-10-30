@@ -73,7 +73,10 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     pageLayout->setContentsMargins(0, 0, 0, 0);
     pageLayout->addWidget(m_shell);
 
-    m_shell->addTool("Home","Home", [] {}, "homepage.svg");
+    m_homeToolButton = m_shell->addTool("Home", "Home", [] {},
+                                        "homepage.svg", &m_collapsedHomeToolButton);
+    m_homeToolButton->setProperty("active", true);
+    m_collapsedHomeToolButton->setProperty("active", true);
     m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
     }, "dark-mode.png", &m_collapsedThemeToolButton);
