@@ -1,8 +1,6 @@
 #include "ui/lightmodeiconhelper.h"
 
-#include <QCoreApplication>
-#include <QDir>
-#include <QFileInfo>
+#include <QFile>
 #include <QIcon>
 #include <QPushButton>
 #include <QSize>
@@ -26,25 +24,11 @@ QString normalizeFileName(const QString &fileName, bool darkMode)
 
 QString resolveIconPath(const QString &fileName, bool darkMode)
 {
-    const QString appDir = QCoreApplication::applicationDirPath();
-    const QString cwd = QDir::currentPath();
     const QString modeDir = darkMode ? QStringLiteral("dark_mode")
                                      : QStringLiteral("light_mode");
     const QString normalizedFileName = normalizeFileName(fileName, darkMode);
-    const QStringList candidates = {
-        QDir(cwd).filePath(QString("images/%1/%2").arg(modeDir, normalizedFileName)),
-        QDir(appDir).filePath(QString("images/%1/%2").arg(modeDir, normalizedFileName)),
-        QDir(appDir).filePath(QString("../images/%1/%2").arg(modeDir, normalizedFileName)),
-        QDir(appDir).filePath(QString("../oj-client/images/%1/%2").arg(modeDir, normalizedFileName)),
-        QDir(appDir).filePath(QString("../../oj-client/images/%1/%2").arg(modeDir, normalizedFileName))
-    };
-
-    for (const QString &path : candidates) {
-        if (QFileInfo::exists(path)) {
-            return QDir::cleanPath(path);
-        }
-    }
-    return QString();
+    const QString path = QStringLiteral(":/images/%1/%2").arg(modeDir, normalizedFileName);
+    return QFile::exists(path) ? path : QString();
 }
 
 void applyResolvedIcon(QPushButton *button,
@@ -57,9 +41,6 @@ void applyResolvedIcon(QPushButton *button,
     }
 
     QString path = resolveIconPath(fileName, g_darkModeEnabled);
-    if (path.isEmpty() && g_darkModeEnabled) {
-        path = resolveIconPath(fileName, false);
-    }
     if (path.isEmpty()) {
         return;
     }

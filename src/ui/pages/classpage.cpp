@@ -42,7 +42,7 @@ ClassPage::ClassPage(QWidget *parent)
     m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
     m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.png", &m_collapsedThemeToolButton);
+    }, "dark-mode.svg", &m_collapsedThemeToolButton);
     m_shell->addTool("Refresh", "Refresh", [this]() { emit refreshRequested(); }, "refresh.svg");
     m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
     m_shell->toolsLayout()->addStretch();

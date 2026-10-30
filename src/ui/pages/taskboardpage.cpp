@@ -187,7 +187,7 @@ TaskBoardPage::TaskBoardPage(QWidget *parent)
     themeButton->setToolTip("Dark Mode");
     refreshButton->setToolTip("Refresh");
     LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.png");
+    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
     LightModeIconHelper::applyIcon(refreshButton, "refresh.svg");
 
     setStyleSheet(

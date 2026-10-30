@@ -547,11 +547,11 @@ ProblemPage::ProblemPage(QWidget *parent)
     m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
     m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
         emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.png", &m_collapsedThemeToolButton);
+    }, "dark-mode.svg", &m_collapsedThemeToolButton);
     m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
     m_favoriteToolButton = m_shell->addTool("Favorite Current Problem", "Favorite Current Problem", [this]() {
         emit favoriteRequested();
-    }, "favorite.png", &m_collapsedFavoriteButton);
+    }, "favorite.svg", &m_collapsedFavoriteButton);
     m_shell->addTool("AI", "AI", [this]() { setAiPanelVisible(!m_aiPanelVisible); }, "aiconfig.svg");
     m_shell->addTool("Notes", "Notes", [this]() { setNotesPanelVisible(!m_notesPanelVisible); });
     m_shell->toolsLayout()->addStretch();

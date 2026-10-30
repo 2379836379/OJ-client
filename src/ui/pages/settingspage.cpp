@@ -104,7 +104,7 @@ SettingsPage::SettingsPage(QWidget *parent)
     m_backToolButton->setToolTip("Back");
     m_collapsedBackButton->setToolTip("Back");
     LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.png");
+    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
     LightModeIconHelper::applyIcon(m_collapsedBackButton, "back.svg");
 
     setStyleSheet(

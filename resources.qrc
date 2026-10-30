@@ -2,6 +2,32 @@
     <qresource prefix="/">
         <file>images/icon.svg</file>
         <file>images/icon-page-1.ico</file>
+        <file>images/light_mode/aiconfig.svg</file>
+        <file>images/light_mode/back.svg</file>
+        <file>images/light_mode/dark-mode.svg</file>
+        <file>images/light_mode/favorite.svg</file>
+        <file>images/light_mode/homepage.svg</file>
+        <file>images/light_mode/logout.svg</file>
+        <file>images/light_mode/refresh.svg</file>
+        <file>images/light_mode/review.svg</file>
+        <file>images/light_mode/set.svg</file>
+        <file>images/light_mode/stats.svg</file>
+        <file>images/light_mode/taskboard.svg</file>
+        <file>images/light_mode/tools.svg</file>
+        <file>images/light_mode/urls.svg</file>
+        <file>images/dark_mode/aiconfig.svg</file>
+        <file>images/dark_mode/back.svg</file>
+        <file>images/dark_mode/favorite.svg</file>
+        <file>images/dark_mode/homepage.svg</file>
+        <file>images/dark_mode/light-mode.svg</file>
+        <file>images/dark_mode/logout.svg</file>
+        <file>images/dark_mode/refresh.svg</file>
+        <file>images/dark_mode/review.svg</file>
+        <file>images/dark_mode/set.svg</file>
+        <file>images/dark_mode/stats.svg</file>
+        <file>images/dark_mode/taskboard.svg</file>
+        <file>images/dark_mode/tools.svg</file>
+        <file>images/dark_mode/urls.svg</file>
         <file>src/ui/styles/pageshell.qss</file>
     </qresource>
 </RCC>
