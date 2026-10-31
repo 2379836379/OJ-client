@@ -5,9 +5,9 @@
 
 #include <QWidget>
 
-class QLabel;
 class QListWidget;
 class QListWidgetItem;
+class QLabel;
 class QPushButton;
 class PageShell;
 
@@ -50,14 +50,19 @@ private:
     };
 
     void setViewMode(ViewMode mode, const QString &folderName = QString());
+    void updateToolVisibility();
+    void removeSelectedFolder();
+    void removeSelectedFavorite();
 
     PageShell *m_shell = nullptr;
-    QLabel *m_statusLabel = nullptr;
     QLabel *m_sectionLabel = nullptr;
     QListWidget *m_favoriteListWidget = nullptr;
-    QPushButton *m_newFolderButton = nullptr;
-    QPushButton *m_removeFolderButton = nullptr;
-    QPushButton *m_removeButton = nullptr;
+    QPushButton *m_newFolderTool = nullptr;
+    QPushButton *m_collapsedNewFolderTool = nullptr;
+    QPushButton *m_removeFolderTool = nullptr;
+    QPushButton *m_collapsedRemoveFolderTool = nullptr;
+    QPushButton *m_removeFavoriteTool = nullptr;
+    QPushButton *m_collapsedRemoveFavoriteTool = nullptr;
     ViewMode m_viewMode = ViewMode::FolderList;
     qint64 m_currentFolderId = -1;
     QString m_currentFolderName;
