@@ -1,4 +1,4 @@
-#include "ui/pages/settingspage.h"
+#include "ui/pages/urlspage.h"
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
@@ -8,7 +8,36 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-SettingsPage::SettingsPage(QWidget *parent)
+namespace
+{
+QString urlsStyleSheet(bool dark)
+{
+    const UiTheme::Palette colors = UiTheme::palette(dark);
+    return QStringLiteral(
+               "#settingsSaveButton {"
+               "  padding: 10px 14px;"
+               "  border: 1px solid %1;"
+               "  border-radius: 10px;"
+               "  background: %2;"
+               "  color: %3;"
+               "}"
+               "#settingsSaveButton:hover { background: %4; }"
+               "#settingsTitleLabel { font-size: 26px; font-weight: 600; color: %3; }"
+               "#settingsFieldLabel, #settingsStatusLabel { font-size: 15px; color: %3; }"
+               "#settingsFieldLabel { font-weight: 600; }"
+               "#settingsLineEdit {"
+               "  background: %2;"
+               "  border: 1px solid %1;"
+               "  border-radius: 12px;"
+               "  color: %3;"
+               "  selection-background-color: %5;"
+               "  padding: 8px 10px;"
+               "}")
+        .arg(colors.border, colors.page, colors.text, colors.hover, colors.selected);
+}
+}
+
+UrlsPage::UrlsPage(QWidget *parent)
     : QWidget(parent)
 {
     m_shell = new PageShell(this);
@@ -49,73 +78,32 @@ SettingsPage::SettingsPage(QWidget *parent)
 
     m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false));
 
-    setStyleSheet(
-        "#settingsSaveButton {"
-        "  padding: 10px 14px;"
-        "  border: 1px solid #d7d2c7;"
-        "  border-radius: 10px;"
-        "  background: #f6f3ec;"
-        "  color: #2f3a33;"
-        "}"
-        "#settingsSaveButton:hover { background: #eef4ef; }"
-        "#settingsTitleLabel { font-size: 26px; font-weight: 600; color: #1f2328; }"
-        "#settingsFieldLabel { font-size: 15px; font-weight: 600; color: #2f3a33; }"
-        "#settingsStatusLabel { color: #526056; }"
-        "#settingsLineEdit {"
-        "  background: #fcfbf8;"
-        "  border: 1px solid #d9d4c8;"
-        "  border-radius: 12px;"
-        "  color: #1f2328;"
-        "  padding: 8px 10px;"
-        "}");
+    setStyleSheet(urlsStyleSheet(false));
 
     connect(saveButton, &QPushButton::clicked, this, [this]() {
         emit saveRequested(m_serverUrlEdit->text().trimmed());
     });
 }
 
-void SettingsPage::setServerUrl(const QString &serverUrl)
+void UrlsPage::setServerUrl(const QString &serverUrl)
 {
     m_serverUrlEdit->setText(serverUrl);
     m_statusLabel->clear();
 }
 
-void SettingsPage::showSaveSucceeded()
+void UrlsPage::showSaveSucceeded()
 {
     m_statusLabel->setText("Saved. Changes applied.");
 }
 
-void SettingsPage::showSaveFailed(const QString &message)
+void UrlsPage::showSaveFailed(const QString &message)
 {
     m_statusLabel->setText(message);
 }
 
-void SettingsPage::setDarkMode(bool dark)
+void UrlsPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     m_shell->setDarkMode(dark);
-    QString lightStyle = property("_lightStyleSheet").toString();
-    if (lightStyle.isEmpty()) {
-        lightStyle = styleSheet();
-        setProperty("_lightStyleSheet", lightStyle);
-    }
-
-    const QString darkOverride =
-        "#settingsTitleLabel, #settingsFieldLabel, #settingsStatusLabel {"
-        "  color: #d9e1e8;"
-        "}"
-        "#settingsSaveButton {"
-        "  border: 1px solid #3a4652;"
-        "  background: #202a34;"
-        "  color: #e8edf2;"
-        "}"
-        "#settingsSaveButton:hover { background: #26313c; }"
-        "#settingsLineEdit {"
-        "  background: #121920;"
-        "  border: 1px solid #3a4652;"
-        "  color: #e8edf2;"
-        "  selection-background-color: #295a85;"
-        "}";
-
-    setStyleSheet(dark ? lightStyle + darkOverride : lightStyle);
+    setStyleSheet(urlsStyleSheet(dark));
 }

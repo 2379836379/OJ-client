@@ -42,8 +42,8 @@
 #include "ui/lightmodeiconhelper.h"
 #include "ui/pages/loginpage.h"
 #include "ui/pages/problempage.h"
-#include "ui/pages/settingspage.h"
-#include "ui/pages/storagepage.h"
+#include "ui/pages/settingpage.h"
+#include "ui/pages/urlspage.h"
 
 #include <QAction>
 #include <QAudioOutput>
@@ -586,10 +586,10 @@ void MainWindow::setupUiState()
     writeStartupLog("MainWindow: stats page created");
     m_reviewPage = new ReviewPage(this);
     writeStartupLog("MainWindow: review page created");
-    m_storagePage = new StoragePage(this);
-    writeStartupLog("MainWindow: storage page created");
-    m_settingsPage = new SettingsPage(this);
-    writeStartupLog("MainWindow: settings page created");
+    m_settingPage = new SettingPage(this);
+    writeStartupLog("MainWindow: setting page created");
+    m_urlsPage = new UrlsPage(this);
+    writeStartupLog("MainWindow: URLs page created");
 
     ui->pageStack->addWidget(m_loginPage);
     ui->pageStack->addWidget(m_homePage);
@@ -601,8 +601,8 @@ void MainWindow::setupUiState()
     ui->pageStack->addWidget(m_taskBoardPage);
     ui->pageStack->addWidget(m_statsPage);
     ui->pageStack->addWidget(m_reviewPage);
-    ui->pageStack->addWidget(m_storagePage);
-    ui->pageStack->addWidget(m_settingsPage);
+    ui->pageStack->addWidget(m_settingPage);
+    ui->pageStack->addWidget(m_urlsPage);
     writeStartupLog("MainWindow: pages added to stack");
 
     m_problemPage->setAiConfigSummary(m_aiConfigSummary);
@@ -611,8 +611,8 @@ void MainWindow::setupUiState()
     m_aiConfigPage->setConfigText(configPath = m_aiService->config().sourcePath,
                                   AIConfig::loadConfigText(&configPath));
     writeStartupLog("MainWindow: ai config text loaded");
-    m_storagePage->setAlarmEnabled(m_alarmEnabled);
-    m_storagePage->setRingPath(m_alarmRingPath);
+    m_settingPage->setAlarmEnabled(m_alarmEnabled);
+    m_settingPage->setRingPath(m_alarmRingPath);
 
     showRootPage(m_loginPage);
     writeStartupLog("MainWindow: setupUiState end");
@@ -831,13 +831,13 @@ void MainWindow::connectSignals()
     connect(m_favoritePage, &FavoritePage::themeToggleRequested, this, [this](bool dark) {
         applyDarkMode(dark);
     });
-    connect(m_storagePage, &StoragePage::themeToggleRequested, this, [this](bool dark) {
+    connect(m_settingPage, &SettingPage::themeToggleRequested, this, [this](bool dark) {
         applyDarkMode(dark);
     });
     connect(m_aiConfigPage, &AiConfigPage::themeToggleRequested, this, [this](bool dark) {
         applyDarkMode(dark);
     });
-    connect(m_settingsPage, &SettingsPage::themeToggleRequested, this, [this](bool dark) {
+    connect(m_urlsPage, &UrlsPage::themeToggleRequested, this, [this](bool dark) {
         applyDarkMode(dark);
     });
     connect(
@@ -905,10 +905,10 @@ void MainWindow::connectSignals()
         &HomePage::storageRequested,
         this,
         [this]() {
-            m_storagePage->showSizes(
+            m_settingPage->showSizes(
                 m_cacheService->formattedTotalCacheSize(),
                 m_applicationSizeService->formattedTotalApplicationSize());
-            pushPage(m_storagePage);
+            pushPage(m_settingPage);
         });
     connect(
         m_homePage,
@@ -925,8 +925,8 @@ void MainWindow::connectSignals()
         &HomePage::settingsRequested,
         this,
         [this]() {
-            m_settingsPage->setServerUrl(AppConfig::loadServerUrl());
-            pushPage(m_settingsPage);
+            m_urlsPage->setServerUrl(AppConfig::loadServerUrl());
+            pushPage(m_urlsPage);
         });
     connect(
         m_homePage,
@@ -1368,8 +1368,8 @@ void MainWindow::connectSignals()
             m_problemMetaService->gradeReview(url, grade);
             m_reviewPage->showDue(m_problemMetaService->dueReviewProblems());
         });
-    connect(m_storagePage, &StoragePage::backRequested, this, &MainWindow::popPage);
-    connect(m_storagePage, &StoragePage::homeRequested, this, [this]() {
+    connect(m_settingPage, &SettingPage::backRequested, this, &MainWindow::popPage);
+    connect(m_settingPage, &SettingPage::homeRequested, this, [this]() {
         showRootPage(m_homePage);
     });
     connect(m_aiConfigPage, &AiConfigPage::backRequested, this, &MainWindow::popPage);
@@ -1398,50 +1398,50 @@ void MainWindow::connectSignals()
             m_problemPage->setAiConfigSummary(m_aiConfigSummary);
             m_aiConfigPage->showSaveSucceeded(savedPath);
         });
-    connect(m_settingsPage, &SettingsPage::backRequested, this, &MainWindow::popPage);
-    connect(m_settingsPage, &SettingsPage::homeRequested, this, [this]() {
+    connect(m_urlsPage, &UrlsPage::backRequested, this, &MainWindow::popPage);
+    connect(m_urlsPage, &UrlsPage::homeRequested, this, [this]() {
         showRootPage(m_homePage);
     });
     connect(
-        m_settingsPage,
-        &SettingsPage::saveRequested,
+        m_urlsPage,
+        &UrlsPage::saveRequested,
         this,
         [this](const QString &serverUrl) {
             const QUrl url(serverUrl);
             if (!url.isValid() || url.host().isEmpty()
                 || (url.scheme() != QStringLiteral("http")
                     && url.scheme() != QStringLiteral("https"))) {
-                m_settingsPage->showSaveFailed(
+                m_urlsPage->showSaveFailed(
                     "Enter a valid HTTP or HTTPS server URL.");
                 return;
             }
             QString errorMessage;
             if (!AppConfig::saveServerUrl(serverUrl, &errorMessage)) {
-                m_settingsPage->showSaveFailed(errorMessage);
+                m_urlsPage->showSaveFailed(errorMessage);
                 return;
             }
             m_client->setServerUrl(serverUrl);
             m_emailVerifyService->setServerUrl(QUrl(serverUrl));
-            m_settingsPage->showSaveSucceeded();
+            m_urlsPage->showSaveSucceeded();
         });
     connect(
-        m_storagePage,
-        &StoragePage::clearCacheRequested,
+        m_settingPage,
+        &SettingPage::clearCacheRequested,
         this,
         [this]() {
-            m_storagePage->showClearing(true);
+            m_settingPage->showClearing(true);
             if (!m_cacheService->clearAllCaches()) {
-                m_storagePage->showOperationFailed(m_cacheService->lastError());
+                m_settingPage->showOperationFailed(m_cacheService->lastError());
                 return;
             }
 
-            m_storagePage->showClearSucceeded(
+            m_settingPage->showClearSucceeded(
                 m_cacheService->formattedTotalCacheSize(),
                 m_applicationSizeService->formattedTotalApplicationSize());
         });
     connect(
-        m_storagePage,
-        &StoragePage::alarmToggled,
+        m_settingPage,
+        &SettingPage::alarmToggled,
         this,
         [this](bool enabled) {
             m_alarmEnabled = enabled;
@@ -1453,12 +1453,12 @@ void MainWindow::connectSignals()
             }
             QString errorMessage;
             if (!AppConfig::saveAlarmEnabled(enabled, &errorMessage)) {
-                m_storagePage->showOperationFailed(errorMessage);
+                m_settingPage->showOperationFailed(errorMessage);
             }
         });
     connect(
-        m_storagePage,
-        &StoragePage::alarmTestRequested,
+        m_settingPage,
+        &SettingPage::alarmTestRequested,
         this,
         [this]() {
             showAlarmNotification("Contest deadline alarm",
@@ -1466,8 +1466,8 @@ void MainWindow::connectSignals()
             playAlarmSound();
         });
     connect(
-        m_storagePage,
-        &StoragePage::ringPathPickRequested,
+        m_settingPage,
+        &SettingPage::ringPathPickRequested,
         this,
         [this]() {
             const QString path = QFileDialog::getOpenFileName(
@@ -1477,10 +1477,10 @@ void MainWindow::connectSignals()
                 "Audio Files (*.wav *.mp3 *.ogg *.flac *.m4a);;All Files (*)");
             if (!path.isEmpty()) {
                 m_alarmRingPath = path;
-                m_storagePage->setRingPath(path);
+                m_settingPage->setRingPath(path);
                 QString errorMessage;
                 if (!AppConfig::saveRingPath(path, &errorMessage)) {
-                    m_storagePage->showOperationFailed(errorMessage);
+                    m_settingPage->showOperationFailed(errorMessage);
                 }
             }
         });
@@ -2002,13 +2002,13 @@ void MainWindow::applyDarkMode(bool dark)
         m_reviewPage->setDarkMode(dark);
         LightModeIconHelper::refreshIcons(m_reviewPage);
     }
-    if (m_storagePage != nullptr) {
-        m_storagePage->setDarkMode(dark);
-        LightModeIconHelper::refreshIcons(m_storagePage);
+    if (m_settingPage != nullptr) {
+        m_settingPage->setDarkMode(dark);
+        LightModeIconHelper::refreshIcons(m_settingPage);
     }
-    if (m_settingsPage != nullptr) {
-        m_settingsPage->setDarkMode(dark);
-        LightModeIconHelper::refreshIcons(m_settingsPage);
+    if (m_urlsPage != nullptr) {
+        m_urlsPage->setDarkMode(dark);
+        LightModeIconHelper::refreshIcons(m_urlsPage);
     }
     if (m_aiConfigPage != nullptr) {
         m_aiConfigPage->setDarkMode(dark);
@@ -2162,8 +2162,8 @@ void MainWindow::playAlarmSound()
 
     const QFileInfo fileInfo(m_alarmRingPath);
     if (!fileInfo.exists() || !fileInfo.isFile()) {
-        if (m_storagePage != nullptr) {
-            m_storagePage->showOperationFailed("Ring file not found.");
+        if (m_settingPage != nullptr) {
+            m_settingPage->showOperationFailed("Ring file not found.");
         }
         return;
     }

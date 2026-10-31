@@ -7,12 +7,12 @@ class QPushButton;
 class QAbstractButton;
 class PageShell;
 
-class StoragePage : public QWidget
+class SettingPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit StoragePage(QWidget *parent = nullptr);
+    explicit SettingPage(QWidget *parent = nullptr);
     void setDarkMode(bool dark);
 
     void showSizes(const QString &cacheSize, const QString &appSize);

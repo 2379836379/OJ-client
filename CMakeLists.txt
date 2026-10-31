@@ -57,10 +57,10 @@ qt_add_executable(oj
     src/ui/pages/statspage.h
     src/ui/pages/reviewpage.cpp
     src/ui/pages/reviewpage.h
-    src/ui/pages/settingspage.cpp
-    src/ui/pages/settingspage.h
-    src/ui/pages/storagepage.cpp
-    src/ui/pages/storagepage.h
+    src/ui/pages/settingpage.cpp
+    src/ui/pages/settingpage.h
+    src/ui/pages/urlspage.cpp
+    src/ui/pages/urlspage.h
     src/config/appconfig.cpp
     src/config/appconfig.h
     src/config/apppaths.cpp

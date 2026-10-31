@@ -34,8 +34,6 @@ AiConfigPage::AiConfigPage(QWidget *parent)
     m_pathLabel->setObjectName("aiConfigPathLabel");
     m_pathLabel->setWordWrap(true);
 
-    auto *editorLabel = new QLabel("config.toml", m_shell);
-    editorLabel->setObjectName("aiConfigFieldLabel");
     m_configEdit = new QPlainTextEdit(m_shell);
     m_configEdit->setObjectName("aiConfigPromptEdit");
     m_configEdit->setMinimumHeight(360);
@@ -49,7 +47,6 @@ AiConfigPage::AiConfigPage(QWidget *parent)
 
     contentLayout->addWidget(pathTitle);
     contentLayout->addWidget(m_pathLabel);
-    contentLayout->addWidget(editorLabel);
     contentLayout->addWidget(m_configEdit, 1);
     contentLayout->addWidget(m_statusLabel);
     contentLayout->addWidget(saveButton, 0, Qt::AlignLeft);

@@ -7,12 +7,12 @@ class QLineEdit;
 class PageShell;
 
 // Editor for the judger URL stored in appconfig.toml.
-class SettingsPage : public QWidget
+class UrlsPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SettingsPage(QWidget *parent = nullptr);
+    explicit UrlsPage(QWidget *parent = nullptr);
     void setDarkMode(bool dark);
 
     void setServerUrl(const QString &serverUrl);

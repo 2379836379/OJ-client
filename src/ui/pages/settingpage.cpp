@@ -1,4 +1,4 @@
-#include "ui/pages/storagepage.h"
+#include "ui/pages/settingpage.h"
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
@@ -14,6 +14,43 @@
 
 namespace
 {
+QString storageStyleSheet(bool dark)
+{
+    const UiTheme::Palette colors = UiTheme::palette(dark);
+    return QStringLiteral(
+               "#storageClearButton {"
+               "  padding: 10px 14px;"
+               "  border: 1px solid %1;"
+               "  border-radius: 10px;"
+               "  background: %2;"
+               "  color: %3;"
+               "}"
+               "#storageClearButton:hover { background: %4; }"
+               "#storageTitleLabel {"
+               "  font-size: 26px;"
+               "  font-weight: 600;"
+               "  color: %3;"
+               "}"
+               "#storageLabel {"
+               "  font-size: 16px;"
+               "  font-weight: 600;"
+               "  color: %3;"
+               "}"
+               "#storageValueLabel {"
+               "  font-size: 16px;"
+               "  color: %3;"
+               "}"
+               "#storagePathLabel {"
+               "  font-size: 14px;"
+               "  color: %3;"
+               "}"
+               "#storageStatusLabel {"
+               "  min-height: 20px;"
+               "  color: %3;"
+               "}")
+        .arg(colors.border, colors.page, colors.text, colors.hover);
+}
+
 class SlideSwitch final : public QAbstractButton
 {
 public:
@@ -72,7 +109,7 @@ private:
 };
 }
 
-StoragePage::StoragePage(QWidget *parent)
+SettingPage::SettingPage(QWidget *parent)
     : QWidget(parent)
 {
     constexpr int kRowHeight = 40;
@@ -107,6 +144,19 @@ StoragePage::StoragePage(QWidget *parent)
     cacheRow->addWidget(cacheLabel);
     cacheRow->addStretch();
     cacheRow->addWidget(m_cacheSizeValueLabel);
+
+    auto *clearCacheRowWidget = new QWidget(m_shell);
+    clearCacheRowWidget->setFixedHeight(kRowHeight);
+    auto *clearCacheRow = new QHBoxLayout(clearCacheRowWidget);
+    clearCacheRow->setContentsMargins(0, 0, 0, 0);
+    clearCacheRow->setSpacing(12);
+    auto *clearCacheLabel = new QLabel("Clear Cache", clearCacheRowWidget);
+    clearCacheLabel->setObjectName("storageLabel");
+    m_clearCacheButton = new QPushButton("clear cache", clearCacheRowWidget);
+    m_clearCacheButton->setObjectName("storageClearButton");
+    clearCacheRow->addWidget(clearCacheLabel);
+    clearCacheRow->addStretch();
+    clearCacheRow->addWidget(m_clearCacheButton);
 
     auto *appRowWidget = new QWidget(m_shell);
     appRowWidget->setFixedHeight(kRowHeight);
@@ -168,61 +218,25 @@ StoragePage::StoragePage(QWidget *parent)
     m_statusLabel->setObjectName("storageStatusLabel");
     m_statusLabel->setWordWrap(true);
 
-    m_clearCacheButton = new QPushButton("Clear Cache", m_shell);
-    m_clearCacheButton->setObjectName("storageClearButton");
-
     contentLayout->addWidget(cacheRowWidget);
+    contentLayout->addWidget(clearCacheRowWidget);
     contentLayout->addWidget(appRowWidget);
     contentLayout->addWidget(alarmRowWidget);
     contentLayout->addWidget(alarmTestRowWidget);
     contentLayout->addWidget(ringRowWidget);
     contentLayout->addWidget(m_statusLabel);
     contentLayout->addStretch();
-    contentLayout->addWidget(m_clearCacheButton, 0, Qt::AlignLeft);
 
     m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false));
 
-    setStyleSheet(
-        "#storageClearButton {"
-        "  padding: 10px 14px;"
-        "  border: 1px solid #d7d2c7;"
-        "  border-radius: 10px;"
-        "  background: #f6f3ec;"
-        "  color: #2f3a33;"
-        "}"
-        "#storageClearButton:hover {"
-        "  background: #eef4ef;"
-        "}"
-        "#storageTitleLabel {"
-        "  font-size: 26px;"
-        "  font-weight: 600;"
-        "  color: #1f2328;"
-        "}"
-        "#storageLabel {"
-        "  font-size: 16px;"
-        "  font-weight: 600;"
-        "  color: #2f3a33;"
-        "}"
-        "#storageValueLabel {"
-        "  font-size: 16px;"
-        "  color: #1f2328;"
-        "}"
-        "#storagePathLabel {"
-        "  font-size: 14px;"
-        "  color: #52606d;"
-        "}"
-        "#storageStatusLabel {"
-        "  min-height: 20px;"
-        "  color: #7a4b36;"
-        "}"
-    );
+    setStyleSheet(storageStyleSheet(false));
 
     connect(m_clearCacheButton, &QPushButton::clicked,
-            this, &StoragePage::clearCacheRequested);
+            this, &SettingPage::clearCacheRequested);
     connect(m_alarmTestButton, &QPushButton::clicked,
-            this, &StoragePage::alarmTestRequested);
+            this, &SettingPage::alarmTestRequested);
     connect(m_ringPathButton, &QPushButton::clicked,
-            this, &StoragePage::ringPathPickRequested);
+            this, &SettingPage::ringPathPickRequested);
     connect(m_alarmToggleButton, &QAbstractButton::toggled, this, [this](bool checked) {
         m_alarmEnabled = checked;
         if (m_alarmToggleButton != nullptr) {
@@ -232,7 +246,7 @@ StoragePage::StoragePage(QWidget *parent)
     });
 }
 
-void StoragePage::showSizes(const QString &cacheSize, const QString &appSize)
+void SettingPage::showSizes(const QString &cacheSize, const QString &appSize)
 {
     m_cacheSizeValueLabel->setText(cacheSize);
     m_appSizeValueLabel->setText(appSize);
@@ -240,19 +254,19 @@ void StoragePage::showSizes(const QString &cacheSize, const QString &appSize)
     m_statusLabel->clear();
 }
 
-void StoragePage::showClearSucceeded(const QString &cacheSize, const QString &appSize)
+void SettingPage::showClearSucceeded(const QString &cacheSize, const QString &appSize)
 {
     showSizes(cacheSize, appSize);
     m_statusLabel->setText("Cache cleared.");
 }
 
-void StoragePage::showOperationFailed(const QString &message)
+void SettingPage::showOperationFailed(const QString &message)
 {
     m_clearCacheButton->setEnabled(true);
     m_statusLabel->setText(message);
 }
 
-void StoragePage::showClearing(bool clearing)
+void SettingPage::showClearing(bool clearing)
 {
     m_clearCacheButton->setEnabled(!clearing);
     if (clearing) {
@@ -260,7 +274,7 @@ void StoragePage::showClearing(bool clearing)
     }
 }
 
-void StoragePage::setAlarmEnabled(bool enabled)
+void SettingPage::setAlarmEnabled(bool enabled)
 {
     m_alarmEnabled = enabled;
     if (m_alarmToggleButton == nullptr) {
@@ -271,7 +285,7 @@ void StoragePage::setAlarmEnabled(bool enabled)
     m_alarmToggleButton->setChecked(enabled);
 }
 
-void StoragePage::setRingPath(const QString &path)
+void SettingPage::setRingPath(const QString &path)
 {
     if (m_ringPathValueLabel == nullptr) {
         return;
@@ -279,28 +293,9 @@ void StoragePage::setRingPath(const QString &path)
     m_ringPathValueLabel->setText(path.trimmed().isEmpty() ? "No file selected" : path);
 }
 
-void StoragePage::setDarkMode(bool dark)
+void SettingPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     m_shell->setDarkMode(dark);
-    QString lightStyle = property("_lightStyleSheet").toString();
-    if (lightStyle.isEmpty()) {
-        lightStyle = styleSheet();
-        setProperty("_lightStyleSheet", lightStyle);
-    }
-
-    const QString darkOverride =
-        "#storageTitleLabel, #storageLabel, #storageValueLabel {"
-        "  color: #d9e1e8;"
-        "}"
-        "#storagePathLabel { color: #a9b7c5; }"
-        "#storageClearButton {"
-        "  border: 1px solid #3a4652;"
-        "  background: #202a34;"
-        "  color: #e8edf2;"
-        "}"
-        "#storageClearButton:hover { background: #26313c; }"
-        "#storageStatusLabel { color: #f0b48a; }";
-
-    setStyleSheet(dark ? lightStyle + darkOverride : lightStyle);
+    setStyleSheet(storageStyleSheet(dark));
 }
