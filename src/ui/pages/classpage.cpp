@@ -12,18 +12,15 @@
 
 namespace
 {
-constexpr int ContentPaddingX = 20;
-constexpr int ContentPaddingY = 18;
-
 QString contestListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
     return QString(
                "QListWidget { background: transparent; border: none; outline: none; color: %1; }"
-               "QListWidget::item { padding: 12px 4px; border-radius: 8px; margin: 2px 0px; }"
-               "QListWidget::item:selected { background: %2; color: %1; }"
-               "QListWidget::item:hover { background: %3; }")
-        .arg(colors.text, colors.selected, colors.hover);
+               "QListWidget::item { padding: 12px 0px; border-radius: 4px; margin: 2px 0px; }"
+               "QListWidget::item:selected { background: transparent; color: %1; }"
+               "QListWidget::item:hover { background: %2; }")
+        .arg(colors.text, colors.hover);
 }
 }
 
@@ -31,10 +28,7 @@ ClassPage::ClassPage(QWidget *parent)
     : QWidget(parent)
 {
     m_shell = new PageShell(this);
-    m_shell->contentLayout()->setContentsMargins(ContentPaddingX,
-                                                  ContentPaddingY,
-                                                  ContentPaddingX,
-                                                  ContentPaddingY);
+    m_shell->contentLayout()->setContentsMargins(20,18,20,18);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_shell);
@@ -48,18 +42,12 @@ ClassPage::ClassPage(QWidget *parent)
 
     m_titleLabel = new QLabel("Course", m_shell);
     m_titleLabel->setObjectName("classTitleLabel");
-    auto *contestLabel = new QLabel("Contest List", m_shell);
-    contestLabel->setObjectName("classSectionLabel");
     m_contestListWidget = new QListWidget(m_shell);
     m_contestListWidget->setMinimumHeight(420);
 
     m_shell->contentLayout()->addWidget(m_titleLabel);
-    m_shell->contentLayout()->addWidget(contestLabel);
     m_shell->contentLayout()->addWidget(m_contestListWidget, 1);
 
-    auto *refreshShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_R), this);
-    refreshShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(refreshShortcut, &QShortcut::activated, this, &ClassPage::refreshRequested);
     connect(m_contestListWidget, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         emit contestSelected(item->text(), item->data(Qt::UserRole).toString());
     });
@@ -90,9 +78,6 @@ void ClassPage::showContestSets(const GroupPageInfo &groupPageInfo)
     m_contestListWidget->clear();
     for (const ContestSetInfo &contestSet : groupPageInfo.contestSets) {
         QString text = contestSet.title;
-        if (contestSet.problemnumber > 0) {
-            text += QString(" (%1 problems)").arg(contestSet.problemnumber);
-        }
         if (!contestSet.endtime.isEmpty()) {
             text += " | " + contestSet.endtime;
         }

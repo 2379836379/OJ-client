@@ -18,15 +18,12 @@
 
 namespace
 {
-constexpr int HomePanelPaddingX = 20;
-constexpr int HomePanelPaddingY = 18;
-
 QString homeListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
     return QString(
                "QListWidget { background: transparent; border: none; outline: none; color: %1; }"
-               "QListWidget::item { padding: 12px 4px; border-radius: 8px; margin: 2px 0px; }"
+               "QListWidget::item { padding: 12px 0px; border-radius: 4px; margin: 2px 0px; }"
                "QListWidget::item:selected { background: transparent; color: %1;}"
                "QListWidget::item:hover { background: %2; }")
         .arg(colors.text, colors.hover);
@@ -115,10 +112,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     auto *classesFrame = new QFrame(m_shell);
     classesFrame->setObjectName("homeCourseFrame");
     auto *classesColumn = new QVBoxLayout(classesFrame);
-    classesColumn->setContentsMargins(HomePanelPaddingX,
-                                      HomePanelPaddingY,
-                                      HomePanelPaddingX,
-                                      HomePanelPaddingY);
+    classesColumn->setContentsMargins(20,18,20,18);
     classesColumn->setSpacing(14);
     auto *classesTitle = new QLabel("Course List", classesFrame);
     classesTitle->setObjectName("homeSectionLabel");
@@ -131,10 +125,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     auto *remindersFrame = new QFrame(m_shell);
     remindersFrame->setObjectName("homeDueFrame");
     auto *remindersColumn = new QVBoxLayout(remindersFrame);
-    remindersColumn->setContentsMargins(HomePanelPaddingX,
-                                        HomePanelPaddingY,
-                                        HomePanelPaddingX,
-                                        HomePanelPaddingY);
+    remindersColumn->setContentsMargins(20,18,20,18);
     remindersColumn->setSpacing(14);
     auto *remindersTitle = new QLabel("Due Soon", remindersFrame);
     remindersTitle->setObjectName("homeSectionLabel");
