@@ -9,8 +9,7 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 class QPushButton;
-class QFrame;
-class QWidget;
+class PageShell;
 
 class FavoritePage : public QWidget
 {
@@ -50,22 +49,15 @@ private:
         FavoriteList
     };
 
-    void setToolsExpanded(bool expanded);
     void setViewMode(ViewMode mode, const QString &folderName = QString());
 
+    PageShell *m_shell = nullptr;
     QLabel *m_statusLabel = nullptr;
     QLabel *m_sectionLabel = nullptr;
-    QFrame *m_toolsFrame = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_backToolButton = nullptr;
-    QPushButton *m_collapsedBackButton = nullptr;
     QListWidget *m_favoriteListWidget = nullptr;
     QPushButton *m_newFolderButton = nullptr;
     QPushButton *m_removeFolderButton = nullptr;
     QPushButton *m_removeButton = nullptr;
-    bool m_toolsExpanded = true;
     ViewMode m_viewMode = ViewMode::FolderList;
     qint64 m_currentFolderId = -1;
     QString m_currentFolderName;

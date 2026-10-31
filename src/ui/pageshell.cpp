@@ -86,9 +86,12 @@ QPushButton *PageShell::addTool(const QString &text,
 
     auto *collapsedToolButton = new QPushButton(m_toolsCollapsedPanel);
     collapsedToolButton->setObjectName("pageShellToolIconButton");
-    collapsedToolButton->setFixedSize(36, 36);
     collapsedToolButton->setToolTip(toolTip);
     LightModeIconHelper::applyIcon(collapsedToolButton, iconFile);
+    if (iconFile.isEmpty()) {
+        collapsedToolButton->setText(text.left(1).toUpper());
+    }
+    collapsedToolButton->setFixedSize(36, 36);
     m_collapsedToolsLayout->addWidget(collapsedToolButton, 0, Qt::AlignHCenter);
     if (collapsedButton != nullptr) {
         *collapsedButton = collapsedToolButton;
@@ -107,9 +110,28 @@ QPushButton *PageShell::addTool(const QString &text,
     return expandedButton;
 }
 
+QPushButton *PageShell::addThemeTool(const std::function<void()> &action)
+{
+    m_themeToolButton = addTool(QStringLiteral("Dark Mode"),
+                                QStringLiteral("Dark Mode"),
+                                action,
+                                QStringLiteral("dark-mode.svg"),
+                                &m_collapsedThemeToolButton);
+    return m_themeToolButton;
+}
+
 void PageShell::setDarkMode(bool dark)
 {
     setStyleSheet(UiTheme::pageShellStyleSheet(dark));
+    const QString label = dark ? QStringLiteral("Light Mode")
+                               : QStringLiteral("Dark Mode");
+    if (m_themeToolButton != nullptr) {
+        m_themeToolButton->setText(label);
+        m_themeToolButton->setToolTip(label);
+    }
+    if (m_collapsedThemeToolButton != nullptr) {
+        m_collapsedThemeToolButton->setToolTip(label);
+    }
 }
 
 void PageShell::setToolsExpanded(bool expanded)

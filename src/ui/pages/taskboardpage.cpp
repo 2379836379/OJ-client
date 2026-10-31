@@ -1,5 +1,6 @@
 #include "ui/pages/taskboardpage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
+#include "ui/uitheme.h"
 
 #include <QComboBox>
 #include <QDropEvent>
@@ -100,60 +101,46 @@ void StatusListWidget::dropEvent(QDropEvent *event)
 TaskBoardPage::TaskBoardPage(QWidget *parent)
     : QWidget(parent)
 {
+    m_shell = new PageShell(this);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(18);
+    layout->addWidget(m_shell);
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
+    m_shell->addTool("Refresh", "Refresh", [this]() { emit refreshRequested(); }, "refresh.svg");
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("taskTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    auto *titleLabel = new QLabel("Task Board", topFrame);
-    titleLabel->setObjectName("taskTitleLabel");
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("taskTopActionButton");
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("taskTopActionButton");
-    auto *refreshButton = new QPushButton("Refresh", topFrame);
-    refreshButton->setObjectName("taskTopActionButton");
-
-    topLayout->addWidget(titleLabel, 1);
-    topLayout->addWidget(homeButton);
-    topLayout->addWidget(themeButton);
-    topLayout->addWidget(refreshButton);
-
-    auto *contentFrame = new QFrame(this);
-    contentFrame->setObjectName("taskContentFrame");
-    auto *contentLayout = new QVBoxLayout(contentFrame);
+    auto *contentLayout = m_shell->contentLayout();
     contentLayout->setContentsMargins(20, 18, 20, 18);
     contentLayout->setSpacing(12);
+    auto *titleLabel = new QLabel("Task Board", m_shell);
+    titleLabel->setObjectName("taskTitleLabel");
+    contentLayout->addWidget(titleLabel);
 
-    m_statusLabel = new QLabel(contentFrame);
+    m_statusLabel = new QLabel(m_shell);
     m_statusLabel->setObjectName("taskStatusLabel");
     m_statusLabel->setWordWrap(true);
 
     auto *filterLayout = new QHBoxLayout();
     filterLayout->setSpacing(8);
-    auto *tagFilterLabel = new QLabel("标签", contentFrame);
+    auto *tagFilterLabel = new QLabel("标签", m_shell);
     tagFilterLabel->setObjectName("taskFilterLabel");
-    m_tagFilterCombo = new QComboBox(contentFrame);
+    m_tagFilterCombo = new QComboBox(m_shell);
     m_tagFilterCombo->setObjectName("taskFilterCombo");
     m_tagFilterCombo->addItem("全部标签", QString());
-    auto *difficultyFilterLabel = new QLabel("难度", contentFrame);
+    auto *difficultyFilterLabel = new QLabel("难度", m_shell);
     difficultyFilterLabel->setObjectName("taskFilterLabel");
-    m_difficultyFilterCombo = new QComboBox(contentFrame);
+    m_difficultyFilterCombo = new QComboBox(m_shell);
     m_difficultyFilterCombo->setObjectName("taskFilterCombo");
     m_difficultyFilterCombo->addItem("全部难度", -1);
     m_difficultyFilterCombo->addItem("未设置", 0);
     for (int level = 1; level <= 5; ++level) {
         m_difficultyFilterCombo->addItem(QString::number(level), level);
     }
-    auto *sortLabel = new QLabel("排序", contentFrame);
+    auto *sortLabel = new QLabel("排序", m_shell);
     sortLabel->setObjectName("taskFilterLabel");
-    m_sortCombo = new QComboBox(contentFrame);
+    m_sortCombo = new QComboBox(m_shell);
     m_sortCombo->setObjectName("taskFilterCombo");
     m_sortCombo->addItem("最近更新", "updated");
     m_sortCombo->addItem("难度高→低", "difficulty");
@@ -171,28 +158,20 @@ TaskBoardPage::TaskBoardPage(QWidget *parent)
 
     auto *columnsLayout = new QHBoxLayout();
     columnsLayout->setSpacing(14);
-    columnsLayout->addWidget(makeColumn("未开始", "todo", &m_todoList, contentFrame), 1);
-    columnsLayout->addWidget(makeColumn("进行中", "doing", &m_doingList, contentFrame), 1);
-    columnsLayout->addWidget(makeColumn("已完成", "done", &m_doneList, contentFrame), 1);
-    columnsLayout->addWidget(makeColumn("待重做", "redo", &m_redoList, contentFrame), 1);
+    columnsLayout->addWidget(makeColumn("未开始", "todo", &m_todoList, m_shell), 1);
+    columnsLayout->addWidget(makeColumn("进行中", "doing", &m_doingList, m_shell), 1);
+    columnsLayout->addWidget(makeColumn("已完成", "done", &m_doneList, m_shell), 1);
+    columnsLayout->addWidget(makeColumn("待重做", "redo", &m_redoList, m_shell), 1);
 
     contentLayout->addWidget(m_statusLabel);
     contentLayout->addLayout(filterLayout);
     contentLayout->addLayout(columnsLayout, 1);
 
-    layout->addWidget(topFrame);
-    layout->addWidget(contentFrame, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    refreshButton->setToolTip("Refresh");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
-    LightModeIconHelper::applyIcon(refreshButton, "refresh.svg");
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false)
+                           + "#pageShellContent { background: transparent; border: none; }");
 
     setStyleSheet(
-        "TaskBoardPage { background: #f3f1eb; }"
-        "#taskTopFrame, #taskContentFrame, #taskColumnFrame {"
+        "#taskColumnFrame {"
         "  background: #fbfaf7;"
         "  border: 1px solid #ded8cc;"
         "  border-radius: 16px;"
@@ -207,14 +186,6 @@ TaskBoardPage::TaskBoardPage(QWidget *parent)
         "  font-weight: 600;"
         "  color: #2f3a33;"
         "}"
-        "#taskTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "}"
-        "#taskTopActionButton:hover { background: transparent; }"
         "#taskStatusLabel { color: #7a4b36; min-height: 18px; }"
         "#taskListWidget {"
         "  background: transparent;"
@@ -273,11 +244,6 @@ TaskBoardPage::TaskBoardPage(QWidget *parent)
     connect(m_sortCombo, &QComboBox::currentIndexChanged, this,
             [this](int) { renderTasks(); });
 
-    connect(homeButton, &QPushButton::clicked, this, &TaskBoardPage::homeRequested);
-    connect(refreshButton, &QPushButton::clicked, this, &TaskBoardPage::refreshRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
 }
 
 StatusListWidget *TaskBoardPage::listForStatus(const QString &status) const
@@ -412,6 +378,8 @@ void TaskBoardPage::renderTasks()
 void TaskBoardPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(dark)
+                           + "#pageShellContent { background: transparent; border: none; }");
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();
@@ -419,18 +387,11 @@ void TaskBoardPage::setDarkMode(bool dark)
     }
 
     const QString darkOverride =
-        "TaskBoardPage { background: #000000; }"
-        "#taskTopFrame, #taskContentFrame, #taskColumnFrame {"
+        "#taskColumnFrame {"
         "  background: #1b232c;"
         "  border: 1px solid #2c3844;"
         "}"
         "#taskTitleLabel, #taskColumnLabel { color: #d9e1e8; }"
-        "#taskTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
-        "}"
-        "#taskTopActionButton:hover { background: #26313c; }"
         "#taskStatusLabel { color: #f0b48a; }"
         "#taskListWidget { color: #e8edf2; }"
         "#taskListWidget::item:selected { background: #234257; color: #eff8ff; }"

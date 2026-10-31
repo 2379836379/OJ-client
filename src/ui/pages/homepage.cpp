@@ -77,9 +77,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
                                         "homepage.svg", &m_collapsedHomeToolButton);
     m_homeToolButton->setProperty("active", true);
     m_collapsedHomeToolButton->setProperty("active", true);
-    m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.svg", &m_collapsedThemeToolButton);
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
     m_shell->addTool("Refresh", "Refresh", [this]() {
         emit refreshRequested();
     }, "refresh.svg");
@@ -169,11 +167,6 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
 void HomePage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
-    const QString themeModeLabel = dark ? QStringLiteral("Light Mode")
-                                        : QStringLiteral("Dark Mode");
-    m_themeToolButton->setText(themeModeLabel);
-    m_themeToolButton->setToolTip(themeModeLabel);
-    m_collapsedThemeToolButton->setToolTip(themeModeLabel);
     m_shell->setDarkMode(dark);
     const UiTheme::Palette colors = UiTheme::palette(dark);
     m_shell->setStyleSheet(

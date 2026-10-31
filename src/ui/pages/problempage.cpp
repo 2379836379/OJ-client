@@ -545,9 +545,7 @@ ProblemPage::ProblemPage(QWidget *parent)
     m_titleLabel = new QLabel("Problem", m_shell);
     m_titleLabel->setObjectName("problemTitleLabel");
     m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
-    m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.svg", &m_collapsedThemeToolButton);
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
     m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
     m_favoriteToolButton = m_shell->addTool("Favorite Current Problem", "Favorite Current Problem", [this]() {
         emit favoriteRequested();
@@ -854,7 +852,7 @@ ProblemPage::ProblemPage(QWidget *parent)
 
     setStyleSheet(
         "ProblemPage { background: #f3f1eb; }"
-        "#problemTopFrame, #problemLeftFrame, #problemMiddleFrame, #problemAiFrame {"
+        "#problemMiddleFrame, #problemAiFrame {"
         "  background: #fbfaf7;"
         "  border: 1px solid #ded8cc;"
         "  border-radius: 16px;"
@@ -901,19 +899,7 @@ ProblemPage::ProblemPage(QWidget *parent)
         "#problemAiMetaLabel, #problemAiFieldLabel {"
         "  color: #526056;"
         "}"
-        "#problemToolsToggleButton {"
-        "  background: transparent;"
-        "  border: none;"
-        "  padding: 0px;"
-        "  text-align: left;"
-        "  font-size: 16px;"
-        "  font-weight: 600;"
-        "  color: #2f3a33;"
-        "}"
-        "#problemToolsToggleButton:hover {"
-        "  color: #12343b;"
-        "}"
-        "#problemBackButton, #problemSubmitButton, #problemInputButton {"
+        "#problemSubmitButton, #problemInputButton {"
         "  min-width: 88px;"
         "  padding: 8px 14px;"
         "  border: 1px solid #cdd7cf;"
@@ -921,19 +907,8 @@ ProblemPage::ProblemPage(QWidget *parent)
         "  background: #f7f5ef;"
         "  color: #243029;"
         "}"
-        "#problemBackButton:hover, #problemSubmitButton:hover, #problemInputButton:hover {"
+        "#problemSubmitButton:hover, #problemInputButton:hover {"
         "  background: #eef4ef;"
-        "}"
-        "#problemTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  border-radius: 0px;"
-        "  background: transparent;"
-        "  color: #243029;"
-        "}"
-        "#problemTopActionButton:hover {"
-        "  background: transparent;"
         "}"
         "#problemRefreshButton {"
         "  min-width: 88px;"
@@ -958,28 +933,6 @@ ProblemPage::ProblemPage(QWidget *parent)
         "  background: #e4efe7;"
         "  color: #1f2328;"
         "  border-color: #b9cabd;"
-        "}"
-        "#problemToolButton {"
-        "  padding: 10px 12px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  text-align: left;"
-        "}"
-        "#problemToolButton:hover, #problemToolIconButton:hover {"
-        "  background: #eef4ef;"
-        "}"
-        "#problemToolIconButton {"
-        "  min-width: 36px;"
-        "  max-width: 36px;"
-        "  min-height: 36px;"
-        "  max-height: 36px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  font-weight: 600;"
         "}"
         "#problemDetailText, #problemResultText, #problemCodeEdit, #problemLanguageCombo {"
         "  background: #fcfbf8;"
@@ -1942,11 +1895,6 @@ void ProblemPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     g_problemPageDarkMode = dark;
-    const QString themeLabel = dark ? QStringLiteral("Light Mode")
-                                    : QStringLiteral("Dark Mode");
-    m_themeToolButton->setText(themeLabel);
-    m_themeToolButton->setToolTip(themeLabel);
-    m_collapsedThemeToolButton->setToolTip(themeLabel);
     m_shell->setDarkMode(dark);
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
@@ -1956,24 +1904,19 @@ void ProblemPage::setDarkMode(bool dark)
 
     const QString darkOverride =
         "ProblemPage { background: #000000; }"
-        "#problemTopFrame, #problemLeftFrame, #problemMiddleFrame, #problemRightFrame, #problemAiFrame {"
+        "#problemMiddleFrame, #problemRightFrame, #problemAiFrame {"
         "  background: #1b232c;"
         "  border: 1px solid #2c3844;"
         "}"
-        "#problemTitleLabel, #problemSectionLabel, #problemToolsToggleButton, #problemToolButton, #problemToolIconButton, #problemAiConfigLabel, #problemAiFieldLabel, #problemAiMetaLabel {"
+        "#problemTitleLabel, #problemSectionLabel, #problemAiConfigLabel, #problemAiFieldLabel, #problemAiMetaLabel {"
         "  color: #d9e1e8;"
-        "}"
-        "#problemTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
         "}"
         "#problemRefreshButton, #problemInputButton, #problemSubmitButton, #problemResultTabButton {"
         "  border: 1px solid #3a4652;"
         "  background: #202a34;"
         "  color: #e8edf2;"
         "}"
-        "#problemTopActionButton:hover, #problemRefreshButton:hover, #problemInputButton:hover, #problemSubmitButton:hover, #problemResultTabButton:hover, #problemToolButton:hover, #problemToolIconButton:hover {"
+        "#problemRefreshButton:hover, #problemInputButton:hover, #problemSubmitButton:hover, #problemResultTabButton:hover {"
         "  background: #26313c;"
         "}"
         "#problemResultTabButton:checked {"

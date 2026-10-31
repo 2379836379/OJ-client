@@ -1,5 +1,6 @@
 #include "ui/pages/storagepage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
+#include "ui/uitheme.h"
 
 #include <QAbstractButton>
 #include <QFrame>
@@ -77,71 +78,24 @@ StoragePage::StoragePage(QWidget *parent)
     constexpr int kRowHeight = 40;
     constexpr int kRowSpacing = 12;
 
+    m_shell = new PageShell(this);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(18);
+    layout->addWidget(m_shell);
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
+    m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("storageTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    auto *titleLabel = new QLabel("Set", topFrame);
-    titleLabel->setObjectName("storageTitleLabel");
-
-    topLayout->addWidget(titleLabel, 1);
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("storageTopActionButton");
-    topLayout->addWidget(homeButton, 0, Qt::AlignRight);
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("storageTopActionButton");
-    topLayout->addWidget(themeButton, 0, Qt::AlignRight);
-
-    auto *bottomLayout = new QHBoxLayout();
-    bottomLayout->setSpacing(18);
-
-    m_toolsFrame = new QFrame(this);
-    m_toolsFrame->setObjectName("storageLeftFrame");
-    auto *leftLayout = new QVBoxLayout(m_toolsFrame);
-    leftLayout->setContentsMargins(20, 18, 20, 18);
-    leftLayout->setSpacing(12);
-
-    m_toolsToggleButton = new QPushButton(m_toolsFrame);
-    m_toolsToggleButton->setObjectName("storageToolsToggleButton");
-
-    m_toolsPanel = new QWidget(m_toolsFrame);
-    auto *toolsPanelLayout = new QVBoxLayout(m_toolsPanel);
-    toolsPanelLayout->setContentsMargins(0, 0, 0, 0);
-    toolsPanelLayout->setSpacing(10);
-    m_backToolButton = new QPushButton("Back", m_toolsPanel);
-    m_backToolButton->setObjectName("storageToolButton");
-    toolsPanelLayout->addWidget(m_backToolButton);
-    toolsPanelLayout->addStretch();
-
-    m_collapsedToolsPanel = new QWidget(m_toolsFrame);
-    auto *collapsedLayout = new QVBoxLayout(m_collapsedToolsPanel);
-    collapsedLayout->setContentsMargins(0, 0, 0, 0);
-    collapsedLayout->setSpacing(10);
-    m_collapsedBackButton = new QPushButton("B", m_collapsedToolsPanel);
-    m_collapsedBackButton->setObjectName("storageToolIconButton");
-    m_collapsedBackButton->setToolTip("Back");
-    collapsedLayout->addWidget(m_collapsedBackButton);
-    collapsedLayout->addStretch();
-
-    leftLayout->addWidget(m_toolsToggleButton);
-    leftLayout->addWidget(m_toolsPanel);
-    leftLayout->addWidget(m_collapsedToolsPanel);
-    leftLayout->addStretch();
-
-    auto *contentFrame = new QFrame(this);
-    contentFrame->setObjectName("storageContentFrame");
-    auto *contentLayout = new QVBoxLayout(contentFrame);
+    auto *contentLayout = m_shell->contentLayout();
     contentLayout->setContentsMargins(24, 22, 24, 22);
     contentLayout->setSpacing(kRowSpacing);
+    auto *titleLabel = new QLabel("Set", m_shell);
+    titleLabel->setObjectName("storageTitleLabel");
+    contentLayout->addWidget(titleLabel);
 
-    auto *cacheRowWidget = new QWidget(contentFrame);
+    auto *cacheRowWidget = new QWidget(m_shell);
     cacheRowWidget->setFixedHeight(kRowHeight);
     auto *cacheRow = new QHBoxLayout(cacheRowWidget);
     cacheRow->setContentsMargins(0, 0, 0, 0);
@@ -154,7 +108,7 @@ StoragePage::StoragePage(QWidget *parent)
     cacheRow->addStretch();
     cacheRow->addWidget(m_cacheSizeValueLabel);
 
-    auto *appRowWidget = new QWidget(contentFrame);
+    auto *appRowWidget = new QWidget(m_shell);
     appRowWidget->setFixedHeight(kRowHeight);
     auto *appRow = new QHBoxLayout(appRowWidget);
     appRow->setContentsMargins(0, 0, 0, 0);
@@ -167,7 +121,7 @@ StoragePage::StoragePage(QWidget *parent)
     appRow->addStretch();
     appRow->addWidget(m_appSizeValueLabel);
 
-    auto *alarmRowWidget = new QWidget(contentFrame);
+    auto *alarmRowWidget = new QWidget(m_shell);
     alarmRowWidget->setFixedHeight(kRowHeight);
     auto *alarmRow = new QHBoxLayout(alarmRowWidget);
     alarmRow->setContentsMargins(0, 0, 0, 0);
@@ -180,7 +134,7 @@ StoragePage::StoragePage(QWidget *parent)
     alarmRow->addStretch();
     alarmRow->addWidget(m_alarmToggleButton);
 
-    auto *alarmTestRowWidget = new QWidget(contentFrame);
+    auto *alarmTestRowWidget = new QWidget(m_shell);
     alarmTestRowWidget->setFixedHeight(kRowHeight);
     auto *alarmTestRow = new QHBoxLayout(alarmTestRowWidget);
     alarmTestRow->setContentsMargins(0, 0, 0, 0);
@@ -193,7 +147,7 @@ StoragePage::StoragePage(QWidget *parent)
     alarmTestRow->addStretch();
     alarmTestRow->addWidget(m_alarmTestButton);
 
-    auto *ringRowWidget = new QWidget(contentFrame);
+    auto *ringRowWidget = new QWidget(m_shell);
     ringRowWidget->setFixedHeight(kRowHeight);
     auto *ringRow = new QHBoxLayout(ringRowWidget);
     ringRow->setContentsMargins(0, 0, 0, 0);
@@ -210,11 +164,11 @@ StoragePage::StoragePage(QWidget *parent)
     ringRow->addWidget(m_ringPathValueLabel, 1);
     ringRow->addWidget(m_ringPathButton);
 
-    m_statusLabel = new QLabel(contentFrame);
+    m_statusLabel = new QLabel(m_shell);
     m_statusLabel->setObjectName("storageStatusLabel");
     m_statusLabel->setWordWrap(true);
 
-    m_clearCacheButton = new QPushButton("Clear Cache", contentFrame);
+    m_clearCacheButton = new QPushButton("Clear Cache", m_shell);
     m_clearCacheButton->setObjectName("storageClearButton");
 
     contentLayout->addWidget(cacheRowWidget);
@@ -226,61 +180,9 @@ StoragePage::StoragePage(QWidget *parent)
     contentLayout->addStretch();
     contentLayout->addWidget(m_clearCacheButton, 0, Qt::AlignLeft);
 
-    bottomLayout->addWidget(m_toolsFrame, 1);
-    bottomLayout->addWidget(contentFrame, 4);
-
-    layout->addWidget(topFrame);
-    layout->addLayout(bottomLayout, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    m_backToolButton->setToolTip("Back");
-    m_collapsedBackButton->setToolTip("Back");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
-    LightModeIconHelper::applyIcon(m_collapsedBackButton, "back.svg");
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false));
 
     setStyleSheet(
-        "StoragePage { background: #f3f1eb; }"
-        "#storageTopFrame, #storageLeftFrame, #storageContentFrame {"
-        "  background: #fbfaf7;"
-        "  border: 1px solid #ded8cc;"
-        "  border-radius: 16px;"
-        "}"
-        "#storageToolsToggleButton {"
-        "  background: transparent;"
-        "  border: none;"
-        "  padding: 0px;"
-        "  text-align: left;"
-        "  font-size: 16px;"
-        "  font-weight: 600;"
-        "  color: #2f3a33;"
-        "}"
-        "#storageToolsToggleButton:hover {"
-        "  color: #12343b;"
-        "}"
-        "#storageToolButton {"
-        "  padding: 10px 12px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  text-align: left;"
-        "}"
-        "#storageToolButton:hover, #storageToolIconButton:hover {"
-        "  background: #eef4ef;"
-        "}"
-        "#storageTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  border-radius: 0px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "}"
-        "#storageTopActionButton:hover {"
-        "  background: transparent;"
-        "}"
         "#storageClearButton {"
         "  padding: 10px 14px;"
         "  border: 1px solid #d7d2c7;"
@@ -290,17 +192,6 @@ StoragePage::StoragePage(QWidget *parent)
         "}"
         "#storageClearButton:hover {"
         "  background: #eef4ef;"
-        "}"
-        "#storageToolIconButton {"
-        "  min-width: 36px;"
-        "  max-width: 36px;"
-        "  min-height: 36px;"
-        "  max-height: 36px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  font-weight: 600;"
         "}"
         "#storageTitleLabel {"
         "  font-size: 26px;"
@@ -326,21 +217,6 @@ StoragePage::StoragePage(QWidget *parent)
         "}"
     );
 
-    setToolsExpanded(true);
-
-    connect(homeButton, &QPushButton::clicked, this, &StoragePage::homeRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
-    connect(m_backToolButton, &QPushButton::clicked, this, &StoragePage::backRequested);
-    connect(m_collapsedBackButton, &QPushButton::clicked, this, &StoragePage::backRequested);
-    connect(
-        m_toolsToggleButton,
-        &QPushButton::clicked,
-        this,
-        [this]() {
-            setToolsExpanded(!m_toolsExpanded);
-        });
     connect(m_clearCacheButton, &QPushButton::clicked,
             this, &StoragePage::clearCacheRequested);
     connect(m_alarmTestButton, &QPushButton::clicked,
@@ -403,31 +279,10 @@ void StoragePage::setRingPath(const QString &path)
     m_ringPathValueLabel->setText(path.trimmed().isEmpty() ? "No file selected" : path);
 }
 
-void StoragePage::setToolsExpanded(bool expanded)
-{
-    m_toolsExpanded = expanded;
-    if (m_toolsFrame != nullptr) {
-        m_toolsFrame->setMinimumWidth(expanded ? 0 : 84);
-        m_toolsFrame->setMaximumWidth(expanded ? QWIDGETSIZE_MAX : 84);
-    }
-    if (m_toolsPanel != nullptr) {
-        m_toolsPanel->setVisible(expanded);
-    }
-    if (m_collapsedToolsPanel != nullptr) {
-        m_collapsedToolsPanel->setVisible(!expanded);
-    }
-    if (m_collapsedBackButton != nullptr) {
-        m_collapsedBackButton->setVisible(!expanded);
-    }
-    if (m_toolsToggleButton != nullptr) {
-        m_toolsToggleButton->setToolTip(expanded ? "Collapse Tools" : "Expand Tools");
-        LightModeIconHelper::applyToolsToggleIcon(m_toolsToggleButton, expanded);
-    }
-}
-
 void StoragePage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    m_shell->setDarkMode(dark);
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();
@@ -435,28 +290,16 @@ void StoragePage::setDarkMode(bool dark)
     }
 
     const QString darkOverride =
-        "StoragePage { background: #000000; }"
-        "#storageTopFrame, #storageLeftFrame, #storageContentFrame {"
-        "  background: #1b232c;"
-        "  border: 1px solid #2c3844;"
-        "}"
-        "#storageTitleLabel, #storageLabel, #storageValueLabel, #storageToolsToggleButton, #storageToolButton, #storageToolIconButton {"
+        "#storageTitleLabel, #storageLabel, #storageValueLabel {"
         "  color: #d9e1e8;"
         "}"
         "#storagePathLabel { color: #a9b7c5; }"
-        "#storageTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
-        "}"
         "#storageClearButton {"
         "  border: 1px solid #3a4652;"
         "  background: #202a34;"
         "  color: #e8edf2;"
         "}"
-        "#storageTopActionButton:hover, #storageClearButton:hover, #storageToolButton:hover, #storageToolIconButton:hover {"
-        "  background: #26313c;"
-        "}"
+        "#storageClearButton:hover { background: #26313c; }"
         "#storageStatusLabel { color: #f0b48a; }";
 
     setStyleSheet(dark ? lightStyle + darkOverride : lightStyle);

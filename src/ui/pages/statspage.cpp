@@ -1,5 +1,6 @@
 #include "ui/pages/statspage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
+#include "ui/uitheme.h"
 
 #include <QComboBox>
 #include <QFrame>
@@ -38,35 +39,27 @@ const QList<StatusInfo> &statusInfos()
 StatsPage::StatsPage(QWidget *parent)
     : QWidget(parent)
 {
+    m_shell = new PageShell(this);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(18);
+    layout->addWidget(m_shell);
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
+    m_shell->addTool("Refresh", "Refresh", [this]() { emit refreshRequested(); }, "refresh.svg");
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("statsTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    auto *titleLabel = new QLabel("Statistics", topFrame);
+    auto *contentLayout = m_shell->contentLayout();
+    contentLayout->setContentsMargins(20, 18, 20, 18);
+    contentLayout->setSpacing(12);
+    auto *titleLabel = new QLabel("Statistics", m_shell);
     titleLabel->setObjectName("statsTitleLabel");
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("statsTopActionButton");
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("statsTopActionButton");
-    auto *refreshButton = new QPushButton("Refresh", topFrame);
-    refreshButton->setObjectName("statsTopActionButton");
-
-    topLayout->addWidget(titleLabel, 1);
-    topLayout->addWidget(homeButton);
-    topLayout->addWidget(themeButton);
-    topLayout->addWidget(refreshButton);
+    contentLayout->addWidget(titleLabel);
 
     auto *bottomLayout = new QHBoxLayout();
     bottomLayout->setSpacing(18);
 
-    auto *summaryFrame = new QFrame(this);
+    auto *summaryFrame = new QFrame(m_shell);
     summaryFrame->setObjectName("statsSummaryFrame");
     auto *summaryOuter = new QVBoxLayout(summaryFrame);
     summaryOuter->setContentsMargins(20, 18, 20, 18);
@@ -80,7 +73,7 @@ StatsPage::StatsPage(QWidget *parent)
     summaryOuter->addLayout(m_summaryLayout);
     summaryOuter->addStretch();
 
-    auto *reviewFrame = new QFrame(this);
+    auto *reviewFrame = new QFrame(m_shell);
     reviewFrame->setObjectName("statsReviewFrame");
     auto *reviewOuter = new QVBoxLayout(reviewFrame);
     reviewOuter->setContentsMargins(20, 18, 20, 18);
@@ -120,20 +113,12 @@ StatsPage::StatsPage(QWidget *parent)
 
     bottomLayout->addWidget(summaryFrame, 1);
     bottomLayout->addWidget(reviewFrame, 1);
-
-    layout->addWidget(topFrame);
-    layout->addLayout(bottomLayout, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    refreshButton->setToolTip("Refresh");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
-    LightModeIconHelper::applyIcon(refreshButton, "refresh.svg");
+    contentLayout->addLayout(bottomLayout, 1);
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false)
+                           + "#pageShellContent { background: transparent; border: none; }");
 
     setStyleSheet(
-        "StatsPage { background: #f3f1eb; }"
-        "#statsTopFrame, #statsSummaryFrame, #statsReviewFrame {"
+        "#statsSummaryFrame, #statsReviewFrame {"
         "  background: #fbfaf7;"
         "  border: 1px solid #ded8cc;"
         "  border-radius: 16px;"
@@ -146,13 +131,6 @@ StatsPage::StatsPage(QWidget *parent)
         "#statsSectionLabel {"
         "  font-size: 16px;"
         "  font-weight: 600;"
-        "  color: #2f3a33;"
-        "}"
-        "#statsTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  background: transparent;"
         "  color: #2f3a33;"
         "}"
         "#statRowLabel { color: #2f3a33; }"
@@ -190,11 +168,6 @@ StatsPage::StatsPage(QWidget *parent)
         "  selection-color: #12343b;"
         "}");
 
-    connect(homeButton, &QPushButton::clicked, this, &StatsPage::homeRequested);
-    connect(refreshButton, &QPushButton::clicked, this, &StatsPage::refreshRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
     connect(m_reviewList, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         if (item == nullptr) {
             return;
@@ -392,6 +365,8 @@ void StatsPage::renderReview()
 void StatsPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(dark)
+                           + "#pageShellContent { background: transparent; border: none; }");
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();
@@ -399,18 +374,11 @@ void StatsPage::setDarkMode(bool dark)
     }
 
     const QString darkOverride =
-        "StatsPage { background: #000000; }"
-        "#statsTopFrame, #statsSummaryFrame, #statsReviewFrame {"
+        "#statsSummaryFrame, #statsReviewFrame {"
         "  background: #1b232c;"
         "  border: 1px solid #2c3844;"
         "}"
         "#statsTitleLabel, #statsSectionLabel { color: #d9e1e8; }"
-        "#statsTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
-        "}"
-        "#statsTopActionButton:hover { background: #26313c; }"
         "#statRowLabel { color: #d9e1e8; }"
         "#statRowValue { color: #9ba8b6; }"
         "#statBarFill { background: #3d8d77; }"

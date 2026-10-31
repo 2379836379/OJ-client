@@ -9,10 +9,9 @@
 
 class QLabel;
 class QListWidgetItem;
-class QPushButton;
-class QFrame;
 class QComboBox;
 class QDropEvent;
+class PageShell;
 
 class StatusListWidget : public QListWidget
 {
@@ -60,6 +59,7 @@ private:
     StatusListWidget *m_doneList = nullptr;
     StatusListWidget *m_redoList = nullptr;
     QLabel *m_statusLabel = nullptr;
+    PageShell *m_shell = nullptr;
     QComboBox *m_tagFilterCombo = nullptr;
     QComboBox *m_difficultyFilterCombo = nullptr;
     QComboBox *m_sortCombo = nullptr;

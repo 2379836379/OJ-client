@@ -11,10 +11,9 @@
 class QLabel;
 class QListWidget;
 class QListWidgetItem;
-class QPushButton;
-class QFrame;
 class QVBoxLayout;
 class QComboBox;
+class PageShell;
 
 class StatsPage : public QWidget
 {
@@ -46,6 +45,7 @@ private:
     void renderReview();
 
     QVBoxLayout *m_summaryLayout = nullptr;
+    PageShell *m_shell = nullptr;
     QListWidget *m_reviewList = nullptr;
     QLabel *m_reviewLabel = nullptr;
     QComboBox *m_reviewTagFilter = nullptr;

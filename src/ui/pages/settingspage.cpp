@@ -1,7 +1,7 @@
 #include "ui/pages/settingspage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
+#include "ui/uitheme.h"
 
-#include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -11,80 +11,34 @@
 SettingsPage::SettingsPage(QWidget *parent)
     : QWidget(parent)
 {
+    m_shell = new PageShell(this);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(18);
+    layout->addWidget(m_shell);
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
+    m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("settingsTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    auto *titleLabel = new QLabel("Server URL", topFrame);
-    titleLabel->setObjectName("settingsTitleLabel");
-    topLayout->addWidget(titleLabel, 1);
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("settingsTopActionButton");
-    topLayout->addWidget(homeButton, 0, Qt::AlignRight);
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("settingsTopActionButton");
-    topLayout->addWidget(themeButton, 0, Qt::AlignRight);
-
-    auto *bottomLayout = new QHBoxLayout();
-    bottomLayout->setSpacing(18);
-
-    m_toolsFrame = new QFrame(this);
-    m_toolsFrame->setObjectName("settingsLeftFrame");
-    auto *leftLayout = new QVBoxLayout(m_toolsFrame);
-    leftLayout->setContentsMargins(20, 18, 20, 18);
-    leftLayout->setSpacing(12);
-
-    m_toolsToggleButton = new QPushButton(m_toolsFrame);
-    m_toolsToggleButton->setObjectName("settingsToolsToggleButton");
-
-    m_toolsPanel = new QWidget(m_toolsFrame);
-    auto *toolsPanelLayout = new QVBoxLayout(m_toolsPanel);
-    toolsPanelLayout->setContentsMargins(0, 0, 0, 0);
-    toolsPanelLayout->setSpacing(10);
-    m_backToolButton = new QPushButton("Back", m_toolsPanel);
-    m_backToolButton->setObjectName("settingsToolButton");
-    toolsPanelLayout->addWidget(m_backToolButton);
-    toolsPanelLayout->addStretch();
-
-    m_collapsedToolsPanel = new QWidget(m_toolsFrame);
-    auto *collapsedLayout = new QVBoxLayout(m_collapsedToolsPanel);
-    collapsedLayout->setContentsMargins(0, 0, 0, 0);
-    collapsedLayout->setSpacing(10);
-    m_collapsedBackButton = new QPushButton("B", m_collapsedToolsPanel);
-    m_collapsedBackButton->setObjectName("settingsToolIconButton");
-    m_collapsedBackButton->setToolTip("Back");
-    collapsedLayout->addWidget(m_collapsedBackButton);
-    collapsedLayout->addStretch();
-
-    leftLayout->addWidget(m_toolsToggleButton);
-    leftLayout->addWidget(m_toolsPanel);
-    leftLayout->addWidget(m_collapsedToolsPanel);
-    leftLayout->addStretch();
-
-    auto *contentFrame = new QFrame(this);
-    contentFrame->setObjectName("settingsContentFrame");
-    auto *contentLayout = new QVBoxLayout(contentFrame);
+    auto *contentLayout = m_shell->contentLayout();
     contentLayout->setContentsMargins(24, 22, 24, 22);
     contentLayout->setSpacing(14);
+    auto *titleLabel = new QLabel("Server URL", m_shell);
+    titleLabel->setObjectName("settingsTitleLabel");
+    contentLayout->addWidget(titleLabel);
 
-    auto *serverLabel = new QLabel("Application server URL", contentFrame);
+    auto *serverLabel = new QLabel("Application server URL", m_shell);
     serverLabel->setObjectName("settingsFieldLabel");
-    m_serverUrlEdit = new QLineEdit(contentFrame);
+    m_serverUrlEdit = new QLineEdit(m_shell);
     m_serverUrlEdit->setObjectName("settingsLineEdit");
     m_serverUrlEdit->setPlaceholderText("http://host:18080");
 
-    m_statusLabel = new QLabel(contentFrame);
+    m_statusLabel = new QLabel(m_shell);
     m_statusLabel->setObjectName("settingsStatusLabel");
     m_statusLabel->setWordWrap(true);
 
-    auto *saveButton = new QPushButton("Save", contentFrame);
+    auto *saveButton = new QPushButton("Save", m_shell);
     saveButton->setObjectName("settingsSaveButton");
 
     contentLayout->addWidget(serverLabel);
@@ -93,55 +47,9 @@ SettingsPage::SettingsPage(QWidget *parent)
     contentLayout->addStretch();
     contentLayout->addWidget(saveButton, 0, Qt::AlignLeft);
 
-    bottomLayout->addWidget(m_toolsFrame, 1);
-    bottomLayout->addWidget(contentFrame, 4);
-
-    layout->addWidget(topFrame);
-    layout->addLayout(bottomLayout, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    m_backToolButton->setToolTip("Back");
-    m_collapsedBackButton->setToolTip("Back");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
-    LightModeIconHelper::applyIcon(m_collapsedBackButton, "back.svg");
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false));
 
     setStyleSheet(
-        "SettingsPage { background: #f3f1eb; }"
-        "#settingsTopFrame, #settingsLeftFrame, #settingsContentFrame {"
-        "  background: #fbfaf7;"
-        "  border: 1px solid #ded8cc;"
-        "  border-radius: 16px;"
-        "}"
-        "#settingsToolsToggleButton {"
-        "  background: transparent;"
-        "  border: none;"
-        "  padding: 0px;"
-        "  text-align: left;"
-        "  font-size: 16px;"
-        "  font-weight: 600;"
-        "  color: #2f3a33;"
-        "}"
-        "#settingsToolsToggleButton:hover { color: #12343b; }"
-        "#settingsToolButton {"
-        "  padding: 10px 12px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  text-align: left;"
-        "}"
-        "#settingsToolButton:hover, #settingsToolIconButton:hover { background: #eef4ef; }"
-        "#settingsTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  border-radius: 0px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "}"
-        "#settingsTopActionButton:hover { background: transparent; }"
         "#settingsSaveButton {"
         "  padding: 10px 14px;"
         "  border: 1px solid #d7d2c7;"
@@ -150,17 +58,6 @@ SettingsPage::SettingsPage(QWidget *parent)
         "  color: #2f3a33;"
         "}"
         "#settingsSaveButton:hover { background: #eef4ef; }"
-        "#settingsToolIconButton {"
-        "  min-width: 36px;"
-        "  max-width: 36px;"
-        "  min-height: 36px;"
-        "  max-height: 36px;"
-        "  border: none;"
-        "  border-radius: 10px;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "  font-weight: 600;"
-        "}"
         "#settingsTitleLabel { font-size: 26px; font-weight: 600; color: #1f2328; }"
         "#settingsFieldLabel { font-size: 15px; font-weight: 600; color: #2f3a33; }"
         "#settingsStatusLabel { color: #526056; }"
@@ -172,17 +69,6 @@ SettingsPage::SettingsPage(QWidget *parent)
         "  padding: 8px 10px;"
         "}");
 
-    setToolsExpanded(true);
-
-    connect(homeButton, &QPushButton::clicked, this, &SettingsPage::homeRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
-    connect(m_backToolButton, &QPushButton::clicked, this, &SettingsPage::backRequested);
-    connect(m_collapsedBackButton, &QPushButton::clicked, this, &SettingsPage::backRequested);
-    connect(m_toolsToggleButton, &QPushButton::clicked, this, [this]() {
-        setToolsExpanded(!m_toolsExpanded);
-    });
     connect(saveButton, &QPushButton::clicked, this, [this]() {
         emit saveRequested(m_serverUrlEdit->text().trimmed());
     });
@@ -204,31 +90,10 @@ void SettingsPage::showSaveFailed(const QString &message)
     m_statusLabel->setText(message);
 }
 
-void SettingsPage::setToolsExpanded(bool expanded)
-{
-    m_toolsExpanded = expanded;
-    if (m_toolsFrame != nullptr) {
-        m_toolsFrame->setMinimumWidth(expanded ? 0 : 84);
-        m_toolsFrame->setMaximumWidth(expanded ? QWIDGETSIZE_MAX : 84);
-    }
-    if (m_toolsPanel != nullptr) {
-        m_toolsPanel->setVisible(expanded);
-    }
-    if (m_collapsedToolsPanel != nullptr) {
-        m_collapsedToolsPanel->setVisible(!expanded);
-    }
-    if (m_collapsedBackButton != nullptr) {
-        m_collapsedBackButton->setVisible(!expanded);
-    }
-    if (m_toolsToggleButton != nullptr) {
-        m_toolsToggleButton->setToolTip(expanded ? "Collapse Tools" : "Expand Tools");
-        LightModeIconHelper::applyToolsToggleIcon(m_toolsToggleButton, expanded);
-    }
-}
-
 void SettingsPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    m_shell->setDarkMode(dark);
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();
@@ -236,27 +101,15 @@ void SettingsPage::setDarkMode(bool dark)
     }
 
     const QString darkOverride =
-        "SettingsPage { background: #000000; }"
-        "#settingsTopFrame, #settingsLeftFrame, #settingsContentFrame {"
-        "  background: #1b232c;"
-        "  border: 1px solid #2c3844;"
-        "}"
-        "#settingsTitleLabel, #settingsFieldLabel, #settingsStatusLabel, #settingsToolsToggleButton, #settingsToolButton, #settingsToolIconButton {"
+        "#settingsTitleLabel, #settingsFieldLabel, #settingsStatusLabel {"
         "  color: #d9e1e8;"
-        "}"
-        "#settingsTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
         "}"
         "#settingsSaveButton {"
         "  border: 1px solid #3a4652;"
         "  background: #202a34;"
         "  color: #e8edf2;"
         "}"
-        "#settingsTopActionButton:hover, #settingsSaveButton:hover, #settingsToolButton:hover, #settingsToolIconButton:hover {"
-        "  background: #26313c;"
-        "}"
+        "#settingsSaveButton:hover { background: #26313c; }"
         "#settingsLineEdit {"
         "  background: #121920;"
         "  border: 1px solid #3a4652;"

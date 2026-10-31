@@ -3,10 +3,8 @@
 #include <QWidget>
 
 class QLabel;
-class QPushButton;
 class QPlainTextEdit;
-class QFrame;
-class QWidget;
+class PageShell;
 
 class AiConfigPage : public QWidget
 {
@@ -28,14 +26,7 @@ signals:
     void saveRequested(const QString &content);
 
 private:
-    void setToolsExpanded(bool expanded);
-
-    QFrame *m_toolsFrame = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_backToolButton = nullptr;
-    QPushButton *m_collapsedBackButton = nullptr;
+    PageShell *m_shell = nullptr;
     QLabel *m_pathLabel = nullptr;
     QPlainTextEdit *m_configEdit = nullptr;
     QLabel *m_statusLabel = nullptr;

@@ -4,9 +4,8 @@
 
 class QLabel;
 class QPushButton;
-class QFrame;
-class QWidget;
 class QAbstractButton;
+class PageShell;
 
 class StoragePage : public QWidget
 {
@@ -33,14 +32,7 @@ signals:
     void alarmToggled(bool enabled);
 
 private:
-    void setToolsExpanded(bool expanded);
-
-    QFrame *m_toolsFrame = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_backToolButton = nullptr;
-    QPushButton *m_collapsedBackButton = nullptr;
+    PageShell *m_shell = nullptr;
     QLabel *m_cacheSizeValueLabel = nullptr;
     QLabel *m_appSizeValueLabel = nullptr;
     QAbstractButton *m_alarmToggleButton = nullptr;

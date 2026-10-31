@@ -20,6 +20,7 @@ public:
                          const std::function<void()> &action,
                          const QString &iconFile = QString(),
                          QPushButton **collapsedButton = nullptr);
+    QPushButton *addThemeTool(const std::function<void()> &action);
 
     void setDarkMode(bool dark);
 
@@ -32,5 +33,7 @@ private:
     QVBoxLayout *m_toolsLayout = nullptr;
     QVBoxLayout *m_collapsedToolsLayout = nullptr;
     QVBoxLayout *m_contentLayout = nullptr;
+    QPushButton *m_themeToolButton = nullptr;
+    QPushButton *m_collapsedThemeToolButton = nullptr;
     bool m_toolsExpanded = true;
 };

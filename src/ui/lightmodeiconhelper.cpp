@@ -4,7 +4,6 @@
 #include <QIcon>
 #include <QPushButton>
 #include <QSize>
-#include <QSizePolicy>
 #include <QWidget>
 
 namespace
@@ -103,17 +102,4 @@ void LightModeIconHelper::refreshIcons(QWidget *root)
     for (QPushButton *button : buttons) {
         refreshIcon(button);
     }
-}
-
-void LightModeIconHelper::applyToolsToggleIcon(QPushButton *button, bool expanded)
-{
-    if (button == nullptr) {
-        return;
-    }
-    button->setIcon(QIcon());
-    button->setText(expanded ? QStringLiteral("Tools v") : QStringLiteral(">"));
-    button->setMinimumWidth(0);
-    button->setMaximumWidth(QWIDGETSIZE_MAX);
-    button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    button->setStyleSheet(QString());
 }

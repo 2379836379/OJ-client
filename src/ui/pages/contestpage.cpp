@@ -103,9 +103,7 @@ ContestPage::ContestPage(QWidget *parent)
     layout->addWidget(m_shell);
 
     m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
-    m_themeToolButton = m_shell->addTool("Dark Mode", "Dark Mode", [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    }, "dark-mode.svg", &m_collapsedThemeToolButton);
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
     m_shell->addTool("Refresh", "Refresh", [this]() { emit refreshRequested(); }, "refresh.svg");
     m_shell->addTool("Back", "Back", [this]() { emit backRequested(); }, "back.svg");
     m_shell->toolsLayout()->addStretch();
@@ -169,12 +167,6 @@ void ContestPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     m_problemListWidget->setProperty("_darkMode", dark);
-    const QString themeLabel = dark ? QStringLiteral("Light Mode")
-                                    : QStringLiteral("Dark Mode");
-    m_themeToolButton->setText(themeLabel);
-    m_themeToolButton->setToolTip(themeLabel);
-    m_collapsedThemeToolButton->setToolTip(themeLabel);
-
     const UiTheme::Palette colors = UiTheme::palette(dark);
     m_shell->setStyleSheet(
         UiTheme::pageShellStyleSheet(dark)

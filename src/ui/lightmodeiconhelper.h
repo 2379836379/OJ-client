@@ -14,5 +14,4 @@ void applyIcon(QPushButton *button,
                int iconSize = 20);
 void refreshIcon(QPushButton *button);
 void refreshIcons(QWidget *root);
-void applyToolsToggleIcon(QPushButton *button, bool expanded);
 }

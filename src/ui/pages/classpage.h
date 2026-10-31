@@ -8,7 +8,6 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 class PageShell;
-class QPushButton;
 
 class ClassPage : public QWidget
 {
@@ -34,8 +33,6 @@ private:
     PageShell *m_shell = nullptr;
     QLabel *m_titleLabel = nullptr;
     QListWidget *m_contestListWidget = nullptr;
-    QPushButton *m_themeToolButton = nullptr;
-    QPushButton *m_collapsedThemeToolButton = nullptr;
     QString m_className;
     QString m_classUrl;
     bool m_darkMode = false;

@@ -120,8 +120,6 @@ private:
     QLabel *m_titleLabel = nullptr;
     QPushButton *m_favoriteToolButton = nullptr;
     QPushButton *m_collapsedFavoriteButton = nullptr;
-    QPushButton *m_themeToolButton = nullptr;
-    QPushButton *m_collapsedThemeToolButton = nullptr;
     PageShell *m_shell = nullptr;
     QTextEdit *m_detailTextEdit = nullptr;
     QPushButton *m_openInBrowserButton = nullptr;

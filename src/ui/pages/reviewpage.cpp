@@ -1,5 +1,6 @@
 #include "ui/pages/reviewpage.h"
-#include "ui/lightmodeiconhelper.h"
+#include "ui/pageshell.h"
+#include "ui/uitheme.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -35,35 +36,27 @@ const QList<GradeInfo> &gradeInfos()
 ReviewPage::ReviewPage(QWidget *parent)
     : QWidget(parent)
 {
+    m_shell = new PageShell(this);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(18);
+    layout->addWidget(m_shell);
+    m_shell->addTool("Home", "Home", [this]() { emit homeRequested(); }, "homepage.svg");
+    m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
+    m_shell->addTool("Refresh", "Refresh", [this]() { emit refreshRequested(); }, "refresh.svg");
+    m_shell->toolsLayout()->addStretch();
+    m_shell->collapsedToolsLayout()->addStretch();
 
-    auto *topFrame = new QFrame(this);
-    topFrame->setObjectName("reviewTopFrame");
-    topFrame->setFixedHeight(80);
-    auto *topLayout = new QHBoxLayout(topFrame);
-    topLayout->setContentsMargins(24, 18, 24, 18);
-    topLayout->setSpacing(16);
-
-    auto *titleLabel = new QLabel("Review", topFrame);
+    auto *contentLayout = m_shell->contentLayout();
+    contentLayout->setContentsMargins(20, 18, 20, 18);
+    contentLayout->setSpacing(12);
+    auto *titleLabel = new QLabel("Review", m_shell);
     titleLabel->setObjectName("reviewTitleLabel");
-    auto *homeButton = new QPushButton("Home", topFrame);
-    homeButton->setObjectName("reviewTopActionButton");
-    auto *themeButton = new QPushButton("Dark Mode", topFrame);
-    themeButton->setObjectName("reviewTopActionButton");
-    auto *refreshButton = new QPushButton("Refresh", topFrame);
-    refreshButton->setObjectName("reviewTopActionButton");
-
-    topLayout->addWidget(titleLabel, 1);
-    topLayout->addWidget(homeButton);
-    topLayout->addWidget(themeButton);
-    topLayout->addWidget(refreshButton);
+    contentLayout->addWidget(titleLabel);
 
     auto *bottomLayout = new QHBoxLayout();
     bottomLayout->setSpacing(18);
 
-    auto *listFrame = new QFrame(this);
+    auto *listFrame = new QFrame(m_shell);
     listFrame->setObjectName("reviewListFrame");
     auto *listOuter = new QVBoxLayout(listFrame);
     listOuter->setContentsMargins(20, 18, 20, 18);
@@ -76,7 +69,7 @@ ReviewPage::ReviewPage(QWidget *parent)
     listOuter->addWidget(m_statusLabel);
     listOuter->addWidget(m_dueList, 1);
 
-    auto *detailFrame = new QFrame(this);
+    auto *detailFrame = new QFrame(m_shell);
     detailFrame->setObjectName("reviewDetailFrame");
     auto *detailOuter = new QVBoxLayout(detailFrame);
     detailOuter->setContentsMargins(20, 18, 20, 18);
@@ -123,20 +116,12 @@ ReviewPage::ReviewPage(QWidget *parent)
 
     bottomLayout->addWidget(listFrame, 1);
     bottomLayout->addWidget(detailFrame, 1);
-
-    layout->addWidget(topFrame);
-    layout->addLayout(bottomLayout, 1);
-
-    homeButton->setToolTip("Home");
-    themeButton->setToolTip("Dark Mode");
-    refreshButton->setToolTip("Refresh");
-    LightModeIconHelper::applyIcon(homeButton, "homepage.svg");
-    LightModeIconHelper::applyIcon(themeButton, "dark-mode.svg");
-    LightModeIconHelper::applyIcon(refreshButton, "refresh.svg");
+    contentLayout->addLayout(bottomLayout, 1);
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(false)
+                           + "#pageShellContent { background: transparent; border: none; }");
 
     setStyleSheet(
-        "ReviewPage { background: #f3f1eb; }"
-        "#reviewTopFrame, #reviewListFrame, #reviewDetailFrame {"
+        "#reviewListFrame, #reviewDetailFrame {"
         "  background: #fbfaf7;"
         "  border: 1px solid #ded8cc;"
         "  border-radius: 16px;"
@@ -152,14 +137,6 @@ ReviewPage::ReviewPage(QWidget *parent)
         "  color: #2f3a33;"
         "}"
         "#reviewDetailMeta { color: #5e675f; }"
-        "#reviewTopActionButton {"
-        "  min-width: 36px;"
-        "  padding: 6px;"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #2f3a33;"
-        "}"
-        "#reviewTopActionButton:hover { background: transparent; }"
         "#reviewDueList {"
         "  background: transparent;"
         "  border: none;"
@@ -190,11 +167,6 @@ ReviewPage::ReviewPage(QWidget *parent)
         "#reviewGradeButton:hover, #reviewOpenButton:hover { background: #eef4ef; }"
         "#reviewGradeButton:disabled { color: #b7b1a4; }");
 
-    connect(homeButton, &QPushButton::clicked, this, &ReviewPage::homeRequested);
-    connect(refreshButton, &QPushButton::clicked, this, &ReviewPage::refreshRequested);
-    connect(themeButton, &QPushButton::clicked, this, [this]() {
-        emit themeToggleRequested(!m_darkMode);
-    });
     connect(m_dueList, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         if (item == nullptr) {
             return;
@@ -269,6 +241,8 @@ void ReviewPage::setGradeButtonsEnabled(bool enabled)
 void ReviewPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
+    m_shell->setStyleSheet(UiTheme::pageShellStyleSheet(dark)
+                           + "#pageShellContent { background: transparent; border: none; }");
     QString lightStyle = property("_lightStyleSheet").toString();
     if (lightStyle.isEmpty()) {
         lightStyle = styleSheet();
@@ -276,19 +250,12 @@ void ReviewPage::setDarkMode(bool dark)
     }
 
     const QString darkOverride =
-        "ReviewPage { background: #000000; }"
-        "#reviewTopFrame, #reviewListFrame, #reviewDetailFrame {"
+        "#reviewListFrame, #reviewDetailFrame {"
         "  background: #1b232c;"
         "  border: 1px solid #2c3844;"
         "}"
         "#reviewTitleLabel, #reviewSectionLabel { color: #d9e1e8; }"
         "#reviewDetailMeta { color: #9ba8b6; }"
-        "#reviewTopActionButton {"
-        "  border: none;"
-        "  background: transparent;"
-        "  color: #e8edf2;"
-        "}"
-        "#reviewTopActionButton:hover { background: #26313c; }"
         "#reviewDueList { color: #e8edf2; }"
         "#reviewDueList::item:selected { background: #234257; color: #eff8ff; }"
         "#reviewDueList::item:hover { background: #26313c; }"

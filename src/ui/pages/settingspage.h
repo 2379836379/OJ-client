@@ -4,8 +4,7 @@
 
 class QLabel;
 class QLineEdit;
-class QPushButton;
-class QFrame;
+class PageShell;
 
 // Editor for the judger URL stored in appconfig.toml.
 class SettingsPage : public QWidget
@@ -27,14 +26,7 @@ signals:
     void saveRequested(const QString &serverUrl);
 
 private:
-    void setToolsExpanded(bool expanded);
-
-    QFrame *m_toolsFrame = nullptr;
-    QPushButton *m_toolsToggleButton = nullptr;
-    QWidget *m_toolsPanel = nullptr;
-    QWidget *m_collapsedToolsPanel = nullptr;
-    QPushButton *m_backToolButton = nullptr;
-    QPushButton *m_collapsedBackButton = nullptr;
+    PageShell *m_shell = nullptr;
     QLineEdit *m_serverUrlEdit = nullptr;
     QLabel *m_statusLabel = nullptr;
     bool m_toolsExpanded = true;

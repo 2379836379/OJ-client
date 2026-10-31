@@ -10,8 +10,8 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 class QPushButton;
-class QFrame;
 class QPlainTextEdit;
+class PageShell;
 
 class ReviewPage : public QWidget
 {
@@ -36,6 +36,7 @@ private:
     void setGradeButtonsEnabled(bool enabled);
 
     QListWidget *m_dueList = nullptr;
+    PageShell *m_shell = nullptr;
     QLabel *m_statusLabel = nullptr;
     QLabel *m_detailTitle = nullptr;
     QLabel *m_detailMeta = nullptr;
