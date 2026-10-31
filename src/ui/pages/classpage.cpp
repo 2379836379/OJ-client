@@ -3,6 +3,10 @@
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
+#include <QApplication>
+#include <QPainter>
+#include <QStyle>
+#include <QStyledItemDelegate>
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -12,6 +16,50 @@
 
 namespace
 {
+constexpr int ContestEndTimeRole = Qt::UserRole + 1;
+
+class ContestSetDelegate final : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem itemOption(option);
+        initStyleOption(&itemOption, index);
+        itemOption.text.clear();
+
+        const QWidget *widget = itemOption.widget;
+        const QStyle *style = widget != nullptr ? widget->style() : QApplication::style();
+        style->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, widget);
+
+        const QString endTime = index.data(ContestEndTimeRole).toString();
+        const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText,
+                                                     &itemOption,
+                                                     widget);
+        painter->save();
+        painter->setPen(itemOption.palette.color(QPalette::Text));
+        if (endTime.isEmpty()) {
+            painter->drawText(textRect,
+                              Qt::AlignVCenter | Qt::AlignLeft,
+                              index.data(Qt::DisplayRole).toString());
+        } else {
+            const int dateWidth = qMin(textRect.width() / 2, 220);
+            const QRect titleRect = textRect.adjusted(0, 0, -dateWidth - 16, 0);
+            const QRect dateRect(textRect.right() - dateWidth + 1,
+                                 textRect.top(),
+                                 dateWidth,
+                                 textRect.height());
+            painter->drawText(titleRect, Qt::AlignVCenter | Qt::AlignLeft,
+                              index.data(Qt::DisplayRole).toString());
+            painter->drawText(dateRect, Qt::AlignVCenter | Qt::AlignRight, endTime);
+        }
+        painter->restore();
+    }
+};
+
 QString contestListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
@@ -43,6 +91,7 @@ ClassPage::ClassPage(QWidget *parent)
     m_titleLabel = new QLabel("Course", m_shell);
     m_titleLabel->setObjectName("classTitleLabel");
     m_contestListWidget = new QListWidget(m_shell);
+    m_contestListWidget->setItemDelegate(new ContestSetDelegate(m_contestListWidget));
     m_contestListWidget->setMinimumHeight(420);
 
     m_shell->contentLayout()->addWidget(m_titleLabel);
@@ -77,12 +126,9 @@ void ClassPage::showContestSets(const GroupPageInfo &groupPageInfo)
 {
     m_contestListWidget->clear();
     for (const ContestSetInfo &contestSet : groupPageInfo.contestSets) {
-        QString text = contestSet.title;
-        if (!contestSet.endtime.isEmpty()) {
-            text += " | " + contestSet.endtime;
-        }
-        auto *item = new QListWidgetItem(text, m_contestListWidget);
+        auto *item = new QListWidgetItem(contestSet.title, m_contestListWidget);
         item->setData(Qt::UserRole, contestSet.url);
+        item->setData(ContestEndTimeRole, contestSet.endtime);
     }
 }
 

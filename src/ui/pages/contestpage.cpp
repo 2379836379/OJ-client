@@ -17,8 +17,6 @@ namespace
 {
 constexpr int ProblemTextRole = Qt::UserRole + 1;
 constexpr int ProblemSolvedRole = Qt::UserRole + 2;
-constexpr int ContentPaddingX = 20;
-constexpr int ContentPaddingY = 18;
 
 class ContestProblemDelegate final : public QStyledItemDelegate
 {
@@ -36,7 +34,7 @@ public:
         style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
         painter->save();
-        const QRect contentRect = opt.rect.adjusted(16, 0, -16, 0);
+        const QRect contentRect = opt.rect.adjusted(0, 0, 0, 0);
         const QString title = index.data(ProblemTextRole).toString();
         const bool solved = index.data(ProblemSolvedRole).toBool();
         const QString status = solved ? QStringLiteral("finished") : QString();
@@ -83,10 +81,10 @@ QString problemListStyle(bool dark)
     const UiTheme::Palette colors = UiTheme::palette(dark);
     return QString(
                "QListWidget { background: transparent; border: none; outline: none; color: %1; }"
-               "QListWidget::item { padding: 12px 4px; border-radius: 8px; margin: 2px 0px; }"
-               "QListWidget::item:selected { background: %2; color: %1; }"
-               "QListWidget::item:hover { background: %3; }")
-        .arg(colors.text, colors.selected, colors.hover);
+               "QListWidget::item { padding: 12px 0px; border-radius: 4px; margin: 2px 0px; }"
+               "QListWidget::item:selected { background: transparent; color: %1; }"
+               "QListWidget::item:hover { background: %2; }")
+        .arg(colors.text, colors.hover);
 }
 }
 
@@ -94,10 +92,7 @@ ContestPage::ContestPage(QWidget *parent)
     : QWidget(parent)
 {
     m_shell = new PageShell(this);
-    m_shell->contentLayout()->setContentsMargins(ContentPaddingX,
-                                                  ContentPaddingY,
-                                                  ContentPaddingX,
-                                                  ContentPaddingY);
+    m_shell->contentLayout()->setContentsMargins(20,18,20,18);
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_shell);
@@ -111,20 +106,14 @@ ContestPage::ContestPage(QWidget *parent)
 
     m_titleLabel = new QLabel("Contest Set", m_shell);
     m_titleLabel->setObjectName("contestTitleLabel");
-    auto *problemLabel = new QLabel("Problem List", m_shell);
-    problemLabel->setObjectName("contestSectionLabel");
     m_problemListWidget = new QListWidget(m_shell);
     m_problemListWidget->setProperty("_darkMode", false);
     m_problemListWidget->setMinimumHeight(420);
     m_problemListWidget->setItemDelegate(new ContestProblemDelegate(m_problemListWidget));
 
     m_shell->contentLayout()->addWidget(m_titleLabel);
-    m_shell->contentLayout()->addWidget(problemLabel);
     m_shell->contentLayout()->addWidget(m_problemListWidget, 1);
 
-    auto *refreshShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_R), this);
-    refreshShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(refreshShortcut, &QShortcut::activated, this, &ContestPage::refreshRequested);
     connect(m_problemListWidget, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
         emit problemSelected(item->text(), item->data(Qt::UserRole).toString());
     });
