@@ -32,11 +32,3 @@
 #pageShellToolIconButton:hover {
     background: @hover@;
 }
-
-#pageShellToolButton[active="true"] {
-    background: @selected@;
-}
-
-#pageShellToolIconButton[active="true"] {
-    background: @selected@;
-}

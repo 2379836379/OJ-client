@@ -112,8 +112,6 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
 
     m_homeToolButton = m_shell->addTool("Home", "Home", [] {},
                                         "homepage.svg", &m_collapsedHomeToolButton);
-    m_homeToolButton->setProperty("active", true);
-    m_collapsedHomeToolButton->setProperty("active", true);
     m_shell->addThemeTool([this]() { emit themeToggleRequested(!m_darkMode); });
     m_shell->addTool("Refresh", "Refresh", [this]() {
         emit refreshRequested();

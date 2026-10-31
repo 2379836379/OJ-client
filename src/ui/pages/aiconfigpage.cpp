@@ -8,6 +8,36 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+namespace
+{
+QString aiConfigStyleSheet(bool dark)
+{
+    const UiTheme::Palette colors = UiTheme::palette(dark);
+    return QStringLiteral(
+               "#aiConfigSaveButton {"
+               "  padding: 10px 14px;"
+               "  border: 1px solid %1;"
+               "  border-radius: 10px;"
+               "  background: %4;"
+               "  color: %3;"
+               "}"
+               "#aiConfigSaveButton:hover { background: %5; }"
+               "#aiConfigTitleLabel { font-size: 26px; font-weight: 600; color: %3; }"
+               "#aiConfigFieldLabel { font-size: 15px; font-weight: 600; color: %3; }"
+               "#aiConfigPathLabel, #aiConfigStatusLabel { color: %3; }"
+               "#aiConfigPromptEdit {"
+               "  background: %2;"
+               "  border: 1px solid %1;"
+               "  border-radius: 12px;"
+               "  color: %3;"
+               "  padding: 8px 10px;"
+               "  selection-color: %3;"
+               "  selection-background-color: %4;"
+               "}")
+        .arg(colors.border, colors.page, colors.text, colors.selected, colors.hover);
+}
+}
+
 AiConfigPage::AiConfigPage(QWidget *parent)
     : QWidget(parent)
 {
@@ -51,30 +81,7 @@ AiConfigPage::AiConfigPage(QWidget *parent)
     contentLayout->addWidget(m_statusLabel);
     contentLayout->addWidget(saveButton, 0, Qt::AlignLeft);
 
-    m_shell->setDarkMode(false);
-
-    setStyleSheet(
-        "#aiConfigSaveButton {"
-        "  padding: 10px 14px;"
-        "  border: 1px solid #d7d2c7;"
-        "  border-radius: 10px;"
-        "  background: #f6f3ec;"
-        "  color: #2f3a33;"
-        "}"
-        "#aiConfigSaveButton:hover {"
-        "  background: #eef4ef;"
-        "}"
-        "#aiConfigTitleLabel { font-size: 26px; font-weight: 600; color: #1f2328; }"
-        "#aiConfigFieldLabel { font-size: 15px; font-weight: 600; color: #2f3a33; }"
-        "#aiConfigPathLabel, #aiConfigStatusLabel { color: #526056; }"
-        "#aiConfigPromptEdit {"
-        "  background: #fcfbf8;"
-        "  border: 1px solid #d9d4c8;"
-        "  border-radius: 12px;"
-        "  color: #1f2328;"
-        "  padding: 8px 10px;"
-        "}"
-    );
+    setDarkMode(false);
 
     connect(saveButton, &QPushButton::clicked, this, [this]() {
         emit saveRequested(currentConfigText());
@@ -108,28 +115,5 @@ void AiConfigPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
     m_shell->setDarkMode(dark);
-    QString lightStyle = property("_lightStyleSheet").toString();
-    if (lightStyle.isEmpty()) {
-        lightStyle = styleSheet();
-        setProperty("_lightStyleSheet", lightStyle);
-    }
-
-    const QString darkOverride =
-        "#aiConfigTitleLabel, #aiConfigFieldLabel, #aiConfigPathLabel, #aiConfigStatusLabel {"
-        "  color: #d9e1e8;"
-        "}"
-        "#aiConfigSaveButton {"
-        "  border: 1px solid #3a4652;"
-        "  background: #202a34;"
-        "  color: #e8edf2;"
-        "}"
-        "#aiConfigSaveButton:hover { background: #26313c; }"
-        "#aiConfigPromptEdit {"
-        "  background: #121920;"
-        "  border: 1px solid #3a4652;"
-        "  color: #e8edf2;"
-        "  selection-background-color: #295a85;"
-        "}";
-
-    setStyleSheet(dark ? lightStyle + darkOverride : lightStyle);
+    setStyleSheet(aiConfigStyleSheet(dark));
 }
