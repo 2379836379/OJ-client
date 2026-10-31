@@ -5,12 +5,16 @@
 #include "ui/uitheme.h"
 
 #include <QFrame>
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QPainter>
 #include <QPushButton>
 #include <QShortcut>
+#include <QStyle>
+#include <QStyledItemDelegate>
 #include <QUrl>
 #include <QVBoxLayout>
 
@@ -18,6 +22,55 @@
 
 namespace
 {
+constexpr int ReminderTitleRole = Qt::UserRole + 1;
+constexpr int ReminderDeadlineRole = Qt::UserRole + 2;
+
+class ReminderItemDelegate final : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override
+    {
+        QStyleOptionViewItem itemOption(option);
+        initStyleOption(&itemOption, index);
+        itemOption.text.clear();
+        const QWidget *widget = itemOption.widget;
+        const QStyle *style = widget != nullptr ? widget->style() : QApplication::style();
+        style->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, widget);
+
+        QString title = index.data(ReminderTitleRole).toString();
+        if (title.isEmpty()) {
+            title = index.data(Qt::DisplayRole).toString();
+        }
+        const QString deadline = index.data(ReminderDeadlineRole).toString();
+        const QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText,
+                                                     &itemOption,
+                                                     widget);
+        painter->save();
+        painter->setFont(itemOption.font);
+        painter->setPen(itemOption.palette.color(QPalette::Text));
+        if (deadline.isEmpty()) {
+            painter->drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, title);
+        } else {
+            const int deadlineWidth = qMin(textRect.width() / 2, 220);
+            const QRect titleRect = textRect.adjusted(0, 0, -deadlineWidth - 12, 0);
+            const QRect deadlineRect(textRect.right() - deadlineWidth + 1,
+                                     textRect.top(),
+                                     deadlineWidth,
+                                     textRect.height());
+            const QFontMetrics metrics(itemOption.font);
+            painter->drawText(titleRect, Qt::AlignVCenter | Qt::AlignLeft,
+                              metrics.elidedText(title, Qt::ElideRight, titleRect.width()));
+            painter->drawText(deadlineRect, Qt::AlignVCenter | Qt::AlignRight,
+                              deadline);
+        }
+        painter->restore();
+    }
+};
+
 QString homeListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
@@ -29,22 +82,9 @@ QString homeListStyle(bool dark)
         .arg(colors.text, colors.hover);
 }
 
-QString formatReminderContestTitle(const DeadlineReminder &reminder,
-                                   ContestPageCache *contestCache)
+QString formatReminderContestTitle(const DeadlineReminder &reminder)
 {
-    QString text = reminder.contestTitle;
-    ContestPageInfo contestPageInfo;
-    if (contestCache != nullptr
-        && contestCache->load(reminder.contestUrl, &contestPageInfo)
-        && contestPageInfo.totalProblems > 0) {
-        text += QString(" (%1/%2)")
-                    .arg(QString::number(contestPageInfo.solvedProblems),
-                         QString::number(contestPageInfo.totalProblems));
-    }
-    if (!reminder.deadlineText.isEmpty()) {
-        text += " | " + reminder.deadlineText;
-    }
-    return text;
+    return reminder.contestTitle;
 }
 
 bool shouldHideCompletedReminder(const DeadlineReminder &reminder,
@@ -131,6 +171,7 @@ HomePage::HomePage(ContestPageCache *contestCache, QWidget *parent)
     remindersTitle->setObjectName("homeSectionLabel");
     m_reminderListWidget = new QListWidget(remindersFrame);
     m_reminderListWidget->setObjectName("homeReminderList");
+    m_reminderListWidget->setItemDelegate(new ReminderItemDelegate(m_reminderListWidget));
     remindersColumn->addWidget(remindersTitle);
     remindersColumn->addWidget(m_reminderListWidget, 1);
 
@@ -239,11 +280,11 @@ void HomePage::showReminders(const QList<DeadlineReminder> &reminders)
     }
 
     for (const DeadlineReminder &reminder : visibleReminders) {
-        auto *item = new QListWidgetItem(
-            formatReminderContestTitle(reminder, m_contestCache),
-            m_reminderListWidget);
+        auto *item = new QListWidgetItem(formatReminderContestTitle(reminder),
+                                         m_reminderListWidget);
         item->setData(Qt::UserRole, reminder.contestUrl);
-        item->setData(Qt::UserRole + 1, reminder.contestTitle);
+        item->setData(ReminderTitleRole, reminder.contestTitle);
+        item->setData(ReminderDeadlineRole, reminder.deadlineText);
         item->setToolTip(
             QString("%1\n%2").arg(reminder.courseName, reminder.deadlineText));
     }

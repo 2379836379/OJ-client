@@ -3,79 +3,15 @@
 #include "ui/pageshell.h"
 #include "ui/uitheme.h"
 
-#include <QApplication>
 #include <QLabel>
 #include <QListWidget>
 #include <QListWidgetItem>
-#include <QPainter>
 #include <QPushButton>
 #include <QShortcut>
-#include <QStyledItemDelegate>
 #include <QVBoxLayout>
 
 namespace
 {
-constexpr int ProblemTextRole = Qt::UserRole + 1;
-constexpr int ProblemSolvedRole = Qt::UserRole + 2;
-
-class ContestProblemDelegate final : public QStyledItemDelegate
-{
-public:
-    using QStyledItemDelegate::QStyledItemDelegate;
-
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override
-    {
-        QStyleOptionViewItem opt(option);
-        initStyleOption(&opt, index);
-        opt.text.clear();
-        QStyle *style = opt.widget != nullptr ? opt.widget->style() : QApplication::style();
-        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
-
-        painter->save();
-        const QRect contentRect = opt.rect.adjusted(0, 0, 0, 0);
-        const QString title = index.data(ProblemTextRole).toString();
-        const bool solved = index.data(ProblemSolvedRole).toBool();
-        const QString status = solved ? QStringLiteral("finished") : QString();
-        const bool dark = opt.widget != nullptr && opt.widget->property("_darkMode").toBool();
-        QColor titleColor = opt.palette.color(QPalette::Text);
-        QColor statusColor = solved ? (dark ? QColor("#7CFF8A") : QColor("#23C552"))
-                                    : opt.palette.color(QPalette::Mid);
-        if (opt.state & QStyle::State_Selected) {
-            titleColor = dark ? QColor("#eff8ff") : QColor("#12343b");
-            statusColor = solved ? (dark ? QColor("#9BFF8C") : QColor("#2DD85F"))
-                                 : titleColor;
-        }
-
-        const int statusWidth = status.isEmpty() ? 0 : QFontMetrics(opt.font).horizontalAdvance(status);
-        QRect titleRect = contentRect;
-        if (statusWidth > 0) {
-            titleRect.setRight(contentRect.right() - statusWidth - 16);
-        }
-        painter->setFont(opt.font);
-        painter->setPen(titleColor);
-        painter->drawText(titleRect, Qt::AlignVCenter | Qt::AlignLeft,
-                          QFontMetrics(opt.font).elidedText(title, Qt::ElideRight, titleRect.width()));
-        if (!status.isEmpty()) {
-            QFont statusFont = opt.font;
-            statusFont.setBold(true);
-            painter->setFont(statusFont);
-            painter->setPen(statusColor);
-            painter->drawText(contentRect, Qt::AlignVCenter | Qt::AlignRight, status);
-        }
-        painter->restore();
-    }
-
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const override
-    {
-        QSize size = QStyledItemDelegate::sizeHint(option, index);
-        size.setHeight(qMax(size.height(), 42));
-        return size;
-    }
-};
-
 QString problemListStyle(bool dark)
 {
     const UiTheme::Palette colors = UiTheme::palette(dark);
@@ -107,9 +43,7 @@ ContestPage::ContestPage(QWidget *parent)
     m_titleLabel = new QLabel("Contest Set", m_shell);
     m_titleLabel->setObjectName("contestTitleLabel");
     m_problemListWidget = new QListWidget(m_shell);
-    m_problemListWidget->setProperty("_darkMode", false);
     m_problemListWidget->setMinimumHeight(420);
-    m_problemListWidget->setItemDelegate(new ContestProblemDelegate(m_problemListWidget));
 
     m_shell->contentLayout()->addWidget(m_titleLabel);
     m_shell->contentLayout()->addWidget(m_problemListWidget, 1);
@@ -147,15 +81,12 @@ void ContestPage::showProblems(const ContestPageInfo &contestPageInfo)
         const QString text = QString("%1 %2").arg(problem.problemId, problem.title);
         auto *item = new QListWidgetItem(text, m_problemListWidget);
         item->setData(Qt::UserRole, problem.problemUrl);
-        item->setData(ProblemTextRole, text);
-        item->setData(ProblemSolvedRole, problem.solved);
     }
 }
 
 void ContestPage::setDarkMode(bool dark)
 {
     m_darkMode = dark;
-    m_problemListWidget->setProperty("_darkMode", dark);
     const UiTheme::Palette colors = UiTheme::palette(dark);
     m_shell->setStyleSheet(
         UiTheme::pageShellStyleSheet(dark)
