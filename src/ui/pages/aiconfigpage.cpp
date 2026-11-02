@@ -18,7 +18,7 @@ QString aiConfigStyleSheet(bool dark)
                "  padding: 10px 14px;"
                "  border: 1px solid %1;"
                "  border-radius: 10px;"
-               "  background: %4;"
+               "  background: %2;"
                "  color: %3;"
                "}"
                "#aiConfigSaveButton:hover { background: %5; }"

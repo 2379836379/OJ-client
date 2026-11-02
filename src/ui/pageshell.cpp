@@ -7,7 +7,13 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QPushButton>
+#include <QShowEvent>
 #include <QVBoxLayout>
+
+namespace
+{
+bool sharedToolsExpanded = true;
+}
 
 PageShell::PageShell(QWidget *parent)
     : QWidget(parent)
@@ -54,7 +60,7 @@ PageShell::PageShell(QWidget *parent)
     bodyLayout->addWidget(toolsFrame, 1);
     bodyLayout->addWidget(contentFrame, 4);
     rootLayout->addLayout(bodyLayout, 1);
-    setToolsExpanded(true);
+    setToolsExpanded(sharedToolsExpanded);
     setDarkMode(false);
 }
 
@@ -136,6 +142,7 @@ void PageShell::setDarkMode(bool dark)
 
 void PageShell::setToolsExpanded(bool expanded)
 {
+    sharedToolsExpanded = expanded;
     m_toolsExpanded = expanded;
     m_toolsExpandedPanel->setVisible(expanded);
     m_toolsCollapsedPanel->setVisible(!expanded);
@@ -161,4 +168,10 @@ void PageShell::setToolsExpanded(bool expanded)
     }
     m_toolsToggle->setToolTip(expanded ? QStringLiteral("Collapse tools")
                                       : QStringLiteral("Expand tools"));
+}
+
+void PageShell::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    setToolsExpanded(sharedToolsExpanded);
 }

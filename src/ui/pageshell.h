@@ -6,6 +6,7 @@
 
 class QVBoxLayout;
 class QPushButton;
+class QShowEvent;
 
 class PageShell : public QWidget
 {
@@ -23,6 +24,9 @@ public:
     QPushButton *addThemeTool(const std::function<void()> &action);
 
     void setDarkMode(bool dark);
+
+protected:
+    void showEvent(QShowEvent *event) override;
 
 private:
     void setToolsExpanded(bool expanded);
